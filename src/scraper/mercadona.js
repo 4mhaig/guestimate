@@ -16,22 +16,47 @@ const BASE_URL = 'https://tienda.mercadona.es/api';
 // Categorías que nos interesan para eventos. Los nombres se
 // comparan en minúsculas contra el árbol de categorías real.
 export const RELEVANT_CATEGORIES = [
+  // Carne fresca y derivados (las secciones de Mercadona no llevan
+  // la palabra "carne", por eso hay que listarlas por su nombre real)
   'carne',
+  'aves',
+  'pollo',
+  'cerdo',
+  'vacuno',
+  'ternera',
+  'cordero',
+  'conejo',
+  'hamburguesas',
+  'picada',
+  'embutido',
+  'bacón',
+  'bacon',
+  'salchicha',
+  'jamón',
+  'jamon',
   'charcutería',
+  // Pescado y marisco
   'pescado',
   'marisco',
+  // Bebidas
   'refrescos',
   'agua',
   'cerveza',
   'vino',
+  'zumo',
+  // Pan y bollería
   'panadería',
   'bollería',
+  // Fruta y verdura
   'fruta',
   'verdura',
   'hortalizas',
+  // Lácteos y huevos
   'leche',
   'yogur',
+  'queso',
   'huevos',
+  // Aperitivos y postres
   'aperitivos',
   'snacks',
   'postres',
