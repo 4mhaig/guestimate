@@ -6,6 +6,7 @@ import {
   ArrowRight,
   Check,
   Copy,
+  RefreshCw,
   ShoppingBasket,
   Star,
   X,
@@ -26,6 +27,7 @@ import {
   type People,
   type Restriction,
 } from "@/lib/guestimate";
+import { resolveBasket, formatEuro, type ResolvedBasket } from "@/lib/products";
 import { supabase } from "@/lib/supabase";
 import { Stepper } from "@/components/guestimate/Stepper";
 import { AnimatedNumber } from "@/components/guestimate/AnimatedNumber";
@@ -101,6 +103,25 @@ function Index() {
       .filter((it) => !removed.has(it.id))
       .map((it) => (overrides[it.id] != null ? { ...it, qty: overrides[it.id] } : it));
   }, [rawItems, overrides, removed]);
+
+  // Productos concretos + precio (elección de opción por línea)
+  const [choices, setChoices] = useState<Record<string, number>>({});
+  const resolved: ResolvedBasket = useMemo(
+    () => resolveBasket(items, eventType, choices),
+    [items, eventType, choices],
+  );
+  const cycleChoice = (key: string) => {
+    let count = 0;
+    for (const g of resolved.groups) {
+      const line = g.lines.find((l) => l.key === key);
+      if (line) {
+        count = line.alternatives.length;
+        break;
+      }
+    }
+    if (count <= 1) return;
+    setChoices((prev) => ({ ...prev, [key]: ((prev[key] ?? 0) + 1) % count }));
+  };
 
   // Detect new items → fly animation
   useEffect(() => {
@@ -302,7 +323,8 @@ function Index() {
               )}
               {step === 4 && (
                 <Step4
-                  items={items}
+                  resolved={resolved}
+                  onCycle={cycleChoice}
                   eventType={eventType}
                   date={date}
                   totalPeople={totalPpl}
@@ -357,9 +379,8 @@ function Index() {
         <aside className="hidden lg:block">
           <div className="sticky top-24 h-[calc(100vh-7rem)] overflow-hidden rounded-2xl border border-border bg-card shadow-[0_1px_2px_rgba(0,0,0,0.04),0_8px_24px_rgba(0,0,0,0.06)]">
             <BasketPanel
-              items={items}
-              onAdjust={adjustItem}
-              onRemove={removeItem}
+              resolved={resolved}
+              onCycle={cycleChoice}
               registerIconTarget={(el) => (basketIconRef.current = el)}
             />
           </div>
@@ -401,7 +422,7 @@ function Index() {
                 </button>
               </div>
               <div className="h-[calc(85vh-3.25rem)]">
-                <BasketPanel items={items} onAdjust={adjustItem} onRemove={removeItem} />
+                <BasketPanel resolved={resolved} onCycle={cycleChoice} />
               </div>
             </motion.div>
           </motion.div>
@@ -704,7 +725,8 @@ function Step3({
 
 /* ---------- Step 4 ---------- */
 function Step4({
-  items,
+  resolved,
+  onCycle,
   eventType,
   date,
   totalPeople,
@@ -714,7 +736,8 @@ function Step4({
   saving,
   saved,
 }: {
-  items: Item[];
+  resolved: ResolvedBasket;
+  onCycle: (key: string) => void;
   eventType: EventType | null;
   date: string;
   totalPeople: number;
@@ -725,15 +748,14 @@ function Step4({
   saved: boolean;
 }) {
   const ev = EVENTS.find((e) => e.id === eventType);
-  const grouped = groupByCategory(items);
-  const cats = Object.keys(grouped) as Array<keyof typeof grouped>;
   const activeNotes = RESTRICTIONS.filter((r) => restrictions.includes(r.id) && r.note);
+  const lineCount = resolved.groups.reduce((s, g) => s + g.lines.length, 0);
   return (
     <div>
       <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Tu cesta para {ev?.name}</h1>
       <p className="mt-2 text-muted-foreground">
         Para {totalPeople} {totalPeople === 1 ? "persona" : "personas"}
-        {date ? ` · ${date}` : ""} · {items.length} productos
+        {date ? ` · ${date}` : ""} · {lineCount} productos
       </p>
 
       {activeNotes.length > 0 && (
@@ -753,36 +775,57 @@ function Step4({
       )}
 
       <div className="mt-8 space-y-6">
-        {cats.map((cat) => (
-          <div key={cat}>
-            <div className="mb-3 flex items-center gap-2">
-              <CategoryIcon
-                name={CATEGORY_META[cat].icon}
-                className="h-4 w-4 text-primary"
-                strokeWidth={1.6}
-              />
-              <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-                {CATEGORY_META[cat].label}
-              </h3>
+        {resolved.groups.map((g) => (
+          <div key={g.category}>
+            <div className="mb-3 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <CategoryIcon name={g.icon} className="h-4 w-4 text-primary" strokeWidth={1.6} />
+                <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+                  {g.label}
+                </h3>
+              </div>
+              <span className="text-xs tabular-nums text-muted-foreground">{formatEuro(g.cost)}</span>
             </div>
             <div className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card">
-              {grouped[cat].map((it) => (
-                <div key={it.id} className="flex items-center justify-between px-5 py-3.5">
-                  <span className="text-sm font-medium text-foreground">{it.name}</span>
-                  <div className="flex items-center gap-4">
-                    <span className="text-sm tabular-nums text-muted-foreground">{formatQty(it)}</span>
-                    <span className="w-12 text-right text-sm text-muted-foreground">—</span>
+              {g.lines.map((line) => {
+                const canSwap = line.alternatives.length > 1;
+                return (
+                  <div key={line.key} className="flex items-center gap-3 px-5 py-3.5">
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate text-sm font-medium text-foreground">
+                        {line.option.name}
+                      </div>
+                      <div className="text-xs text-muted-foreground">{line.amountLabel}</div>
+                    </div>
+                    <span className="shrink-0 text-sm font-semibold tabular-nums text-foreground">
+                      {line.cost > 0 ? formatEuro(line.cost) : "—"}
+                    </span>
+                    {canSwap && (
+                      <motion.button
+                        whileTap={{ scale: 0.85, rotate: -90 }}
+                        onClick={() => onCycle(line.key)}
+                        className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-secondary/15 text-secondary hover:bg-secondary/25"
+                        aria-label="Cambiar producto"
+                        title={`Cambiar (${line.alternatives.length} opciones)`}
+                      >
+                        <RefreshCw className="h-3.5 w-3.5" strokeWidth={2} />
+                      </motion.button>
+                    )}
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         ))}
       </div>
 
-      <p className="mt-4 text-xs text-muted-foreground">
-        Precios de Mercadona próximamente.
-      </p>
+      <div className="mt-6 flex items-center justify-between rounded-2xl border border-primary/30 bg-primary/5 px-5 py-4">
+        <div>
+          <div className="text-sm font-semibold text-foreground">Total aproximado</div>
+          <div className="text-xs text-muted-foreground">sin envío a domicilio</div>
+        </div>
+        <div className="text-2xl font-bold text-primary">{formatEuro(resolved.total)}</div>
+      </div>
 
       <div className="mt-8 flex flex-wrap gap-3">
         <motion.button

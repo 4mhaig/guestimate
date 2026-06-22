@@ -1,31 +1,22 @@
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { Minus, Plus, ShoppingBasket, X } from "lucide-react";
-import {
-  CATEGORY_META,
-  type Category,
-  type Item,
-  formatQty,
-  groupByCategory,
-} from "@/lib/guestimate";
+import { RefreshCw, ShoppingBasket } from "lucide-react";
 import { AnimatedNumber } from "./AnimatedNumber";
 import { CategoryIcon } from "./Icon";
+import { type ResolvedBasket, type ResolvedLine, formatEuro } from "@/lib/products";
 
 export function BasketPanel({
-  items,
-  onAdjust,
-  onRemove,
+  resolved,
+  onCycle,
   registerIconTarget,
   hideEmpty,
 }: {
-  items: Item[];
-  onAdjust?: (id: string, delta: number) => void;
-  onRemove?: (id: string) => void;
+  resolved: ResolvedBasket;
+  onCycle?: (key: string) => void;
   registerIconTarget?: (el: HTMLDivElement | null) => void;
   hideEmpty?: boolean;
 }) {
-  const grouped = groupByCategory(items);
-  const categories = Object.keys(grouped) as Category[];
-  const totalCount = items.length;
+  const { groups, total } = resolved;
+  const lineCount = groups.reduce((s, g) => s + g.lines.length, 0);
 
   return (
     <div className="flex h-full flex-col">
@@ -40,48 +31,50 @@ export function BasketPanel({
           <div>
             <div className="text-sm font-semibold text-foreground">Mi cesta</div>
             <div className="text-xs text-muted-foreground">
-              <AnimatedNumber value={totalCount} /> productos · total estimado
+              <AnimatedNumber value={lineCount} /> productos
             </div>
+          </div>
+        </div>
+        <div className="text-right">
+          <div className="text-lg font-bold text-foreground">{formatEuro(total)}</div>
+          <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
+            aprox · sin envío
           </div>
         </div>
       </div>
 
       <div className="flex-1 overflow-y-auto px-4 py-4">
-        {items.length === 0 && !hideEmpty && (
+        {lineCount === 0 && !hideEmpty && (
           <div className="grid h-full place-items-center px-6 text-center text-sm text-muted-foreground">
             Tu cesta está vacía. Elige un evento para empezar a llenarla.
           </div>
         )}
         <div className="space-y-5">
           <AnimatePresence initial={false}>
-            {categories.map((cat) => (
+            {groups.map((g) => (
               <motion.div
-                key={cat}
+                key={g.category}
                 layout
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -8 }}
                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
               >
-                <div className="mb-2 flex items-center gap-2 px-2">
-                  <CategoryIcon
-                    name={CATEGORY_META[cat].icon}
-                    className="h-4 w-4 text-primary"
-                    strokeWidth={1.6}
-                  />
-                  <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                    {CATEGORY_META[cat].label}
+                <div className="mb-2 flex items-center justify-between px-2">
+                  <div className="flex items-center gap-2">
+                    <CategoryIcon name={g.icon} className="h-4 w-4 text-primary" strokeWidth={1.6} />
+                    <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                      {g.label}
+                    </span>
+                  </div>
+                  <span className="text-[11px] tabular-nums text-muted-foreground">
+                    {formatEuro(g.cost)}
                   </span>
                 </div>
                 <div className="space-y-1">
                   <AnimatePresence initial={false}>
-                    {grouped[cat].map((it) => (
-                      <BasketRow
-                        key={it.id}
-                        item={it}
-                        onAdjust={onAdjust}
-                        onRemove={onRemove}
-                      />
+                    {g.lines.map((line) => (
+                      <ProductRow key={line.key} line={line} onCycle={onCycle} />
                     ))}
                   </AnimatePresence>
                 </div>
@@ -94,76 +87,57 @@ export function BasketPanel({
   );
 }
 
-function BasketRow({
-  item,
-  onAdjust,
-  onRemove,
+function ProductRow({
+  line,
+  onCycle,
 }: {
-  item: Item;
-  onAdjust?: (id: string, delta: number) => void;
-  onRemove?: (id: string) => void;
+  line: ResolvedLine;
+  onCycle?: (key: string) => void;
 }) {
   const reduced = useReducedMotion();
+  const canSwap = onCycle && line.alternatives.length > 1;
   return (
     <motion.div
       layout
-      drag={onRemove ? "x" : false}
-      dragConstraints={{ left: 0, right: 0 }}
-      dragElastic={0.4}
-      onDragEnd={(_, info) => {
-        if (onRemove && Math.abs(info.offset.x) > 120) onRemove(item.id);
-      }}
       initial={reduced ? { opacity: 0 } : { opacity: 0, x: -12 }}
       animate={{ opacity: 1, x: 0 }}
       exit={reduced ? { opacity: 0 } : { opacity: 0, x: 80 }}
       transition={{ type: "spring", stiffness: 320, damping: 28 }}
-      className="flex items-center justify-between rounded-xl bg-white px-3 py-2.5 hover:bg-muted/60"
+      className="flex items-center gap-3 rounded-xl bg-white px-3 py-2.5 hover:bg-muted/60"
     >
-      <div className="flex min-w-0 flex-1 items-center gap-3">
-        <motion.span
-          key={item.name}
+      <div className="min-w-0 flex-1">
+        <motion.div
+          key={line.option.name}
           initial={{ opacity: 0, y: 4 }}
           animate={{ opacity: 1, y: 0 }}
           className="truncate text-sm font-medium text-foreground"
         >
-          {item.name}
-        </motion.span>
+          {line.option.name}
+        </motion.div>
+        <div className="mt-0.5 flex items-center gap-2 text-xs text-muted-foreground">
+          <span>{line.amountLabel}</span>
+          {canSwap && (
+            <span className="text-[10px] text-muted-foreground/70">
+              {line.alternatives.findIndex((o) => o.id === line.option.id) + 1}/
+              {line.alternatives.length}
+            </span>
+          )}
+        </div>
       </div>
-      <div className="flex items-center gap-2">
-        <span className="min-w-[3.5rem] text-right text-sm tabular-nums text-muted-foreground">
-          {formatQty(item)}
-        </span>
-        {onAdjust && (
-          <div className="flex items-center gap-1">
-            <motion.button
-              whileTap={{ scale: 0.85 }}
-              onClick={() => onAdjust(item.id, -1)}
-              className="grid h-6 w-6 place-items-center rounded-full border border-border text-muted-foreground hover:text-foreground"
-              aria-label="Restar"
-            >
-              <Minus className="h-3 w-3" />
-            </motion.button>
-            <motion.button
-              whileTap={{ scale: 0.85 }}
-              onClick={() => onAdjust(item.id, 1)}
-              className="grid h-6 w-6 place-items-center rounded-full bg-primary/10 text-primary hover:bg-primary/15"
-              aria-label="Sumar"
-            >
-              <Plus className="h-3 w-3" />
-            </motion.button>
-            {onRemove && (
-              <motion.button
-                whileTap={{ scale: 0.85 }}
-                onClick={() => onRemove(item.id)}
-                className="ml-1 grid h-6 w-6 place-items-center rounded-full text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
-                aria-label="Eliminar"
-              >
-                <X className="h-3 w-3" />
-              </motion.button>
-            )}
-          </div>
-        )}
-      </div>
+      <span className="shrink-0 text-sm font-semibold tabular-nums text-foreground">
+        {line.cost > 0 ? formatEuro(line.cost) : "—"}
+      </span>
+      {canSwap && (
+        <motion.button
+          whileTap={{ scale: 0.85, rotate: -90 }}
+          onClick={() => onCycle?.(line.key)}
+          className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-secondary/15 text-secondary hover:bg-secondary/25"
+          aria-label="Cambiar producto"
+          title="Cambiar producto"
+        >
+          <RefreshCw className="h-3.5 w-3.5" strokeWidth={2} />
+        </motion.button>
+      )}
     </motion.div>
   );
 }
