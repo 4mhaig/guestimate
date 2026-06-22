@@ -1,0 +1,19 @@
+# Dependencias
+node_modules/
+
+# Variables de entorno (NUNCA subir claves a GitHub)
+.env
+.env.local
+.env.*.local
+
+# Datos generados por el scraper (productos descargados)
+data/products.json
+
+# Logs y temporales
+*.log
+.DS_Store
+npm-debug.log*
+
+# Editores
+.vscode/
+.idea/

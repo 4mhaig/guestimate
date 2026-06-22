@@ -1,0 +1,27 @@
+{
+  "name": "guestimate",
+  "version": "0.1.0",
+  "description": "Calcula cuánta comida y bebida necesitas para un evento, genera la lista de la compra y compara precios en Mercadona.",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "scrape": "node scripts/scrape.js",
+    "demo": "node scripts/demo.js",
+    "test": "node --test"
+  },
+  "keywords": [
+    "eventos",
+    "comida",
+    "lista-de-la-compra",
+    "mercadona",
+    "supabase"
+  ],
+  "author": "Maria Iglesias",
+  "license": "MIT",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.0",
+    "dotenv": "^16.4.5"
+  }
+}
