@@ -33,7 +33,7 @@ import {
   type SpecialEvents,
 } from "@/lib/guestimate";
 import { resolveBasket, formatEuro, DRINK_SLOTS, type ResolvedBasket } from "@/lib/products";
-import { supabase, signInWithGoogle, signOut } from "@/lib/supabase";
+import { supabase, signInWithEmail, signOut } from "@/lib/supabase";
 
 type AuthUser = { id: string; email?: string; name?: string; avatar?: string };
 import { Stepper } from "@/components/guestimate/Stepper";
@@ -97,13 +97,40 @@ function Index() {
   const [view, setView] = useState<View>("wizard");
   const [fbEvent, setFbEvent] = useState<{ id: string; label: string } | null>(null);
   const [user, setUser] = useState<AuthUser | null>(null);
+  const [authOpen, setAuthOpen] = useState(false);
+  const [authEmail, setAuthEmail] = useState("");
+  const [authSent, setAuthSent] = useState(false);
+  const [authBusy, setAuthBusy] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
 
-  // Sesión (login con Google)
+  const openAuth = () => {
+    setAuthSent(false);
+    setAuthError(null);
+    setAuthOpen(true);
+  };
+  const sendMagicLink = async () => {
+    if (!/.+@.+\..+/.test(authEmail)) {
+      setAuthError("Escribe un email válido.");
+      return;
+    }
+    setAuthBusy(true);
+    setAuthError(null);
+    const { error } = await signInWithEmail(authEmail.trim());
+    setAuthBusy(false);
+    if (error) setAuthError("No se pudo enviar el enlace. Inténtalo de nuevo.");
+    else setAuthSent(true);
+  };
+
+  // Sesión (login por enlace mágico)
   useEffect(() => {
     const mapUser = (u: any): AuthUser | null =>
       u ? { id: u.id, email: u.email, name: u.user_metadata?.name, avatar: u.user_metadata?.avatar_url } : null;
     supabase.auth.getSession().then(({ data }) => setUser(mapUser(data.session?.user)));
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => setUser(mapUser(session?.user)));
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
+      const u = mapUser(session?.user);
+      setUser(u);
+      if (u) setAuthOpen(false); // cerrar el modal al entrar
+    });
     return () => sub.subscription.unsubscribe();
   }, []);
   const [toast, setToast] = useState<string | null>(null);
@@ -219,7 +246,7 @@ function Index() {
     // Para guardar (y poder volver a la lista / dar feedback) hace falta sesión.
     if (!user) {
       showToast("Inicia sesión para guardar tu lista");
-      signInWithGoogle();
+      openAuth();
       return;
     }
     setSaving(true);
@@ -388,7 +415,7 @@ function Index() {
               </button>
             ) : (
               <button
-                onClick={() => signInWithGoogle()}
+                onClick={openAuth}
                 className="rounded-full bg-primary px-4 py-1.5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
               >
                 Entrar
@@ -399,7 +426,12 @@ function Index() {
       </header>
 
       {view === "saved" && (
-        <SavedListsView userId={user?.id ?? null} onFeedback={openFeedback} onNew={goHome} />
+        <SavedListsView
+          userId={user?.id ?? null}
+          onFeedback={openFeedback}
+          onNew={goHome}
+          onSignIn={openAuth}
+        />
       )}
 
       {view === "feedback" && (
@@ -565,6 +597,69 @@ function Index() {
       </>
       )}
 
+      {/* Modal de login por enlace mágico */}
+      <AnimatePresence>
+        {authOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[70] grid place-items-center bg-black/40 p-5"
+            onClick={() => setAuthOpen(false)}
+          >
+            <motion.div
+              onClick={(e) => e.stopPropagation()}
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="w-full max-w-sm rounded-2xl border border-border bg-card p-6 shadow-xl"
+            >
+              {authSent ? (
+                <div className="text-center">
+                  <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-accent text-primary">
+                    <Check className="h-7 w-7" strokeWidth={2.2} />
+                  </div>
+                  <h2 className="mt-4 text-lg font-bold text-foreground">Revisa tu email</h2>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Te hemos enviado un enlace a <span className="font-medium">{authEmail}</span>.
+                    Ábrelo para entrar (mira también spam).
+                  </p>
+                  <button
+                    onClick={() => setAuthOpen(false)}
+                    className="mt-5 rounded-full border border-border bg-background px-5 py-2 text-sm font-medium hover:bg-muted"
+                  >
+                    Cerrar
+                  </button>
+                </div>
+              ) : (
+                <div>
+                  <h2 className="text-lg font-bold text-foreground">Entrar en Guestimate</h2>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Pon tu email y te enviamos un enlace para entrar. Sin contraseñas.
+                  </p>
+                  <input
+                    type="email"
+                    value={authEmail}
+                    onChange={(e) => setAuthEmail(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && sendMagicLink()}
+                    placeholder="tu@email.com"
+                    className="mt-4 w-full rounded-xl border border-border bg-background px-4 py-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/15"
+                  />
+                  {authError && <p className="mt-2 text-xs text-destructive">{authError}</p>}
+                  <button
+                    onClick={sendMagicLink}
+                    disabled={authBusy}
+                    className="mt-4 w-full rounded-full bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50"
+                  >
+                    {authBusy ? "Enviando…" : "Enviar enlace"}
+                  </button>
+                </div>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Toast */}
       <AnimatePresence>
         {toast && (
@@ -594,10 +689,12 @@ function SavedListsView({
   userId,
   onFeedback,
   onNew,
+  onSignIn,
 }: {
   userId: string | null;
   onFeedback: (id: string, label: string) => void;
   onNew: () => void;
+  onSignIn: () => void;
 }) {
   const [rows, setRows] = useState<SavedRow[] | null>(null);
   const [failed, setFailed] = useState(false);
@@ -655,10 +752,10 @@ function SavedListsView({
         <div className="mt-10 rounded-2xl border border-dashed border-border p-10 text-center">
           <p className="text-sm text-muted-foreground">Inicia sesión para ver y guardar tus listas.</p>
           <button
-            onClick={() => signInWithGoogle()}
+            onClick={onSignIn}
             className="mt-4 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90"
           >
-            Entrar con Google
+            Entrar
           </button>
         </div>
       )}

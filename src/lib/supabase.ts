@@ -11,11 +11,11 @@ export const supabase = createClient(url, anonKey, {
   },
 });
 
-// Inicia sesión con Google (redirige a Google y vuelve a la app).
-export function signInWithGoogle() {
-  return supabase.auth.signInWithOAuth({
-    provider: "google",
-    options: { redirectTo: window.location.origin },
+// Envía un "enlace mágico" al email: el usuario lo abre y entra (sin contraseña).
+export function signInWithEmail(email: string) {
+  return supabase.auth.signInWithOtp({
+    email,
+    options: { emailRedirectTo: window.location.origin },
   });
 }
 
