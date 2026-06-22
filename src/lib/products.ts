@@ -179,6 +179,24 @@ export function resolveBasket(
   }
 
   const list = [...groups.values()].filter((g) => g.lines.length > 0);
+  // Fusionar líneas que apuntan al MISMO producto concreto (p.ej. una barbacoa
+  // dentro de una casa rural que repite "jamoncitos"): se suman cantidad y precio.
+  for (const g of list) {
+    const byId = new Map<string, ResolvedLine>();
+    const order: string[] = [];
+    for (const line of g.lines) {
+      const existing = byId.get(line.option.id);
+      if (existing) {
+        existing.amount += line.amount;
+        existing.cost = round2(existing.cost + line.cost);
+        existing.amountLabel = fmtAmount(existing.amount, existing.option.unit);
+      } else {
+        byId.set(line.option.id, { ...line });
+        order.push(line.option.id);
+      }
+    }
+    g.lines = order.map((id) => byId.get(id)!);
+  }
   list.forEach((g) => (g.cost = round2(g.lines.reduce((s, l) => s + l.cost, 0))));
   const total = round2(list.reduce((s, g) => s + g.cost, 0));
   return { groups: list, total };

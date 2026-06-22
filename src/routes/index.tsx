@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
   ArrowLeft,
@@ -701,7 +701,10 @@ function Step1({
   return (
     <div>
       <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">¿Qué estás organizando?</h1>
-      <p className="mt-2 text-muted-foreground">Elige el tipo de evento para empezar tu cesta.</p>
+      <p className="mt-2 max-w-xl text-muted-foreground">
+        Guestimate calcula cuánta comida y bebida necesitas según tus invitados y te arma la cesta
+        de la compra con productos y precios de Mercadona. Elige el tipo de evento para empezar.
+      </p>
       <div className="mt-8 grid gap-3 sm:grid-cols-2">
         {EVENTS.map((ev) => {
           const selected = ev.id === eventType;
@@ -933,53 +936,61 @@ function MealsTable({
             </tr>
           </thead>
           <tbody>
-            <tr className="border-t border-border">
-              <td className="py-2 pr-3 font-medium text-foreground">Aperitivo</td>
-              {dayCols.map((d) => {
-                const on = meals[d]?.aperitivo ?? false;
-                return (
-                  <td key={d} className="px-2 py-2 text-center">
-                    <motion.button
-                      whileTap={{ scale: 0.85 }}
-                      onClick={() => toggleAperitivo(d)}
-                      className={`h-7 w-12 rounded-full transition-colors ${on ? "bg-primary" : "bg-muted"}`}
-                      aria-label={`Aperitivo día ${d}`}
-                    >
-                      <motion.span
-                        layout
-                        className={`block h-5 w-5 rounded-full bg-white shadow ${on ? "ml-6" : "ml-1"}`}
-                      />
-                    </motion.button>
-                  </td>
-                );
-              })}
-            </tr>
             {mealRows.map((row) => (
-              <tr key={row.key} className="border-t border-border">
-                <td className="py-2 pr-3 text-foreground">{row.label}</td>
-                {dayCols.map((d) => {
-                  const on = meals[d]?.[row.key] ?? true;
-                  return (
-                    <td key={d} className="px-2 py-2 text-center">
-                      <motion.button
-                        whileTap={{ scale: 0.85 }}
-                        onClick={() => toggle(d, row.key)}
-                        className={`h-7 w-12 rounded-full transition-colors ${
-                          on ? "bg-primary" : "bg-muted"
-                        }`}
-                        aria-label={`${row.label} día ${d}`}
-                      >
-                        <motion.span
-                          layout
-                          className={`block h-5 w-5 rounded-full bg-white shadow ${
-                            on ? "ml-6" : "ml-1"
+              <Fragment key={row.key}>
+                <tr className="border-t border-border">
+                  <td className="py-2 pr-3 text-foreground">{row.label}</td>
+                  {dayCols.map((d) => {
+                    const on = meals[d]?.[row.key] ?? true;
+                    return (
+                      <td key={d} className="px-2 py-2 text-center">
+                        <motion.button
+                          whileTap={{ scale: 0.85 }}
+                          onClick={() => toggle(d, row.key)}
+                          className={`h-7 w-12 rounded-full transition-colors ${
+                            on ? "bg-primary" : "bg-muted"
                           }`}
-                        />
-                      </motion.button>
-                    </td>
-                  );
-                })}
-              </tr>
+                          aria-label={`${row.label} día ${d}`}
+                        >
+                          <motion.span
+                            layout
+                            className={`block h-5 w-5 rounded-full bg-white shadow ${
+                              on ? "ml-6" : "ml-1"
+                            }`}
+                          />
+                        </motion.button>
+                      </td>
+                    );
+                  })}
+                </tr>
+                {row.key === "desayuno" && (
+                  <tr className="border-t border-dashed border-border bg-accent/30">
+                    <td className="py-2 pr-3 font-medium text-foreground">Aperitivo</td>
+                    {dayCols.map((d) => {
+                      const on = meals[d]?.aperitivo ?? false;
+                      return (
+                        <td key={d} className="px-2 py-2 text-center">
+                          <motion.button
+                            whileTap={{ scale: 0.85 }}
+                            onClick={() => toggleAperitivo(d)}
+                            className={`h-7 w-12 rounded-full transition-colors ${
+                              on ? "bg-primary" : "bg-muted"
+                            }`}
+                            aria-label={`Aperitivo día ${d}`}
+                          >
+                            <motion.span
+                              layout
+                              className={`block h-5 w-5 rounded-full bg-white shadow ${
+                                on ? "ml-6" : "ml-1"
+                              }`}
+                            />
+                          </motion.button>
+                        </td>
+                      );
+                    })}
+                  </tr>
+                )}
+              </Fragment>
             ))}
           </tbody>
         </table>
@@ -1260,7 +1271,7 @@ function Step4({
             <div className="mb-3 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <CategoryIcon name={g.icon} className="h-4 w-4 text-primary" strokeWidth={1.6} />
-                <h3 className="font-display text-base font-semibold text-foreground">
+                <h3 className="font-display text-base font-semibold uppercase tracking-wide text-foreground">
                   {g.label}
                 </h3>
               </div>

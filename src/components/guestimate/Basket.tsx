@@ -65,7 +65,7 @@ export function BasketPanel({
                 <div className="mb-2 flex items-center justify-between px-2">
                   <div className="flex items-center gap-2">
                     <CategoryIcon name={g.icon} className="h-4 w-4 text-primary" strokeWidth={1.6} />
-                    <span className="font-display text-sm font-semibold text-foreground">
+                    <span className="font-display text-sm font-semibold uppercase tracking-wide text-foreground">
                       {g.label}
                     </span>
                   </div>
