@@ -193,12 +193,19 @@ const GROUP_BASICS: Portion[] = [
   { id: "condimentos", name: "Condimentos", category: "otros", per: 1, unit: "u" },
 ];
 
+// Evento especial dentro de una casa rural (una comida concreta del
+// viaje que es barbacoa o cumpleaños).
+export type SpecialEvent = "barbacoa" | "cumple";
+export type SpecialEvents = Record<number, SpecialEvent | null>;
+
 export function computeBasket(
   event: EventType | null,
   people: People,
   restrictions: Restriction[],
   days: number,
   meals: MealsConfig,
+  aperitivo: boolean = false,
+  specialEvents: SpecialEvents = {},
 ): Item[] {
   if (!event) return [];
   const map = new Map<string, Item>();
@@ -209,20 +216,37 @@ export function computeBasket(
     if (units === 0) return [];
     for (let d = 1; d <= days; d++) {
       const dayMeals = meals[d] || { desayuno: true, comida: true, merienda: true, cena: true };
+      const special = specialEvents[d];
       (Object.keys(dayMeals) as Meal[]).forEach((m) => {
         if (!dayMeals[m]) return;
         const mult = RURAL_MEAL_MULT[m];
         RURAL_MEALS[m].forEach((p) => {
-          add(map, p, p.per * units * mult);
+          let qty = p.per * units * mult;
+          // Si ese día hay barbacoa/cumpleaños, aplicamos su multiplicador
+          // a la comida y la cena (la celebración fuerte del día).
+          if (special && (m === "comida" || m === "cena")) {
+            qty *= eventMultiplier(special, p.category);
+          }
+          add(map, p, qty);
         });
       });
     }
     GROUP_BASICS.forEach((p) => add(map, p, p.per));
   } else {
     BASE_MEAL.forEach((p) => {
+      // Los aperitivos/snacks solo entran si el usuario activa el aperitivo
+      if (p.category === "snacks" && !aperitivo) return;
       const mult = eventMultiplier(event, p.category);
       add(map, p, p.per * units * mult);
     });
+    // Con aperitivo añadimos algo de picoteo (embutido y queso)
+    if (aperitivo) {
+      add(
+        map,
+        { id: "picoteo", name: "Embutido y queso para picar", category: "embutido", per: 70, unit: "g" },
+        70 * units,
+      );
+    }
   }
 
   // Apply restrictions

@@ -26,6 +26,8 @@ import {
   type MealsConfig,
   type People,
   type Restriction,
+  type SpecialEvent,
+  type SpecialEvents,
 } from "@/lib/guestimate";
 import { resolveBasket, formatEuro, type ResolvedBasket } from "@/lib/products";
 import { supabase } from "@/lib/supabase";
@@ -63,6 +65,8 @@ function Index() {
   });
   const [days, setDays] = useState(2);
   const [meals, setMeals] = useState<MealsConfig>(defaultMealsConfig(2));
+  const [aperitivo, setAperitivo] = useState(false);
+  const [specialEvents, setSpecialEvents] = useState<SpecialEvents>({});
   const [restrictions, setRestrictions] = useState<Restriction[]>([]);
   const [overrides, setOverrides] = useState<Record<string, number>>({});
   const [removed, setRemoved] = useState<Set<string>>(new Set());
@@ -95,8 +99,8 @@ function Index() {
 
   // Compute basket (debounced)
   const rawItems = useMemo(
-    () => computeBasket(eventType, people, restrictions, days, meals),
-    [eventType, people, restrictions, days, meals],
+    () => computeBasket(eventType, people, restrictions, days, meals, aperitivo, specialEvents),
+    [eventType, people, restrictions, days, meals, aperitivo, specialEvents],
   );
   const items: Item[] = useMemo(() => {
     return rawItems
@@ -316,10 +320,17 @@ function Index() {
                   setDays={setDays}
                   meals={meals}
                   setMeals={setMeals}
+                  specialEvents={specialEvents}
+                  setSpecialEvents={setSpecialEvents}
                 />
               )}
               {step === 3 && (
-                <Step3 restrictions={restrictions} setRestrictions={setRestrictions} />
+                <Step3
+                  restrictions={restrictions}
+                  setRestrictions={setRestrictions}
+                  aperitivo={aperitivo}
+                  setAperitivo={setAperitivo}
+                />
               )}
               {step === 4 && (
                 <Step4
@@ -552,6 +563,8 @@ function Step2({
   setDays,
   meals,
   setMeals,
+  specialEvents,
+  setSpecialEvents,
 }: {
   people: People;
   setPeople: (p: People) => void;
@@ -560,6 +573,8 @@ function Step2({
   setDays: (n: number) => void;
   meals: MealsConfig;
   setMeals: (m: MealsConfig) => void;
+  specialEvents: SpecialEvents;
+  setSpecialEvents: (s: SpecialEvents) => void;
 }) {
   const total = totalPeople(people);
   const rows: { key: keyof People; label: string }[] = [
@@ -593,7 +608,13 @@ function Step2({
           <div className="mb-4 max-w-xs">
             <Stepper label="¿Cuántos días?" value={days} onChange={(v) => setDays(Math.max(1, v))} min={1} />
           </div>
-          <MealsTable days={days} meals={meals} setMeals={setMeals} />
+          <MealsTable
+            days={days}
+            meals={meals}
+            setMeals={setMeals}
+            specialEvents={specialEvents}
+            setSpecialEvents={setSpecialEvents}
+          />
         </div>
       )}
     </div>
@@ -604,10 +625,14 @@ function MealsTable({
   days,
   meals,
   setMeals,
+  specialEvents,
+  setSpecialEvents,
 }: {
   days: number;
   meals: MealsConfig;
   setMeals: (m: MealsConfig) => void;
+  specialEvents: SpecialEvents;
+  setSpecialEvents: (s: SpecialEvents) => void;
 }) {
   const mealRows: { key: Meal; label: string }[] = [
     { key: "desayuno", label: "Desayuno" },
@@ -674,6 +699,34 @@ function MealsTable({
           </tbody>
         </table>
       </div>
+
+      <div className="mt-5 border-t border-border pt-4">
+        <h4 className="text-sm font-semibold text-foreground">¿Alguna celebración especial?</h4>
+        <p className="mt-0.5 text-xs text-muted-foreground">
+          Si un día hay barbacoa o cumpleaños, ajustamos las cantidades de ese día.
+        </p>
+        <div className="mt-3 space-y-2">
+          {dayCols.map((d) => (
+            <div key={d} className="flex items-center justify-between gap-3">
+              <span className="text-sm text-foreground">Día {d}</span>
+              <select
+                value={specialEvents[d] ?? ""}
+                onChange={(e) =>
+                  setSpecialEvents({
+                    ...specialEvents,
+                    [d]: (e.target.value || null) as SpecialEvent | null,
+                  })
+                }
+                className="rounded-lg border border-border bg-background px-3 py-1.5 text-sm text-foreground outline-none focus:border-primary"
+              >
+                <option value="">Día normal</option>
+                <option value="barbacoa">Barbacoa</option>
+                <option value="cumple">Cumpleaños</option>
+              </select>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
@@ -682,9 +735,13 @@ function MealsTable({
 function Step3({
   restrictions,
   setRestrictions,
+  aperitivo,
+  setAperitivo,
 }: {
   restrictions: Restriction[];
   setRestrictions: (r: Restriction[]) => void;
+  aperitivo: boolean;
+  setAperitivo: (b: boolean) => void;
 }) {
   const toggle = (id: Restriction) => {
     if (id === "ninguna") {
@@ -718,6 +775,40 @@ function Step3({
             </motion.button>
           );
         })}
+      </div>
+
+      <div className="mt-10">
+        <h2 className="text-lg font-semibold text-foreground">Antes de comer</h2>
+        <button
+          onClick={() => setAperitivo(!aperitivo)}
+          className={`mt-3 flex w-full items-center justify-between gap-4 rounded-2xl border p-4 text-left transition-all ${
+            aperitivo
+              ? "border-primary bg-accent"
+              : "border-border bg-card hover:border-primary/40"
+          }`}
+        >
+          <div>
+            <div className="text-sm font-semibold text-foreground">
+              ¿Habrá aperitivo antes de comer?
+            </div>
+            <div className="mt-0.5 text-sm text-muted-foreground">
+              Añade picoteo: patatas, aceitunas, frutos secos, embutido y queso.
+            </div>
+          </div>
+          <span
+            className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${
+              aperitivo ? "bg-primary" : "bg-muted-foreground/30"
+            }`}
+          >
+            <motion.span
+              layout
+              transition={{ type: "spring", stiffness: 500, damping: 30 }}
+              className={`inline-block h-5 w-5 rounded-full bg-white shadow ${
+                aperitivo ? "ml-[22px]" : "ml-0.5"
+              }`}
+            />
+          </span>
+        </button>
       </div>
     </div>
   );
