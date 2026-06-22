@@ -40,3 +40,6 @@ data-tools/data/products.json
 *.njsproj
 *.sln
 *.sw?
+
+# Vercel
+.vercel

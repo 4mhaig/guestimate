@@ -12,4 +12,6 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  // Despliegue en Vercel: genera .vercel/output que Vercel sirve directamente.
+  nitro: { preset: "vercel" },
 });
