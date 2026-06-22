@@ -700,8 +700,9 @@ function Step1({
     <div>
       <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">¿Qué estás organizando?</h1>
       <p className="mt-2 max-w-xl text-muted-foreground">
-        Guestimate calcula cuánta comida y bebida necesitas según tus invitados y te arma la cesta
-        de la compra con productos y precios de Mercadona. Elige el tipo de evento para empezar.
+        Dinos qué evento es, quién viene y qué coméis, y Guestimate calcula cuánta comida y bebida
+        necesitas y te arma la cesta con productos y precios de Mercadona. Empieza eligiendo el tipo
+        de evento.
       </p>
       <div className="mt-8 grid gap-3 sm:grid-cols-2">
         {EVENTS.map((ev) => {
@@ -1135,28 +1136,37 @@ function Step3({
                     on ? "" : "pointer-events-none opacity-40"
                   }`}
                 >
-                  {REST_PROFILES.map((p) => (
-                    <div key={p.key} className="flex items-center gap-1.5">
-                      <span className="text-xs text-muted-foreground">{p.label}</span>
-                      <button
-                        disabled={!on}
-                        onClick={() => setRestCount(r.id, p.key, (counts?.[p.key] ?? 0) - 1)}
-                        className="grid h-6 w-6 place-items-center rounded-full border border-border text-muted-foreground disabled:opacity-40 enabled:hover:text-foreground"
-                        aria-label={`Menos ${p.label}`}
+                  {REST_PROFILES.map((p) => {
+                    // Si en el evento no hay ese tipo de persona, el contador se deshabilita.
+                    const hasProfile = people[p.key] > 0;
+                    const dis = !on || !hasProfile;
+                    return (
+                      <div
+                        key={p.key}
+                        className={`flex items-center gap-1.5 ${dis ? "opacity-40" : ""}`}
+                        title={!hasProfile ? `No hay ${p.label.toLowerCase()} en el evento` : undefined}
                       >
-                        <Minus className="h-3 w-3" />
-                      </button>
-                      <span className="w-4 text-center text-sm tabular-nums">{counts?.[p.key] ?? 0}</span>
-                      <button
-                        disabled={!on}
-                        onClick={() => setRestCount(r.id, p.key, (counts?.[p.key] ?? 0) + 1)}
-                        className="grid h-6 w-6 place-items-center rounded-full bg-primary/10 text-primary disabled:opacity-40 enabled:hover:bg-primary/20"
-                        aria-label={`Más ${p.label}`}
-                      >
-                        <Plus className="h-3 w-3" />
-                      </button>
-                    </div>
-                  ))}
+                        <span className="text-xs text-muted-foreground">{p.label}</span>
+                        <button
+                          disabled={dis}
+                          onClick={() => setRestCount(r.id, p.key, (counts?.[p.key] ?? 0) - 1)}
+                          className="grid h-6 w-6 place-items-center rounded-full border border-border text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 enabled:hover:text-foreground"
+                          aria-label={`Menos ${p.label}`}
+                        >
+                          <Minus className="h-3 w-3" />
+                        </button>
+                        <span className="w-4 text-center text-sm tabular-nums">{counts?.[p.key] ?? 0}</span>
+                        <button
+                          disabled={dis}
+                          onClick={() => setRestCount(r.id, p.key, (counts?.[p.key] ?? 0) + 1)}
+                          className="grid h-6 w-6 place-items-center rounded-full bg-primary/10 text-primary disabled:cursor-not-allowed disabled:opacity-50 enabled:hover:bg-primary/20"
+                          aria-label={`Más ${p.label}`}
+                        >
+                          <Plus className="h-3 w-3" />
+                        </button>
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </div>

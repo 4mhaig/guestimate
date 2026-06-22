@@ -389,9 +389,40 @@ export const CATALOG: Record<string, CatalogSlot[]> = {
   ],
   "ensalada:nochebuena": [
     {
+      "id": "hoja",
+      "label": "Ensalada festiva",
+      "share": 0.4,
+      "options": [
+        {
+          "id": "69706",
+          "name": "Ensalada mezcla 4 estaciones lavada",
+          "price": 3.4,
+          "unit": "kg",
+          "packPrice": 0.85,
+          "image": "https://prod-mercadona.imgix.net/images/521b7ea477692d5b5ae5835f2aea842c.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "69670",
+          "name": "Lechuga iceberg cortada y lavada",
+          "price": 3.8,
+          "unit": "kg",
+          "packPrice": 0.95,
+          "image": "https://prod-mercadona.imgix.net/images/d4731916c523231e46eca0ff925913c7.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "3858",
+          "name": "Aguacates",
+          "price": 4.7,
+          "unit": "kg",
+          "packPrice": 3.43,
+          "image": "https://prod-mercadona.imgix.net/images/3626a39afce23381b73d55fb7a4a3c7d.jpg?fit=crop&h=300&w=300"
+        }
+      ]
+    },
+    {
       "id": "marisco_entrante",
       "label": "Marisco para entrante",
-      "share": 0.5,
+      "share": 0.6,
       "options": [
         {
           "id": "24712",
@@ -450,6 +481,196 @@ export const CATALOG: Record<string, CatalogSlot[]> = {
         }
       ],
       "cat": "embutido"
+    }
+  ],
+  "snacks:cumple": [
+    {
+      "id": "patatas_fritas",
+      "label": "Patatas fritas y chips",
+      "share": 0.4,
+      "options": [
+        {
+          "id": "22245",
+          "name": "Patatas fritas clásicas Hacendado",
+          "price": 6,
+          "unit": "kg",
+          "packPrice": 1.8,
+          "image": "https://prod-mercadona.imgix.net/images/daa5379864f490d809e6272ea964a119.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "33640",
+          "name": "Nachos Hacendado",
+          "price": 6,
+          "unit": "kg",
+          "packPrice": 0.9,
+          "image": "https://prod-mercadona.imgix.net/images/5ea6209ff18125614b1c278484587d91.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "16387",
+          "name": "Nachos Padrísimos Hacendado sabor guacamole",
+          "price": 6.33,
+          "unit": "kg",
+          "packPrice": 0.95,
+          "image": "https://prod-mercadona.imgix.net/images/b8ef2dc650a5f2dd7f83fd1ba50493ec.jpg?fit=crop&h=300&w=300"
+        }
+      ]
+    },
+    {
+      "id": "palomitas",
+      "label": "Palomitas y gusanitos",
+      "share": 0.35,
+      "options": [
+        {
+          "id": "14347",
+          "name": "Maíz palomitas Hacendado",
+          "price": 3.5,
+          "unit": "kg",
+          "packPrice": 1.05,
+          "image": "https://prod-mercadona.imgix.net/images/49e0537f51ab71a7a023fa71695d6b94.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "34822",
+          "name": "Palomitas de maíz con sal Hacendado para microondas",
+          "price": 4.07,
+          "unit": "kg",
+          "packPrice": 1.1,
+          "image": "https://prod-mercadona.imgix.net/images/8c805bca1beb58b91fccd2eba51e18e5.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "34212",
+          "name": "Palomitas de maíz sabor mantequilla Hacendado para microondas",
+          "price": 4.44,
+          "unit": "kg",
+          "packPrice": 1.2,
+          "image": "https://prod-mercadona.imgix.net/images/f8ea8d436cfb80f7e563563cbe8b9316.jpg?fit=crop&h=300&w=300"
+        }
+      ]
+    },
+    {
+      "id": "frutos_secos",
+      "label": "Frutos secos",
+      "share": 0.25,
+      "options": [
+        {
+          "id": "34820",
+          "name": "Cacahuete frito con sal Hacendado pelado",
+          "price": 3.6,
+          "unit": "kg",
+          "packPrice": 0.9,
+          "image": "https://prod-mercadona.imgix.net/images/621404b6085cae9938997dd3f360b029.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "34031",
+          "name": "Cacahuete tostado Hacendado 0% sal añadida",
+          "price": 3.88,
+          "unit": "kg",
+          "packPrice": 1.55,
+          "image": "https://prod-mercadona.imgix.net/images/09cec547e9ac6bbfa54ada3a03176248.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "34016",
+          "name": "Cacahuete tostado con sal Hacendado",
+          "price": 4.13,
+          "unit": "kg",
+          "packPrice": 1.65,
+          "image": "https://prod-mercadona.imgix.net/images/b335759dffb927abd3ea0b2c13deafa9.jpg?fit=crop&h=300&w=300"
+        }
+      ]
+    }
+  ],
+  "snacks:nochebuena": [
+    {
+      "id": "frutos_secos",
+      "label": "Frutos secos premium",
+      "share": 0.4,
+      "options": [
+        {
+          "id": "34606",
+          "name": "Nuez natural Hacendado",
+          "price": 6.17,
+          "unit": "kg",
+          "packPrice": 3.7,
+          "image": "https://prod-mercadona.imgix.net/images/d1899ae163ff39ebd4f7f1896a0478a7.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "34865",
+          "name": "Almendra natural Hacendado",
+          "price": 11.5,
+          "unit": "kg",
+          "packPrice": 2.3,
+          "image": "https://prod-mercadona.imgix.net/images/b0be61b365cd2b6090deafd0a6ad9e41.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "11960",
+          "name": "Almendra tostada y salada Hacendado con piel",
+          "price": 12,
+          "unit": "kg",
+          "packPrice": 2.4,
+          "image": "https://prod-mercadona.imgix.net/images/43d5b21b2cbc97b548532678e85163c1.jpg?fit=crop&h=300&w=300"
+        }
+      ]
+    },
+    {
+      "id": "aceitunas",
+      "label": "Aceitunas y encurtidos",
+      "share": 0.3,
+      "options": [
+        {
+          "id": "5480",
+          "name": "Pepinillos agridulces Hacendado",
+          "price": 2.24,
+          "unit": "kg",
+          "packPrice": 1.5,
+          "image": "https://prod-mercadona.imgix.net/images/b7077958ad551c3f823ac44034cd1f67.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "33026",
+          "name": "Mix de pepinillos y cebollitas Hacendado",
+          "price": 2.76,
+          "unit": "kg",
+          "packPrice": 1.85,
+          "image": "https://prod-mercadona.imgix.net/images/514932d49e6bf9d404520b71bb8b5267.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "22910",
+          "name": "Aceitunas verdes rellenas de anchoa Hacendado",
+          "price": 2.86,
+          "unit": "kg",
+          "packPrice": 3,
+          "image": "https://prod-mercadona.imgix.net/images/a8be4414722e79192b356a7f3ababbc0.jpg?fit=crop&h=300&w=300"
+        }
+      ]
+    },
+    {
+      "id": "picos",
+      "label": "Picos y regañás",
+      "share": 0.3,
+      "options": [
+        {
+          "id": "82287",
+          "name": "Pan tostado classic Hacendado",
+          "price": 3.09,
+          "unit": "kg",
+          "packPrice": 1.7,
+          "image": "https://prod-mercadona.imgix.net/images/1d7a425e6f2f3c735d48c7c2393f0fbf.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "86008",
+          "name": "Pan tostado 100% integral",
+          "price": 3.27,
+          "unit": "kg",
+          "packPrice": 1.8,
+          "image": "https://prod-mercadona.imgix.net/images/5de413d561d2f5a1df428beaeb6746cb.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "83789",
+          "name": "Pan tostado 100% integral bajo en sal y en azúcares Hacendado",
+          "price": 4.07,
+          "unit": "kg",
+          "packPrice": 2.2,
+          "image": "https://prod-mercadona.imgix.net/images/04649845ba2e5c3286480fb1c73d84f7.jpg?fit=crop&h=300&w=300"
+        }
+      ]
     }
   ],
   "carne:barbacoa": [
@@ -797,7 +1018,7 @@ export const CATALOG: Record<string, CatalogSlot[]> = {
     {
       "id": "hoja",
       "label": "Lechuga / bolsa de ensalada",
-      "share": 0.6,
+      "share": 0.45,
       "options": [
         {
           "id": "69706",
@@ -827,8 +1048,39 @@ export const CATALOG: Record<string, CatalogSlot[]> = {
     },
     {
       "id": "tomate",
-      "label": "Tomate y crudités",
-      "share": 0.4,
+      "label": "Tomate",
+      "share": 0.3,
+      "options": [
+        {
+          "id": "69912",
+          "name": "Tomate pera",
+          "price": 1.8,
+          "unit": "kg",
+          "packPrice": 0.23,
+          "image": "https://prod-mercadona.imgix.net/images/29e2448e80d5a23e8fc907138e551748.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "69975",
+          "name": "Tomates pera",
+          "price": 1.9,
+          "unit": "kg",
+          "packPrice": 2,
+          "image": "https://prod-mercadona.imgix.net/images/40027e42b9ec9f0693e8f6eb09e1e213.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "69971",
+          "name": "Tomates",
+          "price": 2.1,
+          "unit": "kg",
+          "packPrice": 4.2,
+          "image": "https://prod-mercadona.imgix.net/images/8d8b0344fdd594338795d6d4e7f496aa.jpg?fit=crop&h=300&w=300"
+        }
+      ]
+    },
+    {
+      "id": "crudites",
+      "label": "Crudités (zanahoria, pepino, aguacate)",
+      "share": 0.25,
       "options": [
         {
           "id": "69586",
@@ -847,12 +1099,12 @@ export const CATALOG: Record<string, CatalogSlot[]> = {
           "image": "https://prod-mercadona.imgix.net/images/a1e854648225054f10d2bac80ca7ca98.jpg?fit=crop&h=300&w=300"
         },
         {
-          "id": "69079",
-          "name": "Cebollas",
-          "price": 1.6,
+          "id": "69275",
+          "name": "Apio verde",
+          "price": 2,
           "unit": "kg",
-          "packPrice": 3.2,
-          "image": "https://prod-mercadona.imgix.net/images/c8d94c6563bfadc845df944fe483bfca.jpg?fit=crop&h=300&w=300"
+          "packPrice": 1.32,
+          "image": "https://prod-mercadona.imgix.net/images/a601293be34844dafbb636e4f79b307f.jpg?fit=crop&h=300&w=300"
         }
       ]
     }
@@ -862,6 +1114,167 @@ export const CATALOG: Record<string, CatalogSlot[]> = {
       "id": "patata",
       "label": "Patatas",
       "share": 1,
+      "options": [
+        {
+          "id": "61405",
+          "name": "Patatas prefritas corte grueso Hacendado ultracongeladas",
+          "price": 1.5,
+          "unit": "kg",
+          "packPrice": 3,
+          "image": "https://prod-mercadona.imgix.net/images/5fe57720adc49ea7a458cf7db5148525.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "69166",
+          "name": "Patatas",
+          "price": 1.55,
+          "unit": "kg",
+          "packPrice": 4.65,
+          "image": "https://prod-mercadona.imgix.net/images/9a13af8fac3aa3f71d6b8098d7e9b176.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "61421",
+          "name": "Patatas prefritas corte fino Hacendado ultracongeladas",
+          "price": 1.85,
+          "unit": "kg",
+          "packPrice": 1.85,
+          "image": "https://prod-mercadona.imgix.net/images/ec0f8aa82a38e94c28092bdefaa1f16e.jpg?fit=crop&h=300&w=300"
+        }
+      ]
+    }
+  ],
+  "guarnicion:barbacoa": [
+    {
+      "id": "patata",
+      "label": "Patatas para asar",
+      "share": 0.6,
+      "options": [
+        {
+          "id": "61405",
+          "name": "Patatas prefritas corte grueso Hacendado ultracongeladas",
+          "price": 1.5,
+          "unit": "kg",
+          "packPrice": 3,
+          "image": "https://prod-mercadona.imgix.net/images/5fe57720adc49ea7a458cf7db5148525.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "69166",
+          "name": "Patatas",
+          "price": 1.55,
+          "unit": "kg",
+          "packPrice": 4.65,
+          "image": "https://prod-mercadona.imgix.net/images/9a13af8fac3aa3f71d6b8098d7e9b176.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "61421",
+          "name": "Patatas prefritas corte fino Hacendado ultracongeladas",
+          "price": 1.85,
+          "unit": "kg",
+          "packPrice": 1.85,
+          "image": "https://prod-mercadona.imgix.net/images/ec0f8aa82a38e94c28092bdefaa1f16e.jpg?fit=crop&h=300&w=300"
+        }
+      ]
+    },
+    {
+      "id": "ensaladilla",
+      "label": "Ensaladilla y guarnición",
+      "share": 0.4,
+      "options": [
+        {
+          "id": "61101",
+          "name": "Ensaladilla Hacendado ultracongelada",
+          "price": 1.1,
+          "unit": "kg",
+          "packPrice": 1.1,
+          "image": "https://prod-mercadona.imgix.net/images/2207791ea61f6613e34ad96bb909d9ab.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "52534",
+          "name": "Menestra de verduras Hacendado ultracongelada",
+          "price": 1.75,
+          "unit": "kg",
+          "packPrice": 1.75,
+          "image": "https://prod-mercadona.imgix.net/images/cda982b20663598e095ee29141b906fc.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "61289",
+          "name": "Maíz dulce Hacendado ultracongelado",
+          "price": 3.1,
+          "unit": "kg",
+          "packPrice": 1.24,
+          "image": "https://prod-mercadona.imgix.net/images/be6852af02a87787b9dad6356b8069aa.jpg?fit=crop&h=300&w=300"
+        }
+      ]
+    }
+  ],
+  "guarnicion:cumple": [
+    {
+      "id": "patatas_fritas",
+      "label": "Patatas fritas",
+      "share": 0.6,
+      "options": [
+        {
+          "id": "22245",
+          "name": "Patatas fritas clásicas Hacendado",
+          "price": 6,
+          "unit": "kg",
+          "packPrice": 1.8,
+          "image": "https://prod-mercadona.imgix.net/images/daa5379864f490d809e6272ea964a119.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "15589",
+          "name": "Patatas fritas corte ondulado Hacendado",
+          "price": 7.33,
+          "unit": "kg",
+          "packPrice": 1.1,
+          "image": "https://prod-mercadona.imgix.net/images/edc2fc7f9b7e7a1447cce4255b0b66f2.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "33624",
+          "name": "Patatas fritas paja Hacendado",
+          "price": 7.5,
+          "unit": "kg",
+          "packPrice": 1.5,
+          "image": "https://prod-mercadona.imgix.net/images/041e7b535d424e28406da126b2ef7656.jpg?fit=crop&h=300&w=300"
+        }
+      ]
+    },
+    {
+      "id": "palomitas",
+      "label": "Palomitas y gusanitos",
+      "share": 0.4,
+      "options": [
+        {
+          "id": "14347",
+          "name": "Maíz palomitas Hacendado",
+          "price": 3.5,
+          "unit": "kg",
+          "packPrice": 1.05,
+          "image": "https://prod-mercadona.imgix.net/images/49e0537f51ab71a7a023fa71695d6b94.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "34822",
+          "name": "Palomitas de maíz con sal Hacendado para microondas",
+          "price": 4.07,
+          "unit": "kg",
+          "packPrice": 1.1,
+          "image": "https://prod-mercadona.imgix.net/images/8c805bca1beb58b91fccd2eba51e18e5.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "34212",
+          "name": "Palomitas de maíz sabor mantequilla Hacendado para microondas",
+          "price": 4.44,
+          "unit": "kg",
+          "packPrice": 1.2,
+          "image": "https://prod-mercadona.imgix.net/images/f8ea8d436cfb80f7e563563cbe8b9316.jpg?fit=crop&h=300&w=300"
+        }
+      ]
+    }
+  ],
+  "guarnicion:nochebuena": [
+    {
+      "id": "asar",
+      "label": "Patatas panaderas / asar",
+      "share": 0.6,
       "options": [
         {
           "id": "69166",
@@ -886,6 +1299,37 @@ export const CATALOG: Record<string, CatalogSlot[]> = {
           "unit": "kg",
           "packPrice": 3.8,
           "image": "https://prod-mercadona.imgix.net/images/12962dac735b6d3c60e7448d339640a8.jpg?fit=crop&h=300&w=300"
+        }
+      ]
+    },
+    {
+      "id": "guarnicion_festiva",
+      "label": "Guarnición festiva",
+      "share": 0.4,
+      "options": [
+        {
+          "id": "52534",
+          "name": "Menestra de verduras Hacendado ultracongelada",
+          "price": 1.75,
+          "unit": "kg",
+          "packPrice": 1.75,
+          "image": "https://prod-mercadona.imgix.net/images/cda982b20663598e095ee29141b906fc.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "61025",
+          "name": "Salteado de setas Hacendado ultracongeladas",
+          "price": 3.58,
+          "unit": "kg",
+          "packPrice": 1.61,
+          "image": "https://prod-mercadona.imgix.net/images/a62440f5e0d22babc59dd602b87cfee2.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "35900",
+          "name": "Salteado de gambas, espárragos verdes, ajos tiernos, champiñón y cebolla Hacendado ultracongelado",
+          "price": 6.44,
+          "unit": "kg",
+          "packPrice": 2.9,
+          "image": "https://prod-mercadona.imgix.net/images/77aaa4c3dcbd08ce70f4e5626000c420.jpg?fit=crop&h=300&w=300"
         }
       ]
     }

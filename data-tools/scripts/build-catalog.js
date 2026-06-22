@@ -51,10 +51,22 @@ const SPECS = {
     { id: 'marisco', label: 'Marisco', share: 0.35, cats: ['Marisco y pescado', 'Congelados'], inc: /langostino|gambón|gamba|marisco|mejillón|almeja|pulpo/i, unit: 'kg', n: 3 },
     { id: 'iberico_premium', label: 'Ibérico y solomillo', share: 0.3, cats: ['Carne'], inc: /presa|secreto|solomillo|ibérico|entrecot/i, unit: 'kg', n: 3 },
   ],
-  // ---- ENTRANTES Nochebuena (en lugar de ensalada normal) ----
+  // ---- ENTRANTES Nochebuena (ensalada festiva + marisco; tabla va a embutido) ----
   'ensalada:nochebuena': [
-    { id: 'marisco_entrante', label: 'Marisco para entrante', share: 0.5, cats: ['Marisco y pescado', 'Congelados'], inc: /langostino|gambón|salpicón|salmón ahumado|gulas|cóctel de marisco/i, unit: 'kg', n: 3 },
+    { id: 'hoja', label: 'Ensalada festiva', share: 0.4, cats: ['Fruta y verdura'], inc: /lechuga|ensalada|brotes|canónigos|rúcula|escarola|aguacate/i, exc: /tomate/i, unit: 'kg', n: 3 },
+    { id: 'marisco_entrante', label: 'Marisco para entrante', share: 0.6, cats: ['Marisco y pescado', 'Congelados'], inc: /langostino|gambón|salpicón|salmón ahumado|gulas|cóctel de marisco/i, unit: 'kg', n: 3 },
     { id: 'tabla', label: 'Tabla de ibéricos y queso', share: 0.5, cat: 'embutido', cats: ['Charcutería y quesos'], inc: /ibérico|jamón|queso (curado|viejo|manchego|mezcla)|paté|cuña/i, exc: /rallado|batido|fresco|0%/i, unit: 'kg', n: 3 },
+  ],
+  // ---- APERITIVO / SNACKS por evento ----
+  'snacks:cumple': [
+    { id: 'patatas_fritas', label: 'Patatas fritas y chips', share: 0.4, cats: ['Aperitivos'], inc: /patatas fritas|chips|nachos/i, unit: 'kg', n: 3 },
+    { id: 'palomitas', label: 'Palomitas y gusanitos', share: 0.35, cats: ['Aperitivos'], inc: /palomita|gusanito|ganchito|cortez/i, unit: 'kg', n: 3 },
+    { id: 'frutos_secos', label: 'Frutos secos', share: 0.25, cats: ['Aperitivos'], inc: /cacahuete|cóctel|frutos secos/i, unit: 'kg', n: 3 },
+  ],
+  'snacks:nochebuena': [
+    { id: 'frutos_secos', label: 'Frutos secos premium', share: 0.4, cats: ['Aperitivos'], inc: /almendra|nuez|nueces|pistacho|anacardo|cóctel/i, unit: 'kg', n: 3 },
+    { id: 'aceitunas', label: 'Aceitunas y encurtidos', share: 0.3, cats: ['Aperitivos', 'Conservas, caldos y cremas'], inc: /aceituna|banderilla|encurtido|pepinillo/i, unit: 'kg', n: 3 },
+    { id: 'picos', label: 'Picos y regañás', share: 0.3, cats: ['Panadería y pastelería', 'Aperitivos'], inc: /picos|regaña|colines|pan tostado/i, unit: 'kg', n: 3 },
   ],
   // ---- CARNE barbacoa (variada) ----
   'carne:barbacoa': [
@@ -81,12 +93,25 @@ const SPECS = {
   ],
   // ---- ENSALADA / VERDURA ----
   ensalada: [
-    { id: 'hoja', label: 'Lechuga / bolsa de ensalada', share: 0.6, cats: ['Fruta y verdura'], inc: /lechuga|ensalada|brotes|canónigos|rúcula|escarola/i, exc: /tomate/i, unit: 'kg', n: 3 },
-    { id: 'tomate', label: 'Tomate y crudités', share: 0.4, cats: ['Fruta y verdura'], inc: /tomate|pepino|zanahoria|pimiento|cebolla/i, unit: 'kg', n: 3 },
+    { id: 'hoja', label: 'Lechuga / bolsa de ensalada', share: 0.45, cats: ['Fruta y verdura'], inc: /lechuga|ensalada|brotes|canónigos|rúcula|escarola/i, exc: /tomate/i, unit: 'kg', n: 3 },
+    { id: 'tomate', label: 'Tomate', share: 0.3, cats: ['Fruta y verdura'], inc: /tomate/i, unit: 'kg', n: 3 },
+    { id: 'crudites', label: 'Crudités (zanahoria, pepino, aguacate)', share: 0.25, cats: ['Fruta y verdura'], inc: /zanahoria|pepino|pimiento|aguacate|apio/i, unit: 'kg', n: 3 },
   ],
   // ---- GUARNICIÓN ----
   guarnicion: [
-    { id: 'patata', label: 'Patatas', share: 1, cats: ['Fruta y verdura', 'Congelados'], inc: /patata/i, exc: /fritas|chips|snack/i, unit: 'kg', n: 3 },
+    { id: 'patata', label: 'Patatas', share: 1, cats: ['Fruta y verdura', 'Congelados'], inc: /patata/i, exc: /chips|snack|onduladas|sabor/i, unit: 'kg', n: 3 },
+  ],
+  'guarnicion:barbacoa': [
+    { id: 'patata', label: 'Patatas para asar', share: 0.6, cats: ['Fruta y verdura', 'Congelados'], inc: /patata/i, exc: /chips|snack|onduladas|sabor/i, unit: 'kg', n: 3 },
+    { id: 'ensaladilla', label: 'Ensaladilla y guarnición', share: 0.4, cats: ['Congelados', 'Fruta y verdura', 'Conservas, caldos y cremas'], inc: /ensaladilla|maíz|menestra|pimiento asado/i, unit: 'kg', n: 3 },
+  ],
+  'guarnicion:cumple': [
+    { id: 'patatas_fritas', label: 'Patatas fritas', share: 0.6, cats: ['Aperitivos'], inc: /patatas fritas|chips/i, unit: 'kg', n: 3 },
+    { id: 'palomitas', label: 'Palomitas y gusanitos', share: 0.4, cats: ['Aperitivos'], inc: /palomita|gusanito|ganchito|cortez/i, unit: 'kg', n: 3 },
+  ],
+  'guarnicion:nochebuena': [
+    { id: 'asar', label: 'Patatas panaderas / asar', share: 0.6, cats: ['Fruta y verdura', 'Congelados'], inc: /patata/i, exc: /chips|snack|onduladas|sabor|fritas/i, unit: 'kg', n: 3 },
+    { id: 'guarnicion_festiva', label: 'Guarnición festiva', share: 0.4, cats: ['Congelados', 'Fruta y verdura'], inc: /espárrago|champiñón|setas|menestra|pimiento del piquillo|puré/i, unit: 'kg', n: 3 },
   ],
   // ---- POSTRE (general) ----
   postre: [
