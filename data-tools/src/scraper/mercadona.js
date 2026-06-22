@@ -71,6 +71,11 @@ export const RELEVANT_CATEGORIES = [
   'azúcar',
   'café',
   'infusi',
+  // Pasta, arroz y legumbres (muy socorrido, sobre todo en casa rural)
+  'arroz',
+  'pasta',
+  'legumbre',
+  'fideo',
   // Limpieza / hogar (papel de cocina, bolsas de basura)
   'papel',
   'celulosa',

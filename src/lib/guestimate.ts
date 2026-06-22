@@ -307,9 +307,14 @@ function applyRestrictions(
   fractions: Partial<Record<Restriction, number>>,
 ): Item[] {
   const out: Item[] = [];
+  // Sin alcohol: si lo tienen todos se quita; si solo algunos, se reduce.
+  const noAlcoholFrac = restrictions.includes("sin_alcohol") ? fractions["sin_alcohol"] ?? 1 : 0;
   for (const item of list) {
-    // Sin alcohol: se quita la bebida alcohólica de la lista.
-    if (restrictions.includes("sin_alcohol") && item.category === "bebida_con") continue;
+    if (item.category === "bebida_con" && noAlcoholFrac > 0) {
+      if (noAlcoholFrac >= 1) continue;
+      out.push({ ...item, qty: Math.round(item.qty * (1 - noAlcoholFrac)) });
+      continue;
+    }
 
     const rule = SPLIT_RULES.find((rl) => restrictions.includes(rl.r) && rl.affects(item));
     if (!rule) {

@@ -24,15 +24,17 @@ const APP_ROOT = join(ROOT, '..');
 //
 // spec de slot: { id, label, share, cats:[categorías], inc:/regex/, exc:/regex/, unit:"kg"|"L", n }
 const SPECS = {
-  // ---- CARNE estándar (comida familiar, etc.) ----
+  // ---- CARNE estándar (comida familiar, casa rural...) ----
   carne: [
-    { id: 'pollo', label: 'Pollo', share: 0.5, cats: ['Carne'], inc: /pechuga de pollo|muslo|contramuslo de pollo|jamoncit/i, unit: 'kg', n: 3 },
-    { id: 'cerdo_ternera', label: 'Cerdo / ternera', share: 0.5, cats: ['Carne'], inc: /chuleta.*cerdo|lomo de cerdo|filete.*ternera|aguja|entrecot|cinta de lomo/i, unit: 'kg', n: 3 },
+    { id: 'pollo', label: 'Pollo', share: 0.35, cats: ['Carne'], inc: /pechuga de pollo|muslo|contramuslo de pollo|jamoncit|pollo entero/i, unit: 'kg', n: 3 },
+    { id: 'cerdo', label: 'Cerdo', share: 0.35, cats: ['Carne'], inc: /chuleta.*cerdo|lomo de cerdo|secreto|aguja de cerdo|cinta de lomo|magro/i, unit: 'kg', n: 3 },
+    { id: 'ternera_pavo', label: 'Ternera / pavo', share: 0.3, cats: ['Carne'], inc: /ternera|añojo|vacuno|filetes? (de )?pavo|pechuga de pavo|escalope/i, exc: /cerdo/i, unit: 'kg', n: 3 },
   ],
   // ---- CARNE comida familiar (asado/guiso) ----
   'carne:familiar': [
-    { id: 'pollo', label: 'Pollo', share: 0.5, cats: ['Carne'], inc: /pechuga de pollo|muslo|contramuslo|jamoncit|pollo entero/i, unit: 'kg', n: 3 },
-    { id: 'guiso_asado', label: 'Cerdo / ternera para asar o guisar', share: 0.5, cats: ['Carne'], inc: /entrecot|aguja|lomo de cerdo|chuleta.*cerdo|cinta de lomo|morcillo/i, unit: 'kg', n: 3 },
+    { id: 'pollo', label: 'Pollo', share: 0.35, cats: ['Carne'], inc: /pechuga de pollo|muslo|contramuslo|jamoncit|pollo entero/i, unit: 'kg', n: 3 },
+    { id: 'cerdo', label: 'Cerdo', share: 0.35, cats: ['Carne'], inc: /lomo de cerdo|chuleta.*cerdo|aguja de cerdo|cinta de lomo|secreto|magro/i, unit: 'kg', n: 3 },
+    { id: 'ternera_pavo', label: 'Ternera / pavo', share: 0.3, cats: ['Carne'], inc: /ternera|añojo|vacuno|morcillo|filetes? (de )?pavo|pechuga de pavo|escalope/i, exc: /cerdo/i, unit: 'kg', n: 3 },
   ],
   // ---- CARNE cumpleaños (para picar, apto niños) ----
   'carne:cumple': [
@@ -97,9 +99,10 @@ const SPECS = {
     { id: 'tomate', label: 'Tomate', share: 0.3, cats: ['Fruta y verdura'], inc: /tomate/i, unit: 'kg', n: 3 },
     { id: 'crudites', label: 'Crudités (zanahoria, pepino, aguacate)', share: 0.25, cats: ['Fruta y verdura'], inc: /zanahoria|pepino|pimiento|aguacate|apio/i, unit: 'kg', n: 3 },
   ],
-  // ---- GUARNICIÓN ----
+  // ---- GUARNICIÓN (patata + pasta/arroz, muy socorrido en casa rural) ----
   guarnicion: [
-    { id: 'patata', label: 'Patatas', share: 1, cats: ['Fruta y verdura', 'Congelados'], inc: /patata/i, exc: /chips|snack|onduladas|sabor/i, unit: 'kg', n: 3 },
+    { id: 'patata', label: 'Patatas', share: 0.5, cats: ['Fruta y verdura', 'Congelados'], inc: /patata/i, exc: /chips|snack|onduladas|sabor/i, unit: 'kg', n: 3 },
+    { id: 'pasta_arroz', label: 'Pasta y arroz', share: 0.5, cats: ['Arroz, legumbres y pasta'], inc: /espagueti|macarr|tallarin|penne|fusilli|espiral|hélice|pasta|^arroz|fideo/i, exc: /sésamo|tahini|integral en|salsa|queso en polvo/i, unit: 'kg', n: 3 },
   ],
   'guarnicion:barbacoa': [
     { id: 'patata', label: 'Patatas para asar', share: 0.6, cats: ['Fruta y verdura', 'Congelados'], inc: /patata/i, exc: /chips|snack|onduladas|sabor/i, unit: 'kg', n: 3 },

@@ -1110,7 +1110,6 @@ function Step3({
       <div className="mt-8 space-y-2.5">
         {RESTRICTIONS.filter((r) => r.id !== "ninguna").map((r) => {
           const on = restrictions.includes(r.id);
-          const split = SPLIT_RESTRICTIONS.includes(r.id);
           const counts = restrictionCounts[r.id];
           return (
             <div
@@ -1130,7 +1129,7 @@ function Step3({
               >
                 {r.label}
               </motion.button>
-              {split && (
+              {(
                 <div
                   className={`flex flex-wrap gap-x-4 gap-y-2 ${
                     on ? "" : "pointer-events-none opacity-40"
