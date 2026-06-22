@@ -90,6 +90,25 @@ export function resolveBasket(
   };
 
   for (const item of items) {
+    // Productos especiales por restricción (sin gluten, legumbres, sin lactosa...).
+    // No tienen producto concreto de catálogo todavía: se muestran como línea aparte.
+    if (item.id.startsWith("sub_")) {
+      if (removed.has(item.id)) continue;
+      const g = ensureGroup(item.category);
+      const amount = item.unit === "u" ? item.qty : item.qty / 1000;
+      const unit = item.unit === "g" ? "kg" : item.unit === "ml" ? "L" : "ud";
+      g.lines.push({
+        key: item.id,
+        slotLabel: item.name,
+        option: { id: item.id, name: item.name, price: 0, unit, packPrice: null, image: null },
+        alternatives: [],
+        amount,
+        amountLabel: fmtAmount(amount, unit),
+        cost: 0,
+      });
+      continue;
+    }
+
     // Básicos de grupo (casa rural): aceite, sal, café, papel...
     if (item.category === "otros") {
       if (removed.has(item.id)) continue;

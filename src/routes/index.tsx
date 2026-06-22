@@ -85,6 +85,7 @@ function Index() {
   const [aperitivo, setAperitivo] = useState(false);
   const [specialEvents, setSpecialEvents] = useState<SpecialEvents>({});
   const [restrictions, setRestrictions] = useState<Restriction[]>([]);
+  const [restrictionCounts, setRestrictionCounts] = useState<Record<string, number>>({});
   const [specialRequests, setSpecialRequests] = useState("");
   const [overrides, setOverrides] = useState<Record<string, number>>({});
   const [removed, setRemoved] = useState<Set<string>>(new Set());
@@ -122,8 +123,9 @@ function Index() {
 
   // Compute basket (debounced)
   const rawItems = useMemo(
-    () => computeBasket(eventType, people, restrictions, days, meals, aperitivo, specialEvents),
-    [eventType, people, restrictions, days, meals, aperitivo, specialEvents],
+    () =>
+      computeBasket(eventType, people, restrictions, days, meals, aperitivo, specialEvents, restrictionCounts),
+    [eventType, people, restrictions, days, meals, aperitivo, specialEvents, restrictionCounts],
   );
   const items: Item[] = useMemo(() => {
     return rawItems
@@ -192,6 +194,7 @@ function Index() {
     setAperitivo(false);
     setSpecialEvents({});
     setRestrictions([]);
+    setRestrictionCounts({});
     setSpecialRequests("");
     setChoices({});
     setRemovedLines(new Set());
@@ -413,6 +416,9 @@ function Index() {
                 <Step3
                   restrictions={restrictions}
                   setRestrictions={setRestrictions}
+                  restrictionCounts={restrictionCounts}
+                  setRestrictionCounts={setRestrictionCounts}
+                  totalPeople={totalPpl}
                   drinks={drinks}
                   toggleDrink={toggleDrink}
                   specialRequests={specialRequests}
@@ -1002,9 +1008,14 @@ const DRINK_LABELS: Record<string, string> = {
   vino: "Vino",
 };
 
+const SPLIT_RESTRICTIONS = ["vegano", "vegetariano", "celiaco", "lactosa", "sin_cerdo"];
+
 function Step3({
   restrictions,
   setRestrictions,
+  restrictionCounts,
+  setRestrictionCounts,
+  totalPeople,
   drinks,
   toggleDrink,
   specialRequests,
@@ -1012,6 +1023,9 @@ function Step3({
 }: {
   restrictions: Restriction[];
   setRestrictions: (r: Restriction[]) => void;
+  restrictionCounts: Record<string, number>;
+  setRestrictionCounts: (c: Record<string, number>) => void;
+  totalPeople: number;
   drinks: Set<string>;
   toggleDrink: (id: string) => void;
   specialRequests: string;
@@ -1068,6 +1082,41 @@ function Step3({
           );
         })}
       </div>
+
+      {restrictions.some((r) => SPLIT_RESTRICTIONS.includes(r)) && (
+        <div className="mt-6 rounded-2xl border border-border bg-card p-4">
+          <p className="text-sm font-medium text-foreground">¿Cuántas personas tienen cada restricción?</p>
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            Así calculamos cuánto comprar de cada cosa (normal y especial).
+          </p>
+          <div className="mt-3 space-y-2">
+            {restrictions
+              .filter((r) => SPLIT_RESTRICTIONS.includes(r))
+              .map((r) => {
+                const label = RESTRICTIONS.find((x) => x.id === r)?.label ?? r;
+                const val = restrictionCounts[r] ?? totalPeople;
+                return (
+                  <div key={r} className="flex items-center justify-between gap-3">
+                    <span className="text-sm text-foreground">{label}</span>
+                    <input
+                      type="number"
+                      min={0}
+                      max={totalPeople}
+                      value={val}
+                      onChange={(e) =>
+                        setRestrictionCounts({
+                          ...restrictionCounts,
+                          [r]: Math.max(0, Math.min(totalPeople, Number(e.target.value) || 0)),
+                        })
+                      }
+                      className="w-20 rounded-lg border border-border bg-background px-3 py-1.5 text-sm text-foreground outline-none focus:border-primary"
+                    />
+                  </div>
+                );
+              })}
+          </div>
+        </div>
+      )}
 
       <div className="mt-10">
         <h2 className="font-display text-lg font-semibold text-foreground">Bebidas</h2>

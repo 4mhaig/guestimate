@@ -206,10 +206,12 @@ export function computeBasket(
   meals: MealsConfig,
   aperitivo: boolean = false,
   specialEvents: SpecialEvents = {},
+  restrictionCounts: Partial<Record<Restriction, number>> = {},
 ): Item[] {
   if (!event) return [];
   const map = new Map<string, Item>();
   const units = adultUnits(people);
+  const headcount = totalPeople(people);
   if (units === 0 && event !== "rural") return [];
 
   if (event === "rural") {
@@ -262,36 +264,57 @@ export function computeBasket(
   const list = Array.from(map.values());
   const hasNinguna = restrictions.includes("ninguna");
   const active = hasNinguna ? [] : restrictions;
-
-  return list
-    .map((it) => transformItem(it, active))
-    .filter((it): it is Item => it !== null);
+  return applyRestrictions(list, active, restrictionCounts, headcount);
 }
 
-function transformItem(item: Item, restrictions: Restriction[]): Item | null {
-  let it = { ...item };
-  for (const r of restrictions) {
-    if (r === "sin_alcohol" && it.category === "bebida_con") return null;
-    if (r === "celiaco" && (it.category === "pan" || it.id.includes("pasta"))) {
-      it = { ...it, name: it.name.replace(/\s+sin gluten$/i, "") + " sin gluten" };
+// Reglas de sustitución: una restricción afecta a una categoría y la
+// parte afectada pasa a un producto especial (id con prefijo "sub_").
+type SplitRule = {
+  r: Restriction;
+  affects: (it: Item) => boolean;
+  to: (it: Item) => { name: string; id: string };
+};
+const SPLIT_RULES: SplitRule[] = [
+  { r: "vegano", affects: (it) => it.category === "carne", to: () => ({ name: "Legumbres / tofu", id: "sub_legumbres" }) },
+  { r: "vegano", affects: (it) => it.category === "lacteos", to: () => ({ name: "Bebida vegetal", id: "sub_bebida_vegetal" }) },
+  { r: "vegano", affects: (it) => it.category === "embutido", to: () => ({ name: "Paté vegetal / queso vegano", id: "sub_embutido_veg" }) },
+  { r: "vegetariano", affects: (it) => it.category === "carne", to: () => ({ name: "Legumbres / tofu", id: "sub_legumbres" }) },
+  { r: "celiaco", affects: (it) => it.category === "pan" || it.id.includes("pasta"), to: (it) => ({ name: it.name + " sin gluten", id: "sub_" + it.id + "_sg" }) },
+  { r: "lactosa", affects: (it) => it.category === "lacteos", to: () => ({ name: "Lácteos sin lactosa", id: "sub_lacteos_sl" }) },
+  { r: "sin_cerdo", affects: (it) => it.category === "embutido", to: () => ({ name: "Embutido de pavo", id: "sub_embutido_pavo" }) },
+];
+
+function applyRestrictions(
+  list: Item[],
+  restrictions: Restriction[],
+  counts: Partial<Record<Restriction, number>>,
+  headcount: number,
+): Item[] {
+  const out: Item[] = [];
+  for (const item of list) {
+    // Sin alcohol: se quita la bebida alcohólica de la lista.
+    if (restrictions.includes("sin_alcohol") && item.category === "bebida_con") continue;
+
+    const rule = SPLIT_RULES.find((rl) => restrictions.includes(rl.r) && rl.affects(item));
+    if (!rule) {
+      out.push(item);
+      continue;
     }
-    if (r === "lactosa" && it.category === "lacteos") {
-      it = { ...it, name: "Lácteos sin lactosa" };
-    }
-    if ((r === "vegano" || r === "vegetariano") && it.category === "carne") {
-      it = { ...it, name: "Legumbres / tofu", id: "legumbres" };
-    }
-    if (r === "vegano" && it.category === "lacteos") {
-      it = { ...it, name: "Bebida vegetal", id: "bebida_vegetal" };
-    }
-    if (r === "vegano" && it.category === "embutido") {
-      it = { ...it, name: "Paté vegetal y queso vegano", id: "embutido_vegano" };
-    }
-    if (r === "sin_cerdo" && it.category === "embutido") {
-      it = { ...it, name: "Embutido (pavo) y queso" };
+    // Fracción de personas con esa restricción (si no se indica, se asume todas).
+    const c = counts[rule.r];
+    const f = c == null ? 1 : headcount > 0 ? Math.max(0, Math.min(1, c / headcount)) : 1;
+    if (f >= 1) {
+      const t = rule.to(item);
+      out.push({ ...item, name: t.name, id: t.id });
+    } else if (f <= 0) {
+      out.push(item);
+    } else {
+      const t = rule.to(item);
+      out.push({ ...item, qty: Math.round(item.qty * (1 - f)) });
+      out.push({ ...item, name: t.name, id: t.id, qty: Math.round(item.qty * f) });
     }
   }
-  return it;
+  return out;
 }
 
 export function formatQty(it: Item): string {
