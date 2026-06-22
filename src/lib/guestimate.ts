@@ -41,6 +41,7 @@ export type Category =
   | "embutido"
   | "fruta"
   | "entrante"
+  | "desayuno"
   | "otros";
 
 export type Item = {
@@ -91,6 +92,7 @@ export const CATEGORY_META: Record<Category, { label: string; icon: string }> = 
   embutido: { label: "Embutidos y queso", icon: "Beef" },
   fruta: { label: "Fruta", icon: "Salad" },
   entrante: { label: "Entrantes y marisco", icon: "Fish" },
+  desayuno: { label: "Desayuno", icon: "Croissant" },
   otros: { label: "Básicos y otros", icon: "ShoppingBasket" },
 };
 
@@ -118,8 +120,9 @@ const BASE_MEAL: Portion[] = [
 const RURAL_MEALS: Record<Meal, Portion[]> = {
   desayuno: [
     { id: "pan", name: "Pan y bollería", category: "pan", per: 80, unit: "g" },
+    { id: "bolleria", name: "Galletas y bollería de desayuno", category: "desayuno", per: 50, unit: "g" },
     { id: "lacteos", name: "Leche / yogur", category: "lacteos", per: 250, unit: "ml" },
-    { id: "embutido_queso", name: "Embutido y queso", category: "embutido", per: 50, unit: "g" },
+    { id: "embutido_queso", name: "Embutido y queso", category: "embutido", per: 40, unit: "g" },
     { id: "fruta", name: "Fruta", category: "fruta", per: 150, unit: "g" },
     { id: "bebida_sin", name: "Bebida (agua, refresco, zumo)", category: "bebida_sin", per: 300, unit: "ml" },
   ],
@@ -252,6 +255,11 @@ export function computeBasket(
       }
     }
     GROUP_BASICS.forEach((p) => add(map, p, p.per));
+    // Huevos para el desayuno (escala con personas y días): ~0,5 huevo por
+    // persona y día → docenas. Solo si hay algún desayuno en el viaje.
+    const breakfastDays = Object.values(meals).filter((m) => m?.desayuno).length || days;
+    const eggDocenas = Math.max(1, Math.ceil((totalPeople(people) * breakfastDays * 0.5) / 12));
+    add(map, { id: "huevos", name: "Huevos", category: "otros", per: eggDocenas, unit: "u" }, eggDocenas);
   } else {
     BASE_MEAL.forEach((p) => {
       // Los aperitivos/snacks solo entran si el usuario activa el aperitivo

@@ -156,6 +156,10 @@ const SPECS = {
     { id: 'embutido', label: 'Jamón y embutido', share: 0.6, cats: ['Charcutería y quesos', 'Carne'], inc: /jamón (serrano|cocido|york)|chorizo|salchichón|lomo|mortadela|pavo lonchas|fuet/i, unit: 'kg', n: 3 },
     { id: 'queso', label: 'Queso', share: 0.4, cats: ['Charcutería y quesos'], inc: /queso/i, exc: /rallado|crema/i, unit: 'kg', n: 3 },
   ],
+  // ---- DESAYUNO (galletas y bollería) ----
+  desayuno: [
+    { id: 'bolleria', label: 'Galletas y bollería', share: 1, cats: ['Panadería y pastelería'], inc: /galleta|magdalena|bizcocho|napolitana|sobao|croissant|donut|palmera|tostada de desayuno|bollo/i, exc: /salada|salado|sésamo|orégano|arroz|integral en|soluble|achicoria|cracker/i, unit: 'kg', n: 3 },
+  ],
   // ---- FRUTA (variada: varias piezas, no una sola) ----
   fruta: [
     { id: 'melon_sandia', label: 'Melón / sandía', share: 0.3, cats: ['Fruta y verdura'], inc: /sandía|melón|piña/i, unit: 'kg', n: 3 },
@@ -176,6 +180,7 @@ const BASICS = {
   cafe: /^café molido|^café natural|^café en grano/i,
   azucar: /^azúcar/i,
   condimentos: /kétchup|ketchup|mayonesa|mostaza/i,
+  huevos: /^huevos/i,
 };
 
 function pickOptions(products, spec) {

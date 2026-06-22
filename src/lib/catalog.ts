@@ -1924,6 +1924,39 @@ export const CATALOG: Record<string, CatalogSlot[]> = {
       ]
     }
   ],
+  "desayuno": [
+    {
+      "id": "bolleria",
+      "label": "Galletas y bollería",
+      "share": 1,
+      "options": [
+        {
+          "id": "60846",
+          "name": "Magdalenas Hacendado",
+          "price": 3.64,
+          "unit": "kg",
+          "packPrice": 2,
+          "image": "https://prod-mercadona.imgix.net/images/7d86884645fb0122ac70cb84514e1f8c.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "82699",
+          "name": "Sobaos Hacendado",
+          "price": 4.17,
+          "unit": "kg",
+          "packPrice": 2,
+          "image": "https://prod-mercadona.imgix.net/images/da9142870ffe1a47746b2c3f02c71716.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "82931",
+          "name": "Croissant Hacendado",
+          "price": 4.3,
+          "unit": "kg",
+          "packPrice": 1.85,
+          "image": "https://prod-mercadona.imgix.net/images/d586f3c22dacbfeee339548690651c36.jpg?fit=crop&h=300&w=300"
+        }
+      ]
+    }
+  ],
   "fruta": [
     {
       "id": "melon_sandia",
@@ -2092,5 +2125,10 @@ export const BASICS: Record<string, BasicProduct> = {
     "name": "Salsa Miel y Mostaza Hacendado",
     "price": 1.45,
     "image": "https://prod-mercadona.imgix.net/images/bf1910aae611cceecb9f3f477905425b.jpg?fit=crop&h=300&w=300"
+  },
+  "huevos": {
+    "name": "Huevos grandes L",
+    "price": 1.8,
+    "image": "https://prod-mercadona.imgix.net/images/f320cc362d58afd514c38aae399c6cec.jpg?fit=crop&h=300&w=300"
   }
 };
