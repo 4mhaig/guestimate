@@ -39,7 +39,7 @@ export const RELEVANT_CATEGORIES = [
   'pescado',
   'marisco',
   // Bebidas
-  'refrescos',
+  'refresco',
   'agua',
   'cerveza',
   'vino',
@@ -47,10 +47,12 @@ export const RELEVANT_CATEGORIES = [
   // Pan y bollería
   'panadería',
   'bollería',
+  'pan',
   // Fruta y verdura
   'fruta',
   'verdura',
   'hortalizas',
+  'lechuga',
   // Lácteos y huevos
   'leche',
   'yogur',
@@ -60,6 +62,20 @@ export const RELEVANT_CATEGORIES = [
   'aperitivos',
   'snacks',
   'postres',
+  'aceituna',
+  'encurtid',
+  // Despensa básica (para casa rural y condimentos)
+  'aceite',
+  'especia',
+  'salsa',
+  'azúcar',
+  'café',
+  'infusi',
+  // Limpieza / hogar (papel de cocina, bolsas de basura)
+  'papel',
+  'celulosa',
+  'basura',
+  'limpieza',
 ];
 
 async function api(path, postalCode) {
