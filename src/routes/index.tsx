@@ -49,7 +49,12 @@ export const Route = createFileRoute("/")({
 });
 
 type Step = 1 | 2 | 3 | 4 | 5;
-type FlyTask = { id: number; label: string; from: { x: number; y: number } };
+type FlyTask = {
+  id: number;
+  label: string;
+  from: { x: number; y: number };
+  to: { x: number; y: number };
+};
 
 const STEP_LABELS = ["Evento", "Personas", "Restricciones", "Cesta", "Feedback"];
 
@@ -141,10 +146,17 @@ function Index() {
       newOnes.forEach((it) => seenIdsRef.current.add(it.id));
       return;
     }
-    const tasks: FlyTask[] = newOnes.slice(0, 6).map((it, i) => ({
-      id: Date.now() + i,
+    // Calculamos el destino UNA vez (centro del icono de la cesta).
+    const to = {
+      x: target.left + target.width / 2 - 18,
+      y: target.top + target.height / 2 - 14,
+    };
+    const baseId = Date.now();
+    const tasks: FlyTask[] = newOnes.slice(0, 3).map((it, i) => ({
+      id: baseId + i,
       label: it.name,
-      from: { x: window.innerWidth / 2 - 40, y: window.innerHeight / 2 - 20 },
+      from: { x: window.innerWidth / 2 - 24, y: window.innerHeight * 0.42 },
+      to,
     }));
     setFlyTasks((t) => [...t, ...tasks]);
     newOnes.forEach((it) => seenIdsRef.current.add(it.id));
@@ -443,8 +455,6 @@ function Index() {
       {/* Fly-to-basket overlay */}
       <FlyOverlay
         tasks={flyTasks}
-        targetRef={basketIconRef}
-        fallbackRef={mobileBasketRef}
         onDone={(id) => setFlyTasks((t) => t.filter((x) => x.id !== id))}
       />
 
@@ -1107,47 +1117,37 @@ function MobileBasketButton({
 /* ---------- Fly overlay ---------- */
 function FlyOverlay({
   tasks,
-  targetRef,
-  fallbackRef,
   onDone,
 }: {
   tasks: FlyTask[];
-  targetRef: React.RefObject<HTMLDivElement | null>;
-  fallbackRef: React.RefObject<HTMLButtonElement | null>;
   onDone: (id: number) => void;
 }) {
   return (
     <div className="pointer-events-none fixed inset-0 z-[55]">
       <AnimatePresence>
         {tasks.map((t, idx) => {
-          const target =
-            targetRef.current?.getBoundingClientRect() ??
-            fallbackRef.current?.getBoundingClientRect();
-          if (!target) {
-            setTimeout(() => onDone(t.id), 0);
-            return null;
-          }
-          const tx = target.left + target.width / 2 - 40;
-          const ty = target.top + target.height / 2 - 16;
+          // Arco suave: punto de control elevado a mitad de camino.
+          const midX = (t.from.x + t.to.x) / 2;
+          const midY = Math.min(t.from.y, t.to.y) - 70;
           return (
             <motion.div
               key={t.id}
-              initial={{
-                x: t.from.x,
-                y: t.from.y,
-                opacity: 0,
-                scale: 0.6,
-              }}
+              initial={{ x: t.from.x, y: t.from.y, opacity: 0, scale: 0.7 }}
               animate={{
-                x: [t.from.x, (t.from.x + tx) / 2, tx],
-                y: [t.from.y, Math.min(t.from.y, ty) - 80, ty],
-                opacity: [0, 1, 0.8, 0],
-                scale: [0.6, 1, 0.8, 0.3],
+                x: [t.from.x, midX, t.to.x],
+                y: [t.from.y, midY, t.to.y],
+                opacity: [0, 1, 0],
+                scale: [0.7, 1, 0.4],
               }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.7, delay: idx * 0.06, ease: "easeInOut" }}
+              transition={{
+                duration: 0.6,
+                delay: idx * 0.08,
+                ease: [0.22, 1, 0.36, 1],
+                times: [0, 0.5, 1],
+              }}
               onAnimationComplete={() => onDone(t.id)}
-              className="absolute left-0 top-0 rounded-full bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground shadow-lg"
+              className="absolute left-0 top-0 max-w-[150px] truncate rounded-full bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground shadow-lg"
             >
               + {t.label}
             </motion.div>
