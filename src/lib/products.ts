@@ -166,7 +166,9 @@ export function resolveBasket(
       const amount = item.unit === "u" ? slotQty : slotQty / 1000; // → kg/L
       const idx = Math.min(Math.max(0, choices[lineKey] ?? 0), slot.options.length - 1);
       const option = slot.options[idx];
-      g.lines.push({
+      // Un slot puede ir a otra categoría (p.ej. el queso de "cena de amigos" → embutido).
+      const target = ensureGroup((slot.cat as Category) ?? item.category);
+      target.lines.push({
         key: lineKey,
         slotLabel: slot.label,
         option,

@@ -14,6 +14,7 @@ export type CatalogSlot = {
   id: string;
   label: string;
   share: number;        // parte de la cantidad de la categoría
+  cat?: string;         // categoría destino si difiere de la del item (p.ej. queso → embutido)
   options: ProductOption[];
 };
 export type BasicProduct = { name: string; price: number; image: string | null };
@@ -287,7 +288,8 @@ export const CATALOG: Record<string, CatalogSlot[]> = {
           "packPrice": 2.85,
           "image": "https://prod-mercadona.imgix.net/images/c536cb9dab18824330d0a9958c08dd37.jpg?fit=crop&h=300&w=300"
         }
-      ]
+      ],
+      "cat": "embutido"
     }
   ],
   "carne:nochebuena": [
@@ -446,7 +448,8 @@ export const CATALOG: Record<string, CatalogSlot[]> = {
           "packPrice": 1.95,
           "image": "https://prod-mercadona.imgix.net/images/19ad97cd414b1842a50c9f72d1e8da99.jpg?fit=crop&h=300&w=300"
         }
-      ]
+      ],
+      "cat": "embutido"
     }
   ],
   "carne:barbacoa": [
@@ -916,6 +919,190 @@ export const CATALOG: Record<string, CatalogSlot[]> = {
           "unit": "kg",
           "packPrice": 1.2,
           "image": "https://prod-mercadona.imgix.net/images/e7a08771bc931ef70b85b25e45c72d50.jpg?fit=crop&h=300&w=300"
+        }
+      ]
+    }
+  ],
+  "postre:barbacoa": [
+    {
+      "id": "fruta",
+      "label": "Fruta de postre",
+      "share": 0.5,
+      "options": [
+        {
+          "id": "3529",
+          "name": "Sandía baja en semillas",
+          "price": 0.85,
+          "unit": "kg",
+          "packPrice": 5.28,
+          "image": "https://prod-mercadona.imgix.net/images/5c34ac2535f19aa86b1fcdfe56d5c61c.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "3505.2",
+          "name": "1/4 Sandía baja en semillas",
+          "price": 1.25,
+          "unit": "kg",
+          "packPrice": 2.06,
+          "image": "https://prod-mercadona.imgix.net/images/09182c8d0e75928bcd808fc4fb7d75d4.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "3505.1",
+          "name": "Media sandía baja en semillas",
+          "price": 1.25,
+          "unit": "kg",
+          "packPrice": 3.74,
+          "image": "https://prod-mercadona.imgix.net/images/3f5e582ec279d307ccc73ef5daa94586.jpg?fit=crop&h=300&w=300"
+        }
+      ]
+    },
+    {
+      "id": "dulce",
+      "label": "Tarta o helado",
+      "share": 0.5,
+      "options": [
+        {
+          "id": "68170",
+          "name": "Tiramisú Hacendado",
+          "price": 7.5,
+          "unit": "kg",
+          "packPrice": 1.35,
+          "image": "https://prod-mercadona.imgix.net/images/6271f659305063f66b0a337037852e8a.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "21366",
+          "name": "Tarta de queso Hacendado",
+          "price": 10.56,
+          "unit": "kg",
+          "packPrice": 1.9,
+          "image": "https://prod-mercadona.imgix.net/images/d43749fd94bc72de6e831813abac534a.jpg?fit=crop&h=300&w=300"
+        }
+      ]
+    }
+  ],
+  "postre:amigos": [
+    {
+      "id": "tarta_queso",
+      "label": "Tarta de queso / tiramisú",
+      "share": 0.6,
+      "options": [
+        {
+          "id": "68350",
+          "name": "Mousse de chocolate Hacendado",
+          "price": 4.8,
+          "unit": "kg",
+          "packPrice": 1.2,
+          "image": "https://prod-mercadona.imgix.net/images/e7a08771bc931ef70b85b25e45c72d50.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "9905",
+          "name": "Mousse sabor chocolate +Proteínas Hacendado 10 g proteínas",
+          "price": 6.38,
+          "unit": "kg",
+          "packPrice": 2.55,
+          "image": "https://prod-mercadona.imgix.net/images/233cc1cd2532cdcd4a80f0e832c5d458.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "68170",
+          "name": "Tiramisú Hacendado",
+          "price": 7.5,
+          "unit": "kg",
+          "packPrice": 1.35,
+          "image": "https://prod-mercadona.imgix.net/images/6271f659305063f66b0a337037852e8a.jpg?fit=crop&h=300&w=300"
+        }
+      ]
+    },
+    {
+      "id": "fruta_dulce",
+      "label": "Fruta y dulces",
+      "share": 0.4,
+      "options": [
+        {
+          "id": "3313",
+          "name": "Uva blanca sin semillas",
+          "price": 4.75,
+          "unit": "kg",
+          "packPrice": 2.85,
+          "image": "https://prod-mercadona.imgix.net/images/386783ad8510e061d8ad0277b460a5f1.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "3321",
+          "name": "Uva roja sin semillas",
+          "price": 4.75,
+          "unit": "kg",
+          "packPrice": 2.85,
+          "image": "https://prod-mercadona.imgix.net/images/1d074082d78bd3883eece473526a79bb.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "3651",
+          "name": "Cerezas",
+          "price": 5.5,
+          "unit": "kg",
+          "packPrice": 2.75,
+          "image": "https://prod-mercadona.imgix.net/images/535d9ae6a182e9b2155de512ef98f590.jpg?fit=crop&h=300&w=300"
+        }
+      ]
+    }
+  ],
+  "ensalada:barbacoa": [
+    {
+      "id": "hoja",
+      "label": "Lechuga / bolsa de ensalada",
+      "share": 0.5,
+      "options": [
+        {
+          "id": "69706",
+          "name": "Ensalada mezcla 4 estaciones lavada",
+          "price": 3.4,
+          "unit": "kg",
+          "packPrice": 0.85,
+          "image": "https://prod-mercadona.imgix.net/images/521b7ea477692d5b5ae5835f2aea842c.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "69670",
+          "name": "Lechuga iceberg cortada y lavada",
+          "price": 3.8,
+          "unit": "kg",
+          "packPrice": 0.95,
+          "image": "https://prod-mercadona.imgix.net/images/d4731916c523231e46eca0ff925913c7.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "69756",
+          "name": "Ensalada de la casa",
+          "price": 5.38,
+          "unit": "kg",
+          "packPrice": 2.15,
+          "image": "https://prod-mercadona.imgix.net/images/eaf6f2fa935a7a3cfb2e68ffad1e6230.jpg?fit=crop&h=300&w=300"
+        }
+      ]
+    },
+    {
+      "id": "maiz_tomate",
+      "label": "Tomate, maíz y aguacate",
+      "share": 0.5,
+      "options": [
+        {
+          "id": "69079",
+          "name": "Cebollas",
+          "price": 1.6,
+          "unit": "kg",
+          "packPrice": 3.2,
+          "image": "https://prod-mercadona.imgix.net/images/c8d94c6563bfadc845df944fe483bfca.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "69912",
+          "name": "Tomate pera",
+          "price": 1.8,
+          "unit": "kg",
+          "packPrice": 0.23,
+          "image": "https://prod-mercadona.imgix.net/images/29e2448e80d5a23e8fc907138e551748.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "69975",
+          "name": "Tomates pera",
+          "price": 1.9,
+          "unit": "kg",
+          "packPrice": 2,
+          "image": "https://prod-mercadona.imgix.net/images/40027e42b9ec9f0693e8f6eb09e1e213.jpg?fit=crop&h=300&w=300"
         }
       ]
     }

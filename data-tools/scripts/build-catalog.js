@@ -43,7 +43,7 @@ const SPECS = {
   // ---- CARNE cena de amigos (tabla de picoteo) ----
   'carne:amigos': [
     { id: 'iberico', label: 'Ibéricos y embutido', share: 0.5, cats: ['Charcutería y quesos', 'Carne'], inc: /ibérico|salchichón|lomo embuchado|fuet|cecina|jamón (serrano|ibérico)|chorizo (vela|sarta)/i, unit: 'kg', n: 3 },
-    { id: 'queso', label: 'Quesos', share: 0.5, cats: ['Charcutería y quesos'], inc: /queso (curado|viejo|manchego|mezcla|semicurado|añejo|ibérico)|cuña|tabla de queso/i, exc: /rallado|crema|untable|batido|fresco|0%/i, unit: 'kg', n: 3 },
+    { id: 'queso', label: 'Quesos', share: 0.5, cat: 'embutido', cats: ['Charcutería y quesos'], inc: /queso (curado|viejo|manchego|mezcla|semicurado|añejo|ibérico)|cuña|tabla de queso/i, exc: /rallado|crema|untable|batido|fresco|0%/i, unit: 'kg', n: 3 },
   ],
   // ---- CARNE Nochebuena (festivo) ----
   'carne:nochebuena': [
@@ -54,7 +54,7 @@ const SPECS = {
   // ---- ENTRANTES Nochebuena (en lugar de ensalada normal) ----
   'ensalada:nochebuena': [
     { id: 'marisco_entrante', label: 'Marisco para entrante', share: 0.5, cats: ['Marisco y pescado', 'Congelados'], inc: /langostino|gambón|salpicón|salmón ahumado|gulas|cóctel de marisco/i, unit: 'kg', n: 3 },
-    { id: 'tabla', label: 'Tabla de ibéricos y queso', share: 0.5, cats: ['Charcutería y quesos'], inc: /ibérico|jamón|queso (curado|viejo|manchego|mezcla)|paté|cuña/i, exc: /rallado|batido|fresco|0%/i, unit: 'kg', n: 3 },
+    { id: 'tabla', label: 'Tabla de ibéricos y queso', share: 0.5, cat: 'embutido', cats: ['Charcutería y quesos'], inc: /ibérico|jamón|queso (curado|viejo|manchego|mezcla)|paté|cuña/i, exc: /rallado|batido|fresco|0%/i, unit: 'kg', n: 3 },
   ],
   // ---- CARNE barbacoa (variada) ----
   'carne:barbacoa': [
@@ -91,6 +91,21 @@ const SPECS = {
   // ---- POSTRE (general) ----
   postre: [
     { id: 'postre', label: 'Postre', share: 1, cats: ['Postres y yogures', 'Panadería y pastelería'], inc: /tarta|tiramis|brownie|natilla|flan|mousse|cheesecake|profiterol/i, exc: /steak|tartar/i, unit: 'kg', n: 3 },
+  ],
+  // ---- POSTRE barbacoa (fruta y refrescante) ----
+  'postre:barbacoa': [
+    { id: 'fruta', label: 'Fruta de postre', share: 0.5, cats: ['Fruta y verdura'], inc: /sandía|melón|piña|uva|fresa|cereza|melocotón/i, unit: 'kg', n: 3 },
+    { id: 'dulce', label: 'Tarta o helado', share: 0.5, cats: ['Postres y yogures', 'Panadería y pastelería'], inc: /tarta|helado|tiramis|brownie/i, exc: /steak|tartar/i, unit: 'kg', n: 3 },
+  ],
+  // ---- POSTRE cena de amigos (tarta de queso, algo ligero) ----
+  'postre:amigos': [
+    { id: 'tarta_queso', label: 'Tarta de queso / tiramisú', share: 0.6, cats: ['Postres y yogures', 'Panadería y pastelería'], inc: /tarta de queso|cheesecake|tiramis|brownie|mousse/i, unit: 'kg', n: 3 },
+    { id: 'fruta_dulce', label: 'Fruta y dulces', share: 0.4, cats: ['Fruta y verdura'], inc: /uva|fresa|frambuesa|arándano|cereza/i, unit: 'kg', n: 3 },
+  ],
+  // ---- ENSALADA barbacoa (fresca, con maíz y variado) ----
+  'ensalada:barbacoa': [
+    { id: 'hoja', label: 'Lechuga / bolsa de ensalada', share: 0.5, cats: ['Fruta y verdura'], inc: /lechuga|ensalada|brotes|canónigos|rúcula|escarola/i, exc: /tomate/i, unit: 'kg', n: 3 },
+    { id: 'maiz_tomate', label: 'Tomate, maíz y aguacate', share: 0.5, cats: ['Fruta y verdura', 'Conservas, caldos y cremas'], inc: /tomate|maíz|aguacate|cebolla/i, unit: 'kg', n: 3 },
   ],
   // ---- POSTRE para cumpleaños (tarta protagonista) ----
   'postre:cumple': [
@@ -169,7 +184,11 @@ async function main() {
       const options = pickOptions(raw, spec);
       report.push(`${key} · ${spec.id}: ${options.length} opciones${options.length ? ' → ' + options.map((o) => `${o.name} (${o.price}€/${o.unit})`).slice(0, 1).join('') : ' ⚠️ SIN RESULTADOS'}`);
       // Solo guardamos los slots que tienen productos reales.
-      if (options.length) built.push({ id: spec.id, label: spec.label, share: spec.share, options });
+      if (options.length) {
+        const slot = { id: spec.id, label: spec.label, share: spec.share, options };
+        if (spec.cat) slot.cat = spec.cat;
+        built.push(slot);
+      }
     }
     // Un catálogo específico de evento (clave con ":") solo se registra si
     // tiene algún slot con productos; si no, la app cae al catálogo genérico.
@@ -209,6 +228,7 @@ export type CatalogSlot = {
   id: string;
   label: string;
   share: number;        // parte de la cantidad de la categoría
+  cat?: string;         // categoría destino si difiere de la del item (p.ej. queso → embutido)
   options: ProductOption[];
 };
 export type BasicProduct = { name: string; price: number; image: string | null };

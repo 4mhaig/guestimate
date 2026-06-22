@@ -137,9 +137,7 @@ function Index() {
   // Productos concretos + precio (elección de opción por línea)
   const [choices, setChoices] = useState<Record<string, number>>({});
   const [removedLines, setRemovedLines] = useState<Set<string>>(new Set());
-  const [drinks, setDrinks] = useState<Set<string>>(
-    () => new Set([...DRINK_SLOTS.bebida_sin, ...DRINK_SLOTS.bebida_con]),
-  );
+  const [drinks, setDrinks] = useState<Set<string>>(() => new Set());
   const resolved: ResolvedBasket = useMemo(
     () => resolveBasket(items, eventType, { choices, removed: removedLines, drinks }),
     [items, eventType, choices, removedLines, drinks],
@@ -199,7 +197,7 @@ function Index() {
     setSpecialRequests("");
     setChoices({});
     setRemovedLines(new Set());
-    setDrinks(new Set([...DRINK_SLOTS.bebida_sin, ...DRINK_SLOTS.bebida_con]));
+    setDrinks(new Set());
     setOverrides({});
     setRemoved(new Set());
     setSavedEventId(null);
@@ -1105,71 +1103,76 @@ function Step3({
   return (
     <div>
       <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">¿Hay algo que no podáis comer?</h1>
-      <p className="mt-2 text-muted-foreground">Selecciona todo lo que aplique.</p>
-      <div className="mt-8 flex flex-wrap gap-2.5">
-        {RESTRICTIONS.map((r) => {
+      <p className="mt-2 text-muted-foreground">
+        Selecciona las que apliquen. Si eliges una, indica a la derecha cuántas personas la tienen.
+      </p>
+      <div className="mt-8 space-y-2.5">
+        {RESTRICTIONS.filter((r) => r.id !== "ninguna").map((r) => {
           const on = restrictions.includes(r.id);
+          const split = SPLIT_RESTRICTIONS.includes(r.id);
+          const counts = restrictionCounts[r.id];
           return (
-            <motion.button
+            <div
               key={r.id}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => toggle(r.id)}
-              className={`rounded-full border px-4 py-2 text-sm font-medium transition-all ${
-                on
-                  ? "border-primary bg-primary text-primary-foreground"
-                  : "border-border bg-card text-foreground hover:border-primary/40"
+              className={`flex flex-col gap-3 rounded-2xl border p-3 transition-colors sm:flex-row sm:items-center sm:justify-between ${
+                on ? "border-primary bg-accent/40" : "border-border bg-card"
               }`}
             >
-              {r.label}
-            </motion.button>
-          );
-        })}
-      </div>
-
-      <div className="mt-6 rounded-2xl border border-border bg-card p-4">
-        <p className="text-sm font-medium text-foreground">¿Quién tiene cada restricción?</p>
-        <p className="mt-0.5 text-xs text-muted-foreground">
-          Indica cuántas personas de cada tipo. Se activa al seleccionar la restricción arriba.
-          Así ajustamos cuánto comprar (normal y especial).
-        </p>
-        <div className="mt-4 space-y-4">
-          {SPLIT_RESTRICTIONS.map((r) => {
-            const active = restrictions.includes(r as Restriction);
-            const label = RESTRICTIONS.find((x) => x.id === r)?.label ?? r;
-            const counts = restrictionCounts[r as Restriction];
-            return (
-              <div key={r} className={active ? "" : "opacity-40"}>
-                <div className="mb-1.5 text-sm font-medium text-foreground">{label}</div>
-                <div className="flex flex-wrap gap-3">
+              <motion.button
+                whileTap={{ scale: 0.96 }}
+                onClick={() => toggle(r.id)}
+                className={`self-start rounded-full border px-4 py-2 text-sm font-medium transition-all ${
+                  on
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-border bg-background text-foreground hover:border-primary/40"
+                }`}
+              >
+                {r.label}
+              </motion.button>
+              {split && (
+                <div
+                  className={`flex flex-wrap gap-x-4 gap-y-2 ${
+                    on ? "" : "pointer-events-none opacity-40"
+                  }`}
+                >
                   {REST_PROFILES.map((p) => (
                     <div key={p.key} className="flex items-center gap-1.5">
                       <span className="text-xs text-muted-foreground">{p.label}</span>
-                      <div className="flex items-center gap-1">
-                        <button
-                          disabled={!active}
-                          onClick={() => setRestCount(r as Restriction, p.key, (counts?.[p.key] ?? 0) - 1)}
-                          className="grid h-6 w-6 place-items-center rounded-full border border-border text-muted-foreground disabled:opacity-40 enabled:hover:text-foreground"
-                          aria-label={`Menos ${p.label} con ${label}`}
-                        >
-                          <Minus className="h-3 w-3" />
-                        </button>
-                        <span className="w-4 text-center text-sm tabular-nums">{counts?.[p.key] ?? 0}</span>
-                        <button
-                          disabled={!active}
-                          onClick={() => setRestCount(r as Restriction, p.key, (counts?.[p.key] ?? 0) + 1)}
-                          className="grid h-6 w-6 place-items-center rounded-full bg-primary/10 text-primary disabled:opacity-40 enabled:hover:bg-primary/20"
-                          aria-label={`Más ${p.label} con ${label}`}
-                        >
-                          <Plus className="h-3 w-3" />
-                        </button>
-                      </div>
+                      <button
+                        disabled={!on}
+                        onClick={() => setRestCount(r.id, p.key, (counts?.[p.key] ?? 0) - 1)}
+                        className="grid h-6 w-6 place-items-center rounded-full border border-border text-muted-foreground disabled:opacity-40 enabled:hover:text-foreground"
+                        aria-label={`Menos ${p.label}`}
+                      >
+                        <Minus className="h-3 w-3" />
+                      </button>
+                      <span className="w-4 text-center text-sm tabular-nums">{counts?.[p.key] ?? 0}</span>
+                      <button
+                        disabled={!on}
+                        onClick={() => setRestCount(r.id, p.key, (counts?.[p.key] ?? 0) + 1)}
+                        className="grid h-6 w-6 place-items-center rounded-full bg-primary/10 text-primary disabled:opacity-40 enabled:hover:bg-primary/20"
+                        aria-label={`Más ${p.label}`}
+                      >
+                        <Plus className="h-3 w-3" />
+                      </button>
                     </div>
                   ))}
                 </div>
-              </div>
-            );
-          })}
-        </div>
+              )}
+            </div>
+          );
+        })}
+        <motion.button
+          whileTap={{ scale: 0.96 }}
+          onClick={() => toggle("ninguna")}
+          className={`rounded-full border px-4 py-2 text-sm font-medium transition-all ${
+            restrictions.includes("ninguna")
+              ? "border-primary bg-primary text-primary-foreground"
+              : "border-border bg-card text-foreground hover:border-primary/40"
+          }`}
+        >
+          Sin restricciones
+        </motion.button>
       </div>
 
       <div className="mt-10">
