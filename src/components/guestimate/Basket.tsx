@@ -1,5 +1,5 @@
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { ShoppingBasket } from "lucide-react";
+import { ShoppingBasket, X } from "lucide-react";
 import { AnimatedNumber } from "./AnimatedNumber";
 import { CategoryIcon } from "./Icon";
 import { type ResolvedBasket, type ResolvedLine, formatEuro } from "@/lib/products";
@@ -7,11 +7,13 @@ import { type ResolvedBasket, type ResolvedLine, formatEuro } from "@/lib/produc
 export function BasketPanel({
   resolved,
   onSelect,
+  onRemove,
   registerIconTarget,
   hideEmpty,
 }: {
   resolved: ResolvedBasket;
   onSelect?: (key: string, index: number) => void;
+  onRemove?: (key: string) => void;
   registerIconTarget?: (el: HTMLDivElement | null) => void;
   hideEmpty?: boolean;
 }) {
@@ -63,7 +65,7 @@ export function BasketPanel({
                 <div className="mb-2 flex items-center justify-between px-2">
                   <div className="flex items-center gap-2">
                     <CategoryIcon name={g.icon} className="h-4 w-4 text-primary" strokeWidth={1.6} />
-                    <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                    <span className="font-display text-sm font-semibold text-foreground">
                       {g.label}
                     </span>
                   </div>
@@ -74,7 +76,7 @@ export function BasketPanel({
                 <div className="space-y-1">
                   <AnimatePresence initial={false}>
                     {g.lines.map((line) => (
-                      <ProductRow key={line.key} line={line} onSelect={onSelect} />
+                      <ProductRow key={line.key} line={line} onSelect={onSelect} onRemove={onRemove} />
                     ))}
                   </AnimatePresence>
                 </div>
@@ -90,9 +92,11 @@ export function BasketPanel({
 function ProductRow({
   line,
   onSelect,
+  onRemove,
 }: {
   line: ResolvedLine;
   onSelect?: (key: string, index: number) => void;
+  onRemove?: (key: string) => void;
 }) {
   const reduced = useReducedMotion();
   const canSwap = !!onSelect && line.alternatives.length > 1;
@@ -131,6 +135,17 @@ function ProductRow({
       <span className="shrink-0 text-sm font-semibold tabular-nums text-foreground">
         {line.cost > 0 ? formatEuro(line.cost) : "—"}
       </span>
+      {onRemove && (
+        <motion.button
+          whileTap={{ scale: 0.85 }}
+          onClick={() => onRemove(line.key)}
+          className="grid h-6 w-6 shrink-0 place-items-center rounded-full text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+          aria-label="Quitar de la lista"
+          title="Quitar de la lista"
+        >
+          <X className="h-3.5 w-3.5" />
+        </motion.button>
+      )}
     </motion.div>
   );
 }

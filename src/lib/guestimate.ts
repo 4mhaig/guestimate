@@ -232,6 +232,15 @@ export function computeBasket(
       });
     }
     GROUP_BASICS.forEach((p) => add(map, p, p.per));
+    // Aperitivo durante el viaje: una ronda de picoteo
+    if (aperitivo) {
+      add(map, { id: "snacks", name: "Snacks", category: "snacks", per: 80, unit: "g" }, 80 * units);
+      add(
+        map,
+        { id: "picoteo", name: "Embutido y queso para picar", category: "embutido", per: 70, unit: "g" },
+        70 * units,
+      );
+    }
   } else {
     BASE_MEAL.forEach((p) => {
       // Los aperitivos/snacks solo entran si el usuario activa el aperitivo

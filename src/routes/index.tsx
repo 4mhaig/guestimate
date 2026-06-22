@@ -29,7 +29,7 @@ import {
   type SpecialEvent,
   type SpecialEvents,
 } from "@/lib/guestimate";
-import { resolveBasket, formatEuro, type ResolvedBasket } from "@/lib/products";
+import { resolveBasket, formatEuro, DRINK_SLOTS, type ResolvedBasket } from "@/lib/products";
 import { supabase } from "@/lib/supabase";
 import { Stepper } from "@/components/guestimate/Stepper";
 import { AnimatedNumber } from "@/components/guestimate/AnimatedNumber";
@@ -83,6 +83,7 @@ function Index() {
   const [aperitivo, setAperitivo] = useState(false);
   const [specialEvents, setSpecialEvents] = useState<SpecialEvents>({});
   const [restrictions, setRestrictions] = useState<Restriction[]>([]);
+  const [specialRequests, setSpecialRequests] = useState("");
   const [overrides, setOverrides] = useState<Record<string, number>>({});
   const [removed, setRemoved] = useState<Set<string>>(new Set());
   const [mobileBasketOpen, setMobileBasketOpen] = useState(false);
@@ -130,12 +131,27 @@ function Index() {
 
   // Productos concretos + precio (elección de opción por línea)
   const [choices, setChoices] = useState<Record<string, number>>({});
+  const [removedLines, setRemovedLines] = useState<Set<string>>(new Set());
+  const [drinks, setDrinks] = useState<Set<string>>(
+    () => new Set([...DRINK_SLOTS.bebida_sin, ...DRINK_SLOTS.bebida_con]),
+  );
   const resolved: ResolvedBasket = useMemo(
-    () => resolveBasket(items, eventType, choices),
-    [items, eventType, choices],
+    () => resolveBasket(items, eventType, { choices, removed: removedLines, drinks }),
+    [items, eventType, choices, removedLines, drinks],
   );
   const setChoice = (key: string, index: number) => {
     setChoices((prev) => ({ ...prev, [key]: index }));
+  };
+  const removeLine = (key: string) => {
+    setRemovedLines((prev) => new Set(prev).add(key));
+  };
+  const toggleDrink = (id: string) => {
+    setDrinks((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
   };
 
   const adjustItem = (id: string, delta: number) => {
@@ -174,7 +190,10 @@ function Index() {
     setAperitivo(false);
     setSpecialEvents({});
     setRestrictions([]);
+    setSpecialRequests("");
     setChoices({});
+    setRemovedLines(new Set());
+    setDrinks(new Set([...DRINK_SLOTS.bebida_sin, ...DRINK_SLOTS.bebida_con]));
     setOverrides({});
     setRemoved(new Set());
     setSavedEventId(null);
@@ -236,6 +255,10 @@ function Index() {
       lines.push("");
     });
     lines.push(`Total aprox (sin envío): ${formatEuro(resolved.total)}`);
+    if (specialRequests.trim()) {
+      lines.push("");
+      lines.push(`Peticiones: ${specialRequests.trim()}`);
+    }
     const text = lines.join("\n");
     const title = `Guestimate — ${EVENTS.find((e) => e.id === eventType)?.name ?? "Lista de la compra"}`;
     // En móvil abrimos el menú nativo de compartir; si no existe, copiamos.
@@ -300,7 +323,11 @@ function Index() {
   const totalPpl = totalPeople(people);
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div
+      className={`min-h-screen text-foreground transition-colors ${
+        view === "wizard" ? "bg-background" : "bg-muted/50"
+      }`}
+    >
       <header className="sticky top-0 z-30 border-b border-border/60 bg-background/80 backdrop-blur">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4">
           <button onClick={goHome} className="flex items-center gap-2.5" aria-label="Inicio">
@@ -376,20 +403,25 @@ function Index() {
                   setMeals={setMeals}
                   specialEvents={specialEvents}
                   setSpecialEvents={setSpecialEvents}
+                  aperitivo={aperitivo}
+                  setAperitivo={setAperitivo}
                 />
               )}
               {step === 3 && (
                 <Step3
                   restrictions={restrictions}
                   setRestrictions={setRestrictions}
-                  aperitivo={aperitivo}
-                  setAperitivo={setAperitivo}
+                  drinks={drinks}
+                  toggleDrink={toggleDrink}
+                  specialRequests={specialRequests}
+                  setSpecialRequests={setSpecialRequests}
                 />
               )}
               {step === 4 && (
                 <Step4
                   resolved={resolved}
                   onSelect={setChoice}
+                  onRemove={removeLine}
                   eventType={eventType}
                   date={date}
                   totalPeople={totalPpl}
@@ -431,6 +463,7 @@ function Index() {
             <BasketPanel
               resolved={resolved}
               onSelect={setChoice}
+              onRemove={removeLine}
               registerIconTarget={(el) => (basketIconRef.current = el)}
             />
           </div>
@@ -472,7 +505,7 @@ function Index() {
                 </button>
               </div>
               <div className="h-[calc(85vh-3.25rem)]">
-                <BasketPanel resolved={resolved} onSelect={setChoice} />
+                <BasketPanel resolved={resolved} onSelect={setChoice} onRemove={removeLine} />
               </div>
             </motion.div>
           </motion.div>
@@ -704,6 +737,41 @@ function Step1({
 }
 
 /* ---------- Step 2 ---------- */
+function AperitivoToggle({
+  aperitivo,
+  setAperitivo,
+}: {
+  aperitivo: boolean;
+  setAperitivo: (b: boolean) => void;
+}) {
+  return (
+    <button
+      onClick={() => setAperitivo(!aperitivo)}
+      className={`flex w-full items-center justify-between gap-4 rounded-2xl border p-4 text-left transition-all ${
+        aperitivo ? "border-primary bg-accent" : "border-border bg-card hover:border-primary/40"
+      }`}
+    >
+      <div>
+        <div className="text-sm font-semibold text-foreground">¿Habrá aperitivo antes de comer?</div>
+        <div className="mt-0.5 text-sm text-muted-foreground">
+          Añade picoteo: patatas, aceitunas, frutos secos, embutido y queso.
+        </div>
+      </div>
+      <span
+        className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${
+          aperitivo ? "bg-primary" : "bg-muted-foreground/30"
+        }`}
+      >
+        <motion.span
+          layout
+          transition={{ type: "spring", stiffness: 500, damping: 30 }}
+          className={`inline-block h-5 w-5 rounded-full bg-white shadow ${aperitivo ? "ml-[22px]" : "ml-0.5"}`}
+        />
+      </span>
+    </button>
+  );
+}
+
 function Step2({
   people,
   setPeople,
@@ -713,6 +781,8 @@ function Step2({
   setMeals,
   specialEvents,
   setSpecialEvents,
+  aperitivo,
+  setAperitivo,
 }: {
   people: People;
   setPeople: (p: People) => void;
@@ -722,6 +792,8 @@ function Step2({
   setMeals: (m: MealsConfig) => void;
   specialEvents: SpecialEvents;
   setSpecialEvents: (s: SpecialEvents) => void;
+  aperitivo: boolean;
+  setAperitivo: (b: boolean) => void;
 }) {
   const total = totalPeople(people);
   const rows: { key: keyof People; label: string }[] = [
@@ -750,6 +822,12 @@ function Step2({
         ))}
       </div>
 
+      {eventType && eventType !== "rural" && (
+        <div className="mt-8 max-w-xl">
+          <AperitivoToggle aperitivo={aperitivo} setAperitivo={setAperitivo} />
+        </div>
+      )}
+
       {eventType === "rural" && (
         <div className="mt-10">
           <p className="mb-4 text-sm text-muted-foreground">
@@ -762,6 +840,8 @@ function Step2({
             setMeals={setMeals}
             specialEvents={specialEvents}
             setSpecialEvents={setSpecialEvents}
+            aperitivo={aperitivo}
+            setAperitivo={setAperitivo}
           />
         </div>
       )}
@@ -775,12 +855,16 @@ function MealsTable({
   setMeals,
   specialEvents,
   setSpecialEvents,
+  aperitivo,
+  setAperitivo,
 }: {
   days: number;
   meals: MealsConfig;
   setMeals: (m: MealsConfig) => void;
   specialEvents: SpecialEvents;
   setSpecialEvents: (s: SpecialEvents) => void;
+  aperitivo: boolean;
+  setAperitivo: (b: boolean) => void;
 }) {
   const mealRows: { key: Meal; label: string }[] = [
     { key: "desayuno", label: "Desayuno" },
@@ -795,15 +879,19 @@ function MealsTable({
   };
   return (
     <div className="rounded-2xl border border-border bg-card p-5">
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <h3 className="text-base font-semibold">Comidas por día</h3>
+      <div className="mb-1 flex flex-wrap items-center justify-between gap-3">
+        <h3 className="font-display text-base font-semibold">Comidas por día</h3>
         <button
           onClick={() => setMeals(defaultMealsConfig(days, "standard"))}
+          title="Rellena el patrón típico: día 1 solo cena, último día solo desayuno y comida, resto todas."
           className="rounded-full border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-muted"
         >
-          Configuración estándar
+          Rellenar automático
         </button>
       </div>
+      <p className="mb-4 text-xs text-muted-foreground">
+        Marca qué comidas hacéis cada día. “Rellenar automático” pone el patrón típico de un viaje.
+      </p>
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
@@ -875,21 +963,38 @@ function MealsTable({
           ))}
         </div>
       </div>
+
+      <div className="mt-5 border-t border-border pt-4">
+        <AperitivoToggle aperitivo={aperitivo} setAperitivo={setAperitivo} />
+      </div>
     </div>
   );
 }
 
 /* ---------- Step 3 ---------- */
+const DRINK_LABELS: Record<string, string> = {
+  agua: "Agua",
+  cola: "Refresco de cola",
+  naranja_limon: "Naranja / limón",
+  zumo: "Zumo",
+  cerveza: "Cerveza",
+  vino: "Vino",
+};
+
 function Step3({
   restrictions,
   setRestrictions,
-  aperitivo,
-  setAperitivo,
+  drinks,
+  toggleDrink,
+  specialRequests,
+  setSpecialRequests,
 }: {
   restrictions: Restriction[];
   setRestrictions: (r: Restriction[]) => void;
-  aperitivo: boolean;
-  setAperitivo: (b: boolean) => void;
+  drinks: Set<string>;
+  toggleDrink: (id: string) => void;
+  specialRequests: string;
+  setSpecialRequests: (s: string) => void;
 }) {
   const toggle = (id: Restriction) => {
     if (id === "ninguna") {
@@ -900,6 +1005,22 @@ function Step3({
     if (next.includes(id)) next = next.filter((r) => r !== id);
     else next = [...next, id];
     setRestrictions(next);
+  };
+  const DrinkChip = ({ id }: { id: string }) => {
+    const on = drinks.has(id);
+    return (
+      <motion.button
+        whileTap={{ scale: 0.95 }}
+        onClick={() => toggleDrink(id)}
+        className={`rounded-full border px-4 py-2 text-sm font-medium transition-all ${
+          on
+            ? "border-secondary bg-secondary text-secondary-foreground"
+            : "border-border bg-card text-foreground hover:border-secondary/50"
+        }`}
+      >
+        {DRINK_LABELS[id]}
+      </motion.button>
+    );
   };
   return (
     <div>
@@ -926,37 +1047,38 @@ function Step3({
       </div>
 
       <div className="mt-10">
-        <h2 className="text-lg font-semibold text-foreground">Antes de comer</h2>
-        <button
-          onClick={() => setAperitivo(!aperitivo)}
-          className={`mt-3 flex w-full items-center justify-between gap-4 rounded-2xl border p-4 text-left transition-all ${
-            aperitivo
-              ? "border-primary bg-accent"
-              : "border-border bg-card hover:border-primary/40"
-          }`}
-        >
-          <div>
-            <div className="text-sm font-semibold text-foreground">
-              ¿Habrá aperitivo antes de comer?
-            </div>
-            <div className="mt-0.5 text-sm text-muted-foreground">
-              Añade picoteo: patatas, aceitunas, frutos secos, embutido y queso.
-            </div>
+        <h2 className="font-display text-lg font-semibold text-foreground">Bebidas</h2>
+        <p className="mt-0.5 text-sm text-muted-foreground">Elige qué bebidas quieres en la lista.</p>
+        <div className="mt-3">
+          <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Refrescos</span>
+          <div className="mt-2 flex flex-wrap gap-2.5">
+            {DRINK_SLOTS.bebida_sin.map((id) => (
+              <DrinkChip key={id} id={id} />
+            ))}
           </div>
-          <span
-            className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${
-              aperitivo ? "bg-primary" : "bg-muted-foreground/30"
-            }`}
-          >
-            <motion.span
-              layout
-              transition={{ type: "spring", stiffness: 500, damping: 30 }}
-              className={`inline-block h-5 w-5 rounded-full bg-white shadow ${
-                aperitivo ? "ml-[22px]" : "ml-0.5"
-              }`}
-            />
-          </span>
-        </button>
+        </div>
+        <div className="mt-4">
+          <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Con alcohol</span>
+          <div className="mt-2 flex flex-wrap gap-2.5">
+            {DRINK_SLOTS.bebida_con.map((id) => (
+              <DrinkChip key={id} id={id} />
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-10">
+        <h2 className="font-display text-lg font-semibold text-foreground">Peticiones especiales</h2>
+        <p className="mt-0.5 text-sm text-muted-foreground">
+          Escribe lo que quieras tener en cuenta (ej. "no compres agua embotellada" o "incluye gildas").
+        </p>
+        <textarea
+          value={specialRequests}
+          onChange={(e) => setSpecialRequests(e.target.value)}
+          rows={3}
+          placeholder="Opcional"
+          className="mt-3 w-full resize-none rounded-2xl border border-border bg-card p-4 text-sm outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/15"
+        />
       </div>
     </div>
   );
@@ -966,6 +1088,7 @@ function Step3({
 function Step4({
   resolved,
   onSelect,
+  onRemove,
   eventType,
   date,
   totalPeople,
@@ -977,6 +1100,7 @@ function Step4({
 }: {
   resolved: ResolvedBasket;
   onSelect: (key: string, index: number) => void;
+  onRemove: (key: string) => void;
   eventType: EventType | null;
   date: string;
   totalPeople: number;
@@ -1019,7 +1143,7 @@ function Step4({
             <div className="mb-3 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <CategoryIcon name={g.icon} className="h-4 w-4 text-primary" strokeWidth={1.6} />
-                <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+                <h3 className="font-display text-base font-semibold text-foreground">
                   {g.label}
                 </h3>
               </div>
@@ -1058,6 +1182,15 @@ function Step4({
                     <span className="shrink-0 text-sm font-semibold tabular-nums text-foreground">
                       {line.cost > 0 ? formatEuro(line.cost) : "—"}
                     </span>
+                    <motion.button
+                      whileTap={{ scale: 0.85 }}
+                      onClick={() => onRemove(line.key)}
+                      className="grid h-7 w-7 shrink-0 place-items-center rounded-full text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                      aria-label="Quitar de la lista"
+                      title="Quitar de la lista"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </motion.button>
                   </div>
                 );
               })}
@@ -1073,6 +1206,11 @@ function Step4({
         </div>
         <div className="text-2xl font-bold text-primary">{formatEuro(resolved.total)}</div>
       </div>
+
+      <p className="mt-3 text-xs text-muted-foreground">
+        Los productos y precios son orientativos y están basados en Mercadona. Pueden variar
+        según tu tienda y la fecha.
+      </p>
 
       <div className="mt-8 flex flex-wrap gap-3">
         <motion.button

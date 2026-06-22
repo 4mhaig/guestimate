@@ -50,16 +50,33 @@ function fmtAmount(amount: number, unit: string): string {
   return `${Math.round(amount)} ud`;
 }
 
+export type ResolveOptions = {
+  /** Elección de opción por línea (clave → índice). */
+  choices?: Record<string, number>;
+  /** Claves de línea que el usuario ha eliminado de la cesta. */
+  removed?: Set<string>;
+  /** Ids de bebidas a incluir (agua, cola, naranja_limon, zumo, cerveza, vino).
+   *  Si es undefined se incluyen todas. */
+  drinks?: Set<string>;
+};
+
+// Ids de los "slots" de bebida del catálogo, para la selección de bebidas.
+export const DRINK_SLOTS = {
+  bebida_sin: ["agua", "cola", "naranja_limon", "zumo"],
+  bebida_con: ["cerveza", "vino"],
+};
+
 /**
  * Calcula la cesta con productos concretos y precio aproximado.
- * @param choices elección de opción por línea (clave → índice). Por
- *        defecto se usa la opción 0 (la más económica).
  */
 export function resolveBasket(
   items: Item[],
   event: EventType | null,
-  choices: Record<string, number> = {},
+  opts: ResolveOptions = {},
 ): ResolvedBasket {
+  const choices = opts.choices ?? {};
+  const removed = opts.removed ?? new Set<string>();
+  const drinks = opts.drinks;
   const groups = new Map<Category, ResolvedGroup>();
   const ensureGroup = (cat: Category): ResolvedGroup => {
     let g = groups.get(cat);
@@ -74,6 +91,7 @@ export function resolveBasket(
   for (const item of items) {
     // Básicos de grupo (casa rural): aceite, sal, café, papel...
     if (item.category === "otros") {
+      if (removed.has(item.id)) continue;
       const basic = BASICS[item.id];
       const g = ensureGroup("otros");
       const units = Math.max(1, Math.round(item.qty));
@@ -98,6 +116,7 @@ export function resolveBasket(
 
     if (!slots || slots.length === 0) {
       // Sin catálogo: mostramos genérico sin precio
+      if (removed.has(item.id)) continue;
       g.lines.push({
         key: item.id,
         slotLabel: item.name,
@@ -110,11 +129,21 @@ export function resolveBasket(
       continue;
     }
 
-    for (const slot of slots) {
+    // Filtro de bebidas: si el usuario eligió qué bebidas quiere, nos quedamos
+    // solo con esos slots y repartimos su cantidad entre los elegidos.
+    let useSlots = slots;
+    if (drinks && (item.category === "bebida_sin" || item.category === "bebida_con")) {
+      const kept = slots.filter((s) => drinks.has(s.id));
+      const shareSum = kept.reduce((sum, s) => sum + s.share, 0) || 1;
+      useSlots = kept.map((s) => ({ ...s, share: s.share / shareSum }));
+    }
+
+    for (const slot of useSlots) {
       if (!slot.options.length) continue;
+      const lineKey = `${item.category}:${slot.id}`;
+      if (removed.has(lineKey)) continue;
       const slotQty = item.qty * slot.share; // en g/ml/u
       const amount = item.unit === "u" ? slotQty : slotQty / 1000; // → kg/L
-      const lineKey = `${item.category}:${slot.id}`;
       const idx = Math.min(Math.max(0, choices[lineKey] ?? 0), slot.options.length - 1);
       const option = slot.options[idx];
       g.lines.push({
@@ -129,7 +158,7 @@ export function resolveBasket(
     }
   }
 
-  const list = [...groups.values()];
+  const list = [...groups.values()].filter((g) => g.lines.length > 0);
   list.forEach((g) => (g.cost = round2(g.lines.reduce((s, l) => s + l.cost, 0))));
   const total = round2(list.reduce((s, g) => s + g.cost, 0));
   return { groups: list, total };
