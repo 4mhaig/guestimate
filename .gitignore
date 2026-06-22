@@ -1,19 +1,42 @@
-# Dependencias
-node_modules/
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
-# Variables de entorno (NUNCA subir claves a GitHub)
+node_modules
+dist
+dist-ssr
+.output
+.vinxi
+.tanstack/**
+.nitro
+*.local
+
+# Wrangler / Cloudflare
+.wrangler/
+.dev.vars
+
+# Secrets — NUNCA subir claves
 .env
 .env.local
 .env.*.local
+data-tools/.env
 
-# Datos generados por el scraper (productos descargados)
-data/products.json
+# Backend tools (data-tools)
+data-tools/node_modules
+data-tools/data/products.json
 
-# Logs y temporales
-*.log
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
 .DS_Store
-npm-debug.log*
-
-# Editores
-.vscode/
-.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
