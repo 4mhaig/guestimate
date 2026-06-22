@@ -182,7 +182,7 @@ function Index() {
     setMeals((prev) => {
       const next: MealsConfig = {};
       for (let d = 1; d <= days; d++) {
-        next[d] = prev[d] || { desayuno: true, comida: true, merienda: true, cena: true };
+        next[d] = prev[d] || { desayuno: true, comida: true, merienda: false, cena: true };
       }
       return next;
     });
@@ -1113,11 +1113,11 @@ function MealsTable({
   ];
   const dayCols = Array.from({ length: days }, (_, i) => i + 1);
   const toggle = (d: number, m: Meal) => {
-    const cur = meals[d] || { desayuno: true, comida: true, merienda: true, cena: true };
+    const cur = meals[d] || { desayuno: true, comida: true, merienda: false, cena: true };
     setMeals({ ...meals, [d]: { ...cur, [m]: !cur[m] } });
   };
   const toggleAperitivo = (d: number) => {
-    const cur = meals[d] || { desayuno: true, comida: true, merienda: true, cena: true };
+    const cur = meals[d] || { desayuno: true, comida: true, merienda: false, cena: true };
     setMeals({ ...meals, [d]: { ...cur, aperitivo: !cur.aperitivo } });
   };
   return (
@@ -1153,7 +1153,7 @@ function MealsTable({
                 <tr className="border-t border-border">
                   <td className="py-2 pr-3 text-foreground">{row.label}</td>
                   {dayCols.map((d) => {
-                    const on = meals[d]?.[row.key] ?? true;
+                    const on = meals[d]?.[row.key] ?? (row.key === "merienda" ? false : true);
                     return (
                       <td key={d} className="px-2 py-2 text-center">
                         <motion.button

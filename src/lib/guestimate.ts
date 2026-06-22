@@ -226,7 +226,7 @@ export function computeBasket(
     if (units === 0) return [];
     const MEALS: Meal[] = ["desayuno", "comida", "merienda", "cena"];
     for (let d = 1; d <= days; d++) {
-      const dayMeals = meals[d] || { desayuno: true, comida: true, merienda: true, cena: true };
+      const dayMeals = meals[d] || { desayuno: true, comida: true, merienda: false, cena: true };
       const special = specialEvents[d];
       MEALS.forEach((m) => {
         if (!dayMeals[m]) return;
@@ -383,9 +383,9 @@ export function defaultMealsConfig(days: number, mode: "all" | "standard" = "all
     if (mode === "standard") {
       if (d === 1) cfg[d] = { desayuno: false, comida: false, merienda: false, cena: true };
       else if (d === days) cfg[d] = { desayuno: true, comida: true, merienda: false, cena: false };
-      else cfg[d] = { desayuno: true, comida: true, merienda: true, cena: true };
+      else cfg[d] = { desayuno: true, comida: true, merienda: false, cena: true };
     } else {
-      cfg[d] = { desayuno: true, comida: true, merienda: true, cena: true };
+      cfg[d] = { desayuno: true, comida: true, merienda: false, cena: true };
     }
   }
   return cfg;
