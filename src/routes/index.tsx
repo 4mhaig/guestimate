@@ -6,9 +6,11 @@ import {
   ArrowRight,
   Check,
   Copy,
+  Plus,
   RefreshCw,
   ShoppingBasket,
   Star,
+  Trash2,
   X,
 } from "lucide-react";
 import {
@@ -373,7 +375,7 @@ function Index() {
 
       {view === "wizard" && (
       <>
-      <main className="mx-auto grid max-w-7xl gap-8 px-5 py-8 lg:grid-cols-[1fr_380px]">
+      <main className="mx-auto grid max-w-7xl gap-8 px-5 pt-8 pb-28 lg:grid-cols-[1fr_380px] lg:pb-8">
         <section className="min-w-0">
           <AnimatePresence mode="wait">
             <motion.div
@@ -569,6 +571,15 @@ function SavedListsView({
     };
   }, []);
 
+  const deleteList = async (r: SavedRow) => {
+    if (typeof window !== "undefined" && !window.confirm("¿Eliminar esta lista?")) return;
+    const ev = Array.isArray(r.event) ? r.event[0] : r.event;
+    // Borrar el evento elimina en cascada su lista y su feedback.
+    if (ev?.id) await supabase.from("events").delete().eq("id", ev.id);
+    else await supabase.from("shopping_lists").delete().eq("id", r.id);
+    setRows((prev) => (prev ? prev.filter((x) => x.id !== r.id) : prev));
+  };
+
   return (
     <main className="mx-auto max-w-2xl px-5 py-8">
       <div className="flex items-center justify-between">
@@ -611,12 +622,22 @@ function SavedListsView({
                   {r.total != null ? `${formatEuro(r.total)} aprox` : ""}
                 </div>
               </div>
-              <button
-                onClick={() => ev && onFeedback(ev.id, label)}
-                className="shrink-0 rounded-full border border-border bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted"
-              >
-                Dar feedback
-              </button>
+              <div className="flex shrink-0 items-center gap-2">
+                <button
+                  onClick={() => ev && onFeedback(ev.id, label)}
+                  className="rounded-full border border-border bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+                >
+                  Dar feedback
+                </button>
+                <button
+                  onClick={() => deleteList(r)}
+                  className="grid h-9 w-9 place-items-center rounded-full text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+                  aria-label="Eliminar lista"
+                  title="Eliminar lista"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              </div>
             </div>
           );
         })}
@@ -1012,12 +1033,14 @@ function Step3({
       <motion.button
         whileTap={{ scale: 0.95 }}
         onClick={() => toggleDrink(id)}
-        className={`rounded-full border px-4 py-2 text-sm font-medium transition-all ${
+        aria-pressed={on}
+        className={`inline-flex items-center gap-1.5 rounded-full border px-4 py-2 text-sm font-medium transition-all ${
           on
-            ? "border-secondary bg-secondary text-secondary-foreground"
-            : "border-border bg-card text-foreground hover:border-secondary/50"
+            ? "border-primary bg-primary text-primary-foreground"
+            : "border-border bg-card text-muted-foreground hover:border-primary/50"
         }`}
       >
+        {on ? <Check className="h-3.5 w-3.5" strokeWidth={3} /> : <Plus className="h-3.5 w-3.5" />}
         {DRINK_LABELS[id]}
       </motion.button>
     );
@@ -1048,7 +1071,9 @@ function Step3({
 
       <div className="mt-10">
         <h2 className="font-display text-lg font-semibold text-foreground">Bebidas</h2>
-        <p className="mt-0.5 text-sm text-muted-foreground">Elige qué bebidas quieres en la lista.</p>
+        <p className="mt-0.5 text-sm text-muted-foreground">
+          Las que tienen ✓ están incluidas. Toca para quitarlas o añadirlas.
+        </p>
         <div className="mt-3">
           <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Refrescos</span>
           <div className="mt-2 flex flex-wrap gap-2.5">

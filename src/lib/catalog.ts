@@ -83,6 +83,372 @@ export const CATALOG: Record<string, CatalogSlot[]> = {
       ]
     }
   ],
+  "carne:familiar": [
+    {
+      "id": "pollo",
+      "label": "Pollo",
+      "share": 0.5,
+      "options": [
+        {
+          "id": "25183",
+          "name": "Jamoncitos de pollo congelados",
+          "price": 3.1,
+          "unit": "kg",
+          "packPrice": 3.1,
+          "image": "https://prod-mercadona.imgix.net/images/bebaada78c49c64b7dda4cf6b5726cf0.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "2778",
+          "name": "Jamoncitos de pollo",
+          "price": 3.5,
+          "unit": "kg",
+          "packPrice": 3.22,
+          "image": "https://prod-mercadona.imgix.net/images/bdb83c7c681de567327ae97747a5d2bf.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "2781",
+          "name": "Pollo entero",
+          "price": 3.5,
+          "unit": "kg",
+          "packPrice": 6.65,
+          "image": "https://prod-mercadona.imgix.net/images/cb8d3cd457f1c0c8bce835505ad77695.jpg?fit=crop&h=300&w=300"
+        }
+      ]
+    },
+    {
+      "id": "guiso_asado",
+      "label": "Cerdo / ternera para asar o guisar",
+      "share": 0.5,
+      "options": [
+        {
+          "id": "4590",
+          "name": "Lomo de cerdo trozo",
+          "price": 4.7,
+          "unit": "kg",
+          "packPrice": 4.56,
+          "image": "https://prod-mercadona.imgix.net/images/ab6772608c4b8e26802aa494293ea5eb.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "3554",
+          "name": "Pieza cabeza lomo de cerdo",
+          "price": 4.9,
+          "unit": "kg",
+          "packPrice": 5.63,
+          "image": "https://prod-mercadona.imgix.net/images/c39c00367e195a300e334f9de7cff9b3.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "4900",
+          "name": "Chuletas aguja de cerdo",
+          "price": 5.15,
+          "unit": "kg",
+          "packPrice": 3.86,
+          "image": "https://prod-mercadona.imgix.net/images/de21659e8cf73b2e5f49153bedcd394d.jpg?fit=crop&h=300&w=300"
+        }
+      ]
+    }
+  ],
+  "carne:cumple": [
+    {
+      "id": "empanados",
+      "label": "Empanados y para picar",
+      "share": 0.4,
+      "options": [
+        {
+          "id": "63323",
+          "name": "Nuggets de pollo Hacendado ultracongelados",
+          "price": 5,
+          "unit": "kg",
+          "packPrice": 2.5,
+          "image": "https://prod-mercadona.imgix.net/images/a83470c87a6d3342c96dd0a449237604.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "14298",
+          "name": "San Jacobos de cerdo sin gluten",
+          "price": 6.6,
+          "unit": "kg",
+          "packPrice": 2.64,
+          "image": "https://prod-mercadona.imgix.net/images/496d5a9a9de7faa2cf2b14354963a567.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "21235",
+          "name": "Lagrimitas de pollo al limón empanadas sin gluten",
+          "price": 8.4,
+          "unit": "kg",
+          "packPrice": 3.44,
+          "image": "https://prod-mercadona.imgix.net/images/f9c43f2bec935f80a1bd2adb3b62216c.jpg?fit=crop&h=300&w=300"
+        }
+      ]
+    },
+    {
+      "id": "hamburguesas",
+      "label": "Hamburguesas y salchichas",
+      "share": 0.3,
+      "options": [
+        {
+          "id": "35884",
+          "name": "Hamburguesa de lomo de vacuno",
+          "price": 16.67,
+          "unit": "kg",
+          "packPrice": 4,
+          "image": "https://prod-mercadona.imgix.net/images/fb42955265ec4782f2e54200235d54ba.jpg?fit=crop&h=300&w=300"
+        }
+      ]
+    },
+    {
+      "id": "alitas",
+      "label": "Alitas y jamoncitos",
+      "share": 0.3,
+      "options": [
+        {
+          "id": "25183",
+          "name": "Jamoncitos de pollo congelados",
+          "price": 3.1,
+          "unit": "kg",
+          "packPrice": 3.1,
+          "image": "https://prod-mercadona.imgix.net/images/bebaada78c49c64b7dda4cf6b5726cf0.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "25184",
+          "name": "Alas de pollo congeladas",
+          "price": 3.2,
+          "unit": "kg",
+          "packPrice": 3.2,
+          "image": "https://prod-mercadona.imgix.net/images/c57822e42dafc3bcab953b8755a6a40f.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "2778",
+          "name": "Jamoncitos de pollo",
+          "price": 3.5,
+          "unit": "kg",
+          "packPrice": 3.22,
+          "image": "https://prod-mercadona.imgix.net/images/bdb83c7c681de567327ae97747a5d2bf.jpg?fit=crop&h=300&w=300"
+        }
+      ]
+    }
+  ],
+  "carne:amigos": [
+    {
+      "id": "iberico",
+      "label": "Ibéricos y embutido",
+      "share": 0.5,
+      "options": [
+        {
+          "id": "1564",
+          "name": "Costilla de cerdo ibérico adobada",
+          "price": 7.55,
+          "unit": "kg",
+          "packPrice": 3.78,
+          "image": "https://prod-mercadona.imgix.net/images/af452ee749d0981858f5bfd393dccf15.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "59085",
+          "name": "Salchichón extra Hacendado lonchas",
+          "price": 8.13,
+          "unit": "kg",
+          "packPrice": 1.95,
+          "image": "https://prod-mercadona.imgix.net/images/15e558ca440ad3f1a7f40d1f92c0d6da.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "58293",
+          "name": "Jamón serrano Incarlopsa",
+          "price": 9.56,
+          "unit": "kg",
+          "packPrice": 65,
+          "image": "https://prod-mercadona.imgix.net/images/7d4f3e6af6728a424824294cc851940a.jpg?fit=crop&h=300&w=300"
+        }
+      ]
+    },
+    {
+      "id": "queso",
+      "label": "Quesos",
+      "share": 0.5,
+      "options": [
+        {
+          "id": "51111",
+          "name": "Queso curado y cheddar Hacendado en dados",
+          "price": 9.2,
+          "unit": "kg",
+          "packPrice": 1.15,
+          "image": "https://prod-mercadona.imgix.net/images/7219aeaaf255a484b871a06e9bbe1f85.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "50946",
+          "name": "Queso semicurado mezcla Hacendado",
+          "price": 9.41,
+          "unit": "kg",
+          "packPrice": 14.49,
+          "image": "https://prod-mercadona.imgix.net/images/226430ffd0927fc4ab3c0f93831b5fe6.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "51630",
+          "name": "Queso curado cheddar Hacendado",
+          "price": 9.5,
+          "unit": "kg",
+          "packPrice": 2.85,
+          "image": "https://prod-mercadona.imgix.net/images/c536cb9dab18824330d0a9958c08dd37.jpg?fit=crop&h=300&w=300"
+        }
+      ]
+    }
+  ],
+  "carne:nochebuena": [
+    {
+      "id": "cordero",
+      "label": "Cordero / lechal",
+      "share": 0.35,
+      "options": [
+        {
+          "id": "21814",
+          "name": "Trozos de cordero para guisar",
+          "price": 12.5,
+          "unit": "kg",
+          "packPrice": 6.25,
+          "image": "https://prod-mercadona.imgix.net/images/874e080c6030ece1445e23e9a57108aa.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "2860",
+          "name": "Filetes hígado de cordero",
+          "price": 13,
+          "unit": "kg",
+          "packPrice": 4.42,
+          "image": "https://prod-mercadona.imgix.net/images/d1cb99db6ba095cc639db66bc24e425a.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "21663",
+          "name": "Garreta paletilla de cordero congelada",
+          "price": 13.9,
+          "unit": "kg",
+          "packPrice": 6.67,
+          "image": "https://prod-mercadona.imgix.net/images/b211700854706d94cb9705d8b38f4723.jpg?fit=crop&h=300&w=300"
+        }
+      ]
+    },
+    {
+      "id": "marisco",
+      "label": "Marisco",
+      "share": 0.35,
+      "options": [
+        {
+          "id": "60874",
+          "name": "Almeja Hacendado congelada",
+          "price": 4,
+          "unit": "kg",
+          "packPrice": 1.8,
+          "image": "https://prod-mercadona.imgix.net/images/5077ee2d933dcad572b8a81e0ade8a2f.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "85499",
+          "name": "Mejillón mediterráneo",
+          "price": 5.8,
+          "unit": "kg",
+          "packPrice": 5.8,
+          "image": "https://prod-mercadona.imgix.net/images/6d35f871fd522a7138410fba1d291b1f.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "35900",
+          "name": "Salteado de gambas, espárragos verdes, ajos tiernos, champiñón y cebolla Hacendado ultracongelado",
+          "price": 6.44,
+          "unit": "kg",
+          "packPrice": 2.9,
+          "image": "https://prod-mercadona.imgix.net/images/77aaa4c3dcbd08ce70f4e5626000c420.jpg?fit=crop&h=300&w=300"
+        }
+      ]
+    },
+    {
+      "id": "iberico_premium",
+      "label": "Ibérico y solomillo",
+      "share": 0.3,
+      "options": [
+        {
+          "id": "13046",
+          "name": "Secreto de cerdo",
+          "price": 6.2,
+          "unit": "kg",
+          "packPrice": 4.28,
+          "image": "https://prod-mercadona.imgix.net/images/3736924e8b6a3e6dd24a596cc3a0ece5.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "12793",
+          "name": "Filetes secreto de cerdo",
+          "price": 6.9,
+          "unit": "kg",
+          "packPrice": 3.24,
+          "image": "https://prod-mercadona.imgix.net/images/149f82ef7720bdb5e5037e38dd57cb72.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "1564",
+          "name": "Costilla de cerdo ibérico adobada",
+          "price": 7.55,
+          "unit": "kg",
+          "packPrice": 3.78,
+          "image": "https://prod-mercadona.imgix.net/images/af452ee749d0981858f5bfd393dccf15.jpg?fit=crop&h=300&w=300"
+        }
+      ]
+    }
+  ],
+  "ensalada:nochebuena": [
+    {
+      "id": "marisco_entrante",
+      "label": "Marisco para entrante",
+      "share": 0.5,
+      "options": [
+        {
+          "id": "24712",
+          "name": "Langostino crudo Hacendado ultracongelado",
+          "price": 9.92,
+          "unit": "kg",
+          "packPrice": 5.95,
+          "image": "https://prod-mercadona.imgix.net/images/c48b090bf241f8eb71d0d3aa2fc36bed.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "63144",
+          "name": "Langostino caballitos rebozados Hacendado ultracongelados",
+          "price": 10.83,
+          "unit": "kg",
+          "packPrice": 3.25,
+          "image": "https://prod-mercadona.imgix.net/images/c1311c0c6d0ca23b106986ff1efa861d.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "83490",
+          "name": "Langostino cocido",
+          "price": 10.95,
+          "unit": "kg",
+          "packPrice": 1084.05,
+          "image": "https://prod-mercadona.imgix.net/images/503eb7e89f381ca03a139660f538c741.jpg?fit=crop&h=300&w=300"
+        }
+      ]
+    },
+    {
+      "id": "tabla",
+      "label": "Tabla de ibéricos y queso",
+      "share": 0.5,
+      "options": [
+        {
+          "id": "59218",
+          "name": "Jamón de pavo Hacendado",
+          "price": 5.7,
+          "unit": "kg",
+          "packPrice": 2.85,
+          "image": "https://prod-mercadona.imgix.net/images/0a4b8f824e5ea4032abcee4e75a9092a.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "13988",
+          "name": "Jamón cocido sándwich Hacendado lonchas",
+          "price": 7.8,
+          "unit": "kg",
+          "packPrice": 1.95,
+          "image": "https://prod-mercadona.imgix.net/images/e6c15c62c66813c46d54d02f26fba2ea.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "16352",
+          "name": "Jamón cocido jugoso Hacendado lonchas",
+          "price": 7.8,
+          "unit": "kg",
+          "packPrice": 1.95,
+          "image": "https://prod-mercadona.imgix.net/images/19ad97cd414b1842a50c9f72d1e8da99.jpg?fit=crop&h=300&w=300"
+        }
+      ]
+    }
+  ],
   "carne:barbacoa": [
     {
       "id": "embutido_bbq",

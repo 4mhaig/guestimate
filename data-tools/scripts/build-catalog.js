@@ -29,6 +29,33 @@ const SPECS = {
     { id: 'pollo', label: 'Pollo', share: 0.5, cats: ['Carne'], inc: /pechuga de pollo|muslo|contramuslo de pollo|jamoncit/i, unit: 'kg', n: 3 },
     { id: 'cerdo_ternera', label: 'Cerdo / ternera', share: 0.5, cats: ['Carne'], inc: /chuleta.*cerdo|lomo de cerdo|filete.*ternera|aguja|entrecot|cinta de lomo/i, unit: 'kg', n: 3 },
   ],
+  // ---- CARNE comida familiar (asado/guiso) ----
+  'carne:familiar': [
+    { id: 'pollo', label: 'Pollo', share: 0.5, cats: ['Carne'], inc: /pechuga de pollo|muslo|contramuslo|jamoncit|pollo entero/i, unit: 'kg', n: 3 },
+    { id: 'guiso_asado', label: 'Cerdo / ternera para asar o guisar', share: 0.5, cats: ['Carne'], inc: /entrecot|aguja|lomo de cerdo|chuleta.*cerdo|cinta de lomo|morcillo/i, unit: 'kg', n: 3 },
+  ],
+  // ---- CARNE cumpleaños (para picar, apto niños) ----
+  'carne:cumple': [
+    { id: 'empanados', label: 'Empanados y para picar', share: 0.4, cats: ['Carne', 'Congelados'], inc: /empanad|nugget|varitas|lagrimitas|san jacobo|fingers|crujiente/i, unit: 'kg', n: 3 },
+    { id: 'hamburguesas', label: 'Hamburguesas y salchichas', share: 0.3, cats: ['Carne'], inc: /hamburguesa|salchicha/i, unit: 'kg', n: 3 },
+    { id: 'alitas', label: 'Alitas y jamoncitos', share: 0.3, cats: ['Carne'], inc: /alas.*pollo|jamoncit/i, unit: 'kg', n: 3 },
+  ],
+  // ---- CARNE cena de amigos (tabla de picoteo) ----
+  'carne:amigos': [
+    { id: 'iberico', label: 'Ibéricos y embutido', share: 0.5, cats: ['Charcutería y quesos', 'Carne'], inc: /ibérico|salchichón|lomo embuchado|fuet|cecina|jamón (serrano|ibérico)|chorizo (vela|sarta)/i, unit: 'kg', n: 3 },
+    { id: 'queso', label: 'Quesos', share: 0.5, cats: ['Charcutería y quesos'], inc: /queso (curado|viejo|manchego|mezcla|semicurado|añejo|ibérico)|cuña|tabla de queso/i, exc: /rallado|crema|untable|batido|fresco|0%/i, unit: 'kg', n: 3 },
+  ],
+  // ---- CARNE Nochebuena (festivo) ----
+  'carne:nochebuena': [
+    { id: 'cordero', label: 'Cordero / lechal', share: 0.35, cats: ['Carne'], inc: /cordero|lechal|paletilla|cabrito/i, unit: 'kg', n: 3 },
+    { id: 'marisco', label: 'Marisco', share: 0.35, cats: ['Marisco y pescado', 'Congelados'], inc: /langostino|gambón|gamba|marisco|mejillón|almeja|pulpo/i, unit: 'kg', n: 3 },
+    { id: 'iberico_premium', label: 'Ibérico y solomillo', share: 0.3, cats: ['Carne'], inc: /presa|secreto|solomillo|ibérico|entrecot/i, unit: 'kg', n: 3 },
+  ],
+  // ---- ENTRANTES Nochebuena (en lugar de ensalada normal) ----
+  'ensalada:nochebuena': [
+    { id: 'marisco_entrante', label: 'Marisco para entrante', share: 0.5, cats: ['Marisco y pescado', 'Congelados'], inc: /langostino|gambón|salpicón|salmón ahumado|gulas|cóctel de marisco/i, unit: 'kg', n: 3 },
+    { id: 'tabla', label: 'Tabla de ibéricos y queso', share: 0.5, cats: ['Charcutería y quesos'], inc: /ibérico|jamón|queso (curado|viejo|manchego|mezcla)|paté|cuña/i, exc: /rallado|batido|fresco|0%/i, unit: 'kg', n: 3 },
+  ],
   // ---- CARNE barbacoa (variada) ----
   'carne:barbacoa': [
     { id: 'embutido_bbq', label: 'Para la parrilla (chorizo, salchichas)', share: 0.3, cats: ['Carne', 'Charcutería y quesos'], inc: /chorizo (parrilla|criollo|fresco|oreado)|salchicha (fresca|parrilla|criolla)|butifarra|longaniza/i, unit: 'kg', n: 3 },
@@ -137,11 +164,16 @@ async function main() {
   const catalog = {};
   const report = [];
   for (const [key, slots] of Object.entries(SPECS)) {
-    catalog[key] = slots.map((spec) => {
+    const built = [];
+    for (const spec of slots) {
       const options = pickOptions(raw, spec);
       report.push(`${key} · ${spec.id}: ${options.length} opciones${options.length ? ' → ' + options.map((o) => `${o.name} (${o.price}€/${o.unit})`).slice(0, 1).join('') : ' ⚠️ SIN RESULTADOS'}`);
-      return { id: spec.id, label: spec.label, share: spec.share, options };
-    });
+      // Solo guardamos los slots que tienen productos reales.
+      if (options.length) built.push({ id: spec.id, label: spec.label, share: spec.share, options });
+    }
+    // Un catálogo específico de evento (clave con ":") solo se registra si
+    // tiene algún slot con productos; si no, la app cae al catálogo genérico.
+    if (built.length) catalog[key] = built;
   }
 
   const basics = {};

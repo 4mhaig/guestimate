@@ -34,9 +34,10 @@ function round2(n: number) {
   return Math.round(n * 100) / 100;
 }
 
+// Usa el catálogo específico del evento si existe (p.ej. "carne:nochebuena"),
+// y si no, el genérico de la categoría.
 function catalogKey(category: Category, event: EventType | null): string {
-  if (category === "carne" && event === "barbacoa") return "carne:barbacoa";
-  if (category === "postre" && event === "cumple") return "postre:cumple";
+  if (event && CATALOG[`${category}:${event}`]) return `${category}:${event}`;
   return category;
 }
 
