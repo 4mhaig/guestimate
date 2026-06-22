@@ -507,15 +507,17 @@ function Step1({
         })}
       </div>
 
-      <div className="mt-8 max-w-sm">
-        <label className="block text-sm font-medium text-foreground">¿Cuándo es el evento?</label>
-        <input
-          type="date"
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
-          className="mt-2 w-full rounded-xl border border-border bg-card px-4 py-3 text-sm text-foreground outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/15"
-        />
-      </div>
+      {eventType === "rural" && (
+        <div className="mt-8 max-w-sm">
+          <label className="block text-sm font-medium text-foreground">¿Cuándo empieza el viaje?</label>
+          <input
+            type="date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            className="mt-2 w-full rounded-xl border border-border bg-card px-4 py-3 text-sm text-foreground outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/15"
+          />
+        </div>
+      )}
     </div>
   );
 }
