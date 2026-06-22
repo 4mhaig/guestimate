@@ -25,7 +25,8 @@ export type People = {
 };
 
 export type Meal = "desayuno" | "comida" | "merienda" | "cena";
-export type MealsConfig = Record<number, Record<Meal, boolean>>;
+// Cada día: qué comidas se hacen + si hay aperitivo ese día.
+export type MealsConfig = Record<number, Record<Meal, boolean> & { aperitivo?: boolean }>;
 
 export type Category =
   | "carne"
@@ -47,6 +48,7 @@ export type Item = {
   category: Category;
   qty: number; // raw in g, ml or units
   unit: "g" | "ml" | "u";
+  event?: EventType; // evento al que pertenece (para resolver productos, p.ej. barbacoa dentro de casa rural)
 };
 
 export const EVENTS: {
@@ -176,10 +178,10 @@ function eventMultiplier(event: EventType, category: Category): number {
   }
 }
 
-function add(map: Map<string, Item>, p: Portion, qty: number) {
+function add(map: Map<string, Item>, p: Portion, qty: number, event?: EventType) {
   const existing = map.get(p.id);
   if (existing) existing.qty += qty;
-  else map.set(p.id, { id: p.id, name: p.name, category: p.category, qty, unit: p.unit });
+  else map.set(p.id, { id: p.id, name: p.name, category: p.category, qty, unit: p.unit, event });
 }
 
 const GROUP_BASICS: Portion[] = [
@@ -206,43 +208,48 @@ export function computeBasket(
   meals: MealsConfig,
   aperitivo: boolean = false,
   specialEvents: SpecialEvents = {},
-  restrictionCounts: Partial<Record<Restriction, number>> = {},
+  restrictionCounts: Partial<Record<Restriction, People>> = {},
 ): Item[] {
   if (!event) return [];
   const map = new Map<string, Item>();
   const units = adultUnits(people);
-  const headcount = totalPeople(people);
   if (units === 0 && event !== "rural") return [];
 
   if (event === "rural") {
     if (units === 0) return [];
+    const MEALS: Meal[] = ["desayuno", "comida", "merienda", "cena"];
     for (let d = 1; d <= days; d++) {
       const dayMeals = meals[d] || { desayuno: true, comida: true, merienda: true, cena: true };
       const special = specialEvents[d];
-      (Object.keys(dayMeals) as Meal[]).forEach((m) => {
+      MEALS.forEach((m) => {
         if (!dayMeals[m]) return;
         const mult = RURAL_MEAL_MULT[m];
+        const isMain = m === "comida" || m === "cena";
         RURAL_MEALS[m].forEach((p) => {
           let qty = p.per * units * mult;
           // Si ese día hay barbacoa/cumpleaños, aplicamos su multiplicador
           // a la comida y la cena (la celebración fuerte del día).
-          if (special && (m === "comida" || m === "cena")) {
-            qty *= eventMultiplier(special, p.category);
+          if (special && isMain) qty *= eventMultiplier(special, p.category);
+          // Además, la carne (y el postre en cumpleaños) de ese día se resuelven
+          // con los PRODUCTOS de ese evento (p.ej. una barbacoa → chorizo/costilla).
+          if (special && isMain && (p.category === "carne" || (special === "cumple" && p.category === "postre"))) {
+            add(map, { ...p, id: `${p.id}__${special}` }, qty, special);
+          } else {
+            add(map, p, qty);
           }
-          add(map, p, qty);
         });
       });
+      // Aperitivo de ese día (fila propia en la tabla): una ronda de picoteo
+      if (meals[d]?.aperitivo) {
+        add(map, { id: "snacks", name: "Snacks", category: "snacks", per: 80, unit: "g" }, 80 * units);
+        add(
+          map,
+          { id: "picoteo", name: "Embutido y queso para picar", category: "embutido", per: 70, unit: "g" },
+          70 * units,
+        );
+      }
     }
     GROUP_BASICS.forEach((p) => add(map, p, p.per));
-    // Aperitivo durante el viaje: una ronda de picoteo
-    if (aperitivo) {
-      add(map, { id: "snacks", name: "Snacks", category: "snacks", per: 80, unit: "g" }, 80 * units);
-      add(
-        map,
-        { id: "picoteo", name: "Embutido y queso para picar", category: "embutido", per: 70, unit: "g" },
-        70 * units,
-      );
-    }
   } else {
     BASE_MEAL.forEach((p) => {
       // Los aperitivos/snacks solo entran si el usuario activa el aperitivo
@@ -264,7 +271,15 @@ export function computeBasket(
   const list = Array.from(map.values());
   const hasNinguna = restrictions.includes("ninguna");
   const active = hasNinguna ? [] : restrictions;
-  return applyRestrictions(list, active, restrictionCounts, headcount);
+  // Fracción afectada por cada restricción, ponderada por "unidades de adulto"
+  // (un niño come menos que un adulto), no por simple recuento.
+  const totalU = adultUnits(people) || 1;
+  const fractions: Partial<Record<Restriction, number>> = {};
+  for (const r of active) {
+    const c = restrictionCounts[r];
+    fractions[r] = c ? Math.max(0, Math.min(1, adultUnits(c) / totalU)) : 1;
+  }
+  return applyRestrictions(list, active, fractions);
 }
 
 // Reglas de sustitución: una restricción afecta a una categoría y la
@@ -287,8 +302,7 @@ const SPLIT_RULES: SplitRule[] = [
 function applyRestrictions(
   list: Item[],
   restrictions: Restriction[],
-  counts: Partial<Record<Restriction, number>>,
-  headcount: number,
+  fractions: Partial<Record<Restriction, number>>,
 ): Item[] {
   const out: Item[] = [];
   for (const item of list) {
@@ -300,9 +314,7 @@ function applyRestrictions(
       out.push(item);
       continue;
     }
-    // Fracción de personas con esa restricción (si no se indica, se asume todas).
-    const c = counts[rule.r];
-    const f = c == null ? 1 : headcount > 0 ? Math.max(0, Math.min(1, c / headcount)) : 1;
+    const f = fractions[rule.r] ?? 1;
     if (f >= 1) {
       const t = rule.to(item);
       out.push({ ...item, name: t.name, id: t.id });

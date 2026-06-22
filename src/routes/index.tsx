@@ -6,6 +6,7 @@ import {
   ArrowRight,
   Check,
   Copy,
+  Minus,
   Plus,
   RefreshCw,
   ShoppingBasket,
@@ -85,7 +86,7 @@ function Index() {
   const [aperitivo, setAperitivo] = useState(false);
   const [specialEvents, setSpecialEvents] = useState<SpecialEvents>({});
   const [restrictions, setRestrictions] = useState<Restriction[]>([]);
-  const [restrictionCounts, setRestrictionCounts] = useState<Record<string, number>>({});
+  const [restrictionCounts, setRestrictionCounts] = useState<Partial<Record<Restriction, People>>>({});
   const [specialRequests, setSpecialRequests] = useState("");
   const [overrides, setOverrides] = useState<Record<string, number>>({});
   const [removed, setRemoved] = useState<Set<string>>(new Set());
@@ -345,10 +346,10 @@ function Index() {
             {view === "wizard" && <ProgressBasket step={step} />}
             <button
               onClick={() => setView("saved")}
-              className={`rounded-full px-3 py-1.5 text-sm font-medium transition-colors ${
+              className={`rounded-full border px-4 py-1.5 text-sm font-medium transition-colors ${
                 view === "saved"
-                  ? "bg-accent text-accent-foreground"
-                  : "text-muted-foreground hover:text-foreground"
+                  ? "border-primary bg-primary text-primary-foreground"
+                  : "border-border bg-card text-foreground hover:border-primary/40"
               }`}
             >
               Mis listas
@@ -418,7 +419,7 @@ function Index() {
                   setRestrictions={setRestrictions}
                   restrictionCounts={restrictionCounts}
                   setRestrictionCounts={setRestrictionCounts}
-                  totalPeople={totalPpl}
+                  people={people}
                   drinks={drinks}
                   toggleDrink={toggleDrink}
                   specialRequests={specialRequests}
@@ -478,9 +479,11 @@ function Index() {
         </aside>
       </main>
 
-      {/* Mobile floating basket button */}
-      <MobileBasketButton
-        count={items.length}
+      {/* Mobile sticky basket bar */}
+      <MobileBasketBar
+        count={resolved.groups.reduce((s, g) => s + g.lines.length, 0)}
+        total={resolved.total}
+        categories={resolved.groups.map((g) => g.label).slice(0, 3).join(", ")}
         onClick={() => setMobileBasketOpen(true)}
         registerRef={(el) => (mobileBasketRef.current = el)}
       />
@@ -867,8 +870,6 @@ function Step2({
             setMeals={setMeals}
             specialEvents={specialEvents}
             setSpecialEvents={setSpecialEvents}
-            aperitivo={aperitivo}
-            setAperitivo={setAperitivo}
           />
         </div>
       )}
@@ -882,16 +883,12 @@ function MealsTable({
   setMeals,
   specialEvents,
   setSpecialEvents,
-  aperitivo,
-  setAperitivo,
 }: {
   days: number;
   meals: MealsConfig;
   setMeals: (m: MealsConfig) => void;
   specialEvents: SpecialEvents;
   setSpecialEvents: (s: SpecialEvents) => void;
-  aperitivo: boolean;
-  setAperitivo: (b: boolean) => void;
 }) {
   const mealRows: { key: Meal; label: string }[] = [
     { key: "desayuno", label: "Desayuno" },
@@ -903,6 +900,10 @@ function MealsTable({
   const toggle = (d: number, m: Meal) => {
     const cur = meals[d] || { desayuno: true, comida: true, merienda: true, cena: true };
     setMeals({ ...meals, [d]: { ...cur, [m]: !cur[m] } });
+  };
+  const toggleAperitivo = (d: number) => {
+    const cur = meals[d] || { desayuno: true, comida: true, merienda: true, cena: true };
+    setMeals({ ...meals, [d]: { ...cur, aperitivo: !cur.aperitivo } });
   };
   return (
     <div className="rounded-2xl border border-border bg-card p-5">
@@ -932,6 +933,27 @@ function MealsTable({
             </tr>
           </thead>
           <tbody>
+            <tr className="border-t border-border">
+              <td className="py-2 pr-3 font-medium text-foreground">Aperitivo</td>
+              {dayCols.map((d) => {
+                const on = meals[d]?.aperitivo ?? false;
+                return (
+                  <td key={d} className="px-2 py-2 text-center">
+                    <motion.button
+                      whileTap={{ scale: 0.85 }}
+                      onClick={() => toggleAperitivo(d)}
+                      className={`h-7 w-12 rounded-full transition-colors ${on ? "bg-primary" : "bg-muted"}`}
+                      aria-label={`Aperitivo día ${d}`}
+                    >
+                      <motion.span
+                        layout
+                        className={`block h-5 w-5 rounded-full bg-white shadow ${on ? "ml-6" : "ml-1"}`}
+                      />
+                    </motion.button>
+                  </td>
+                );
+              })}
+            </tr>
             {mealRows.map((row) => (
               <tr key={row.key} className="border-t border-border">
                 <td className="py-2 pr-3 text-foreground">{row.label}</td>
@@ -991,9 +1013,6 @@ function MealsTable({
         </div>
       </div>
 
-      <div className="mt-5 border-t border-border pt-4">
-        <AperitivoToggle aperitivo={aperitivo} setAperitivo={setAperitivo} />
-      </div>
     </div>
   );
 }
@@ -1010,12 +1029,19 @@ const DRINK_LABELS: Record<string, string> = {
 
 const SPLIT_RESTRICTIONS = ["vegano", "vegetariano", "celiaco", "lactosa", "sin_cerdo"];
 
+const REST_PROFILES: { key: keyof People; label: string }[] = [
+  { key: "hombres", label: "Hombres" },
+  { key: "mujeres", label: "Mujeres" },
+  { key: "adolescentes", label: "Adolesc." },
+  { key: "ninos", label: "Niños" },
+];
+
 function Step3({
   restrictions,
   setRestrictions,
   restrictionCounts,
   setRestrictionCounts,
-  totalPeople,
+  people,
   drinks,
   toggleDrink,
   specialRequests,
@@ -1023,14 +1049,21 @@ function Step3({
 }: {
   restrictions: Restriction[];
   setRestrictions: (r: Restriction[]) => void;
-  restrictionCounts: Record<string, number>;
-  setRestrictionCounts: (c: Record<string, number>) => void;
-  totalPeople: number;
+  restrictionCounts: Partial<Record<Restriction, People>>;
+  setRestrictionCounts: (c: Partial<Record<Restriction, People>>) => void;
+  people: People;
   drinks: Set<string>;
   toggleDrink: (id: string) => void;
   specialRequests: string;
   setSpecialRequests: (s: string) => void;
 }) {
+  const setRestCount = (r: Restriction, key: keyof People, value: number) => {
+    const cur = restrictionCounts[r] ?? { hombres: 0, mujeres: 0, adolescentes: 0, ninos: 0 };
+    setRestrictionCounts({
+      ...restrictionCounts,
+      [r]: { ...cur, [key]: Math.max(0, Math.min(people[key], value)) },
+    });
+  };
   const toggle = (id: Restriction) => {
     if (id === "ninguna") {
       setRestrictions(restrictions.includes("ninguna") ? [] : ["ninguna"]);
@@ -1048,13 +1081,12 @@ function Step3({
         whileTap={{ scale: 0.95 }}
         onClick={() => toggleDrink(id)}
         aria-pressed={on}
-        className={`inline-flex items-center gap-1.5 rounded-full border px-4 py-2 text-sm font-medium transition-all ${
+        className={`rounded-full border px-4 py-2 text-sm font-medium transition-all ${
           on
             ? "border-primary bg-primary text-primary-foreground"
-            : "border-border bg-card text-muted-foreground hover:border-primary/50"
+            : "border-border bg-card text-foreground hover:border-primary/40"
         }`}
       >
-        {on ? <Check className="h-3.5 w-3.5" strokeWidth={3} /> : <Plus className="h-3.5 w-3.5" />}
         {DRINK_LABELS[id]}
       </motion.button>
     );
@@ -1083,45 +1115,56 @@ function Step3({
         })}
       </div>
 
-      {restrictions.some((r) => SPLIT_RESTRICTIONS.includes(r)) && (
-        <div className="mt-6 rounded-2xl border border-border bg-card p-4">
-          <p className="text-sm font-medium text-foreground">¿Cuántas personas tienen cada restricción?</p>
-          <p className="mt-0.5 text-xs text-muted-foreground">
-            Así calculamos cuánto comprar de cada cosa (normal y especial).
-          </p>
-          <div className="mt-3 space-y-2">
-            {restrictions
-              .filter((r) => SPLIT_RESTRICTIONS.includes(r))
-              .map((r) => {
-                const label = RESTRICTIONS.find((x) => x.id === r)?.label ?? r;
-                const val = restrictionCounts[r] ?? totalPeople;
-                return (
-                  <div key={r} className="flex items-center justify-between gap-3">
-                    <span className="text-sm text-foreground">{label}</span>
-                    <input
-                      type="number"
-                      min={0}
-                      max={totalPeople}
-                      value={val}
-                      onChange={(e) =>
-                        setRestrictionCounts({
-                          ...restrictionCounts,
-                          [r]: Math.max(0, Math.min(totalPeople, Number(e.target.value) || 0)),
-                        })
-                      }
-                      className="w-20 rounded-lg border border-border bg-background px-3 py-1.5 text-sm text-foreground outline-none focus:border-primary"
-                    />
-                  </div>
-                );
-              })}
-          </div>
+      <div className="mt-6 rounded-2xl border border-border bg-card p-4">
+        <p className="text-sm font-medium text-foreground">¿Quién tiene cada restricción?</p>
+        <p className="mt-0.5 text-xs text-muted-foreground">
+          Indica cuántas personas de cada tipo. Se activa al seleccionar la restricción arriba.
+          Así ajustamos cuánto comprar (normal y especial).
+        </p>
+        <div className="mt-4 space-y-4">
+          {SPLIT_RESTRICTIONS.map((r) => {
+            const active = restrictions.includes(r as Restriction);
+            const label = RESTRICTIONS.find((x) => x.id === r)?.label ?? r;
+            const counts = restrictionCounts[r as Restriction];
+            return (
+              <div key={r} className={active ? "" : "opacity-40"}>
+                <div className="mb-1.5 text-sm font-medium text-foreground">{label}</div>
+                <div className="flex flex-wrap gap-3">
+                  {REST_PROFILES.map((p) => (
+                    <div key={p.key} className="flex items-center gap-1.5">
+                      <span className="text-xs text-muted-foreground">{p.label}</span>
+                      <div className="flex items-center gap-1">
+                        <button
+                          disabled={!active}
+                          onClick={() => setRestCount(r as Restriction, p.key, (counts?.[p.key] ?? 0) - 1)}
+                          className="grid h-6 w-6 place-items-center rounded-full border border-border text-muted-foreground disabled:opacity-40 enabled:hover:text-foreground"
+                          aria-label={`Menos ${p.label} con ${label}`}
+                        >
+                          <Minus className="h-3 w-3" />
+                        </button>
+                        <span className="w-4 text-center text-sm tabular-nums">{counts?.[p.key] ?? 0}</span>
+                        <button
+                          disabled={!active}
+                          onClick={() => setRestCount(r as Restriction, p.key, (counts?.[p.key] ?? 0) + 1)}
+                          className="grid h-6 w-6 place-items-center rounded-full bg-primary/10 text-primary disabled:opacity-40 enabled:hover:bg-primary/20"
+                          aria-label={`Más ${p.label} con ${label}`}
+                        >
+                          <Plus className="h-3 w-3" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
         </div>
-      )}
+      </div>
 
       <div className="mt-10">
         <h2 className="font-display text-lg font-semibold text-foreground">Bebidas</h2>
         <p className="mt-0.5 text-sm text-muted-foreground">
-          Las que tienen ✓ están incluidas. Toca para quitarlas o añadirlas.
+          Las marcadas (en color) se incluyen. Toca para quitarlas o añadirlas.
         </p>
         <div className="mt-3">
           <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Refrescos</span>
@@ -1453,32 +1496,45 @@ function FeedbackView({
 }
 
 /* ---------- Mobile basket button ---------- */
-function MobileBasketButton({
+function MobileBasketBar({
   count,
+  total,
+  categories,
   onClick,
   registerRef,
 }: {
   count: number;
+  total: number;
+  categories: string;
   onClick: () => void;
   registerRef: (el: HTMLButtonElement | null) => void;
 }) {
   return (
-    <motion.button
+    <button
       ref={registerRef}
       onClick={onClick}
-      animate={{ scale: [1, 1.15, 1] }}
-      key={count}
-      transition={{ duration: 0.3 }}
-      className="fixed bottom-5 right-5 z-40 grid h-14 w-14 place-items-center rounded-full bg-primary text-primary-foreground shadow-xl lg:hidden"
+      className="fixed inset-x-0 bottom-0 z-40 flex items-center justify-between gap-3 border-t border-border bg-card px-5 py-3 text-left shadow-[0_-4px_16px_rgba(0,0,0,0.08)] lg:hidden"
       aria-label="Abrir cesta"
     >
-      <ShoppingBasket className="h-6 w-6" strokeWidth={1.6} />
-      {count > 0 && (
-        <span className="absolute -top-1 -right-1 grid h-6 min-w-[1.5rem] place-items-center rounded-full bg-secondary px-1.5 text-xs font-bold text-secondary-foreground">
-          <AnimatedNumber value={count} />
-        </span>
-      )}
-    </motion.button>
+      <div className="flex min-w-0 items-center gap-3">
+        <div className="relative grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground">
+          <ShoppingBasket className="h-5 w-5" strokeWidth={1.7} />
+          {count > 0 && (
+            <span className="absolute -top-1.5 -right-1.5 grid h-5 min-w-[1.25rem] place-items-center rounded-full bg-secondary px-1 text-[11px] font-bold text-secondary-foreground">
+              <AnimatedNumber value={count} />
+            </span>
+          )}
+        </div>
+        <div className="min-w-0">
+          <div className="text-sm font-bold text-foreground">Cesta de compra</div>
+          <div className="truncate text-xs text-muted-foreground">{categories || "Vacía"}</div>
+        </div>
+      </div>
+      <div className="shrink-0 text-right">
+        <div className="text-lg font-bold text-primary">{formatEuro(total)}</div>
+        <div className="text-[10px] uppercase tracking-wider text-muted-foreground">estimado</div>
+      </div>
+    </button>
   );
 }
 

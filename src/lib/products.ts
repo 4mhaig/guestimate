@@ -130,7 +130,7 @@ export function resolveBasket(
       continue;
     }
 
-    const key = catalogKey(item.category, event);
+    const key = catalogKey(item.category, item.event ?? event);
     const slots = CATALOG[key] ?? CATALOG[item.category];
     const g = ensureGroup(item.category);
 
