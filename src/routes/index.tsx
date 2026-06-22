@@ -6,6 +6,7 @@ import {
   ArrowRight,
   Check,
   Copy,
+  LogOut,
   Minus,
   Plus,
   RefreshCw,
@@ -102,6 +103,7 @@ function Index() {
   const [authSent, setAuthSent] = useState(false);
   const [authBusy, setAuthBusy] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
+  const [listCount, setListCount] = useState(0);
 
   const openAuth = () => {
     setAuthSent(false);
@@ -133,6 +135,25 @@ function Index() {
     });
     return () => sub.subscription.unsubscribe();
   }, []);
+
+  // Nº de listas guardadas del usuario (badge en "Mis listas")
+  useEffect(() => {
+    if (!user) {
+      setListCount(0);
+      return;
+    }
+    let active = true;
+    supabase
+      .from("events")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", user.id)
+      .then(({ count }) => {
+        if (active) setListCount(count ?? 0);
+      });
+    return () => {
+      active = false;
+    };
+  }, [user, view, savedEventId]);
   const [toast, setToast] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [feedbackEmoji, setFeedbackEmoji] = useState<string | null>(null);
@@ -390,35 +411,31 @@ function Index() {
             {view === "wizard" && <ProgressBasket step={step} />}
             <button
               onClick={() => setView("saved")}
-              className={`rounded-full border px-4 py-1.5 text-sm font-medium transition-colors ${
+              className={`inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-sm font-medium transition-colors ${
                 view === "saved"
                   ? "border-primary bg-primary text-primary-foreground"
                   : "border-border bg-card text-foreground hover:border-primary/40"
               }`}
             >
               Mis listas
+              {user && listCount > 0 && (
+                <span
+                  className={`grid h-5 min-w-[1.25rem] place-items-center rounded-full px-1 text-xs font-bold ${
+                    view === "saved" ? "bg-primary-foreground text-primary" : "bg-primary text-primary-foreground"
+                  }`}
+                >
+                  {listCount}
+                </span>
+              )}
             </button>
-            {user ? (
+            {user && (
               <button
                 onClick={() => signOut()}
-                title={user.email}
-                className="flex items-center gap-2 rounded-full border border-border bg-card px-2 py-1 text-sm font-medium text-foreground transition-colors hover:border-primary/40"
+                title={`Cerrar sesión (${user.email})`}
+                className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-sm font-medium text-foreground transition-colors hover:border-primary/40"
               >
-                {user.avatar ? (
-                  <img src={user.avatar} alt="" className="h-6 w-6 rounded-full" />
-                ) : (
-                  <span className="grid h-6 w-6 place-items-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
-                    {(user.name || user.email || "?").charAt(0).toUpperCase()}
-                  </span>
-                )}
+                <LogOut className="h-4 w-4" />
                 <span className="hidden sm:inline">Salir</span>
-              </button>
-            ) : (
-              <button
-                onClick={openAuth}
-                className="rounded-full bg-primary px-4 py-1.5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
-              >
-                Entrar
               </button>
             )}
           </div>
