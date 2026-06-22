@@ -114,11 +114,19 @@ export async function fetchProductsByCategory(categoryId, postalCode) {
 // nuestra tabla `products` de Supabase.
 function normalizeProduct(p) {
   const pi = p.price_instructions || {};
+  // bulk_price = precio por unidad de referencia (€/kg o €/L) → el bueno
+  // para calcular cuánto cuesta una cantidad. unit_price = precio del
+  // paquete entero (lo que pagas en caja por una unidad de producto).
+  const refPrice = Number(pi.bulk_price) || Number(pi.unit_price) || null;
+  const refFormat = (pi.reference_format || pi.size_format || 'ud').toUpperCase();
   return {
     external_id: p.id,
     name: p.display_name || p.name,
-    price: Number(pi.unit_price) || null,
-    unit: pi.unit_name || pi.reference_format || 'ud',
+    price: refPrice,                            // €/kg, €/L o €/ud (referencia)
+    unit: refFormat === 'L' ? 'L' : refFormat.toLowerCase(), // "kg" | "L" | "ud"
+    pack_price: Number(pi.unit_price) || null,  // precio del paquete entero
+    pack_size: pi.unit_size ?? null,            // tamaño del paquete (p.ej. 5)
+    pack_format: pi.size_format || null,        // "kg" | "l" | "ud"
     category: p.categories?.[0]?.name || null,
     supermarket: 'mercadona',
     image_url: p.thumbnail || null,
