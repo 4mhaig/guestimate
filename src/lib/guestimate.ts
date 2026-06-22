@@ -40,6 +40,7 @@ export type Category =
   | "lacteos"
   | "embutido"
   | "fruta"
+  | "entrante"
   | "otros";
 
 export type Item = {
@@ -89,6 +90,7 @@ export const CATEGORY_META: Record<Category, { label: string; icon: string }> = 
   lacteos: { label: "Lácteos", icon: "Milk" },
   embutido: { label: "Embutidos y queso", icon: "Beef" },
   fruta: { label: "Fruta", icon: "Salad" },
+  entrante: { label: "Entrantes y marisco", icon: "Fish" },
   otros: { label: "Básicos y otros", icon: "ShoppingBasket" },
 };
 

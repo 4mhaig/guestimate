@@ -963,8 +963,8 @@ function MealsTable({
                   })}
                 </tr>
                 {row.key === "desayuno" && (
-                  <tr className="border-t border-dashed border-border bg-accent/30">
-                    <td className="py-2 pr-3 font-medium text-foreground">Aperitivo</td>
+                  <tr className="border-t border-border">
+                    <td className="py-2 pr-3 text-foreground">Aperitivo</td>
                     {dayCols.map((d) => {
                       const on = meals[d]?.aperitivo ?? false;
                       return (

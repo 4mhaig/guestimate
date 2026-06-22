@@ -54,7 +54,7 @@ const SPECS = {
   // ---- ENTRANTES Nochebuena (ensalada festiva + marisco; tabla va a embutido) ----
   'ensalada:nochebuena': [
     { id: 'hoja', label: 'Ensalada festiva', share: 0.4, cats: ['Fruta y verdura'], inc: /lechuga|ensalada|brotes|canónigos|rúcula|escarola|aguacate/i, exc: /tomate/i, unit: 'kg', n: 3 },
-    { id: 'marisco_entrante', label: 'Marisco para entrante', share: 0.6, cats: ['Marisco y pescado', 'Congelados'], inc: /langostino|gambón|salpicón|salmón ahumado|gulas|cóctel de marisco/i, unit: 'kg', n: 3 },
+    { id: 'marisco_entrante', label: 'Marisco para entrante', share: 0.6, cat: 'entrante', cats: ['Marisco y pescado', 'Congelados'], inc: /langostino|gambón|salpicón|salmón ahumado|gulas|cóctel de marisco/i, unit: 'kg', n: 3 },
     { id: 'tabla', label: 'Tabla de ibéricos y queso', share: 0.5, cat: 'embutido', cats: ['Charcutería y quesos'], inc: /ibérico|jamón|queso (curado|viejo|manchego|mezcla)|paté|cuña/i, exc: /rallado|batido|fresco|0%/i, unit: 'kg', n: 3 },
   ],
   // ---- APERITIVO / SNACKS por evento ----
@@ -153,9 +153,12 @@ const SPECS = {
     { id: 'embutido', label: 'Jamón y embutido', share: 0.6, cats: ['Charcutería y quesos', 'Carne'], inc: /jamón (serrano|cocido|york)|chorizo|salchichón|lomo|mortadela|pavo lonchas|fuet/i, unit: 'kg', n: 3 },
     { id: 'queso', label: 'Queso', share: 0.4, cats: ['Charcutería y quesos'], inc: /queso/i, exc: /rallado|crema/i, unit: 'kg', n: 3 },
   ],
-  // ---- FRUTA ----
+  // ---- FRUTA (variada: varias piezas, no una sola) ----
   fruta: [
-    { id: 'fruta', label: 'Fruta variada', share: 1, cats: ['Fruta y verdura'], inc: /plátano|manzana|naranja|pera|uva|melón|sandía|fresa|mandarina|kiwi/i, unit: 'kg', n: 3 },
+    { id: 'melon_sandia', label: 'Melón / sandía', share: 0.3, cats: ['Fruta y verdura'], inc: /sandía|melón|piña/i, unit: 'kg', n: 3 },
+    { id: 'manzana_pera', label: 'Manzana / pera', share: 0.25, cats: ['Fruta y verdura'], inc: /manzana|pera/i, exc: /tomate/i, unit: 'kg', n: 3 },
+    { id: 'platano', label: 'Plátano', share: 0.2, cats: ['Fruta y verdura'], inc: /plátano|banana/i, unit: 'kg', n: 3 },
+    { id: 'citricos_uva', label: 'Naranja, uva y otras', share: 0.25, cats: ['Fruta y verdura'], inc: /naranja|mandarina|uva|kiwi|fresa|ciruela/i, unit: 'kg', n: 3 },
   ],
 };
 

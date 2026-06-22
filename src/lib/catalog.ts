@@ -448,7 +448,8 @@ export const CATALOG: Record<string, CatalogSlot[]> = {
           "packPrice": 1084.05,
           "image": "https://prod-mercadona.imgix.net/images/503eb7e89f381ca03a139660f538c741.jpg?fit=crop&h=300&w=300"
         }
-      ]
+      ],
+      "cat": "entrante"
     },
     {
       "id": "tabla",
@@ -1832,9 +1833,9 @@ export const CATALOG: Record<string, CatalogSlot[]> = {
   ],
   "fruta": [
     {
-      "id": "fruta",
-      "label": "Fruta variada",
-      "share": 1,
+      "id": "melon_sandia",
+      "label": "Melón / sandía",
+      "share": 0.3,
       "options": [
         {
           "id": "3529",
@@ -1859,6 +1860,99 @@ export const CATALOG: Record<string, CatalogSlot[]> = {
           "unit": "kg",
           "packPrice": 3.74,
           "image": "https://prod-mercadona.imgix.net/images/3f5e582ec279d307ccc73ef5daa94586.jpg?fit=crop&h=300&w=300"
+        }
+      ]
+    },
+    {
+      "id": "manzana_pera",
+      "label": "Manzana / pera",
+      "share": 0.25,
+      "options": [
+        {
+          "id": "3269",
+          "name": "Manzanas Golden",
+          "price": 2.2,
+          "unit": "kg",
+          "packPrice": 3.3,
+          "image": "https://prod-mercadona.imgix.net/images/022fa8e1cd6c9d9ee18a41ed06d71c35.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "3028",
+          "name": "Manzana Golden",
+          "price": 2.4,
+          "unit": "kg",
+          "packPrice": 0.48,
+          "image": "https://prod-mercadona.imgix.net/images/12cc1ef38a5b781f364ca22e46a25ad7.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "8280",
+          "name": "Manzanas rojas dulces",
+          "price": 2.4,
+          "unit": "kg",
+          "packPrice": 3.6,
+          "image": "https://prod-mercadona.imgix.net/images/87f801433e34719ba9bdc226616e7511.jpg?fit=crop&h=300&w=300"
+        }
+      ]
+    },
+    {
+      "id": "platano",
+      "label": "Plátano",
+      "share": 0.2,
+      "options": [
+        {
+          "id": "3824",
+          "name": "Banana",
+          "price": 1.55,
+          "unit": "kg",
+          "packPrice": 0.29,
+          "image": "https://prod-mercadona.imgix.net/images/69edef3541bbf3f4b7173c9d617a5698.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "3819",
+          "name": "Plátano de Canarias IGP",
+          "price": 2.9,
+          "unit": "kg",
+          "packPrice": 0.46,
+          "image": "https://prod-mercadona.imgix.net/images/e4a37940916985bf5ca166e266580c37.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "3132",
+          "name": "Plátano macho",
+          "price": 2.9,
+          "unit": "kg",
+          "packPrice": 0.81,
+          "image": "https://prod-mercadona.imgix.net/images/c22baa2a17de06fbf8477ef25392b7ca.jpg?fit=crop&h=300&w=300"
+        }
+      ]
+    },
+    {
+      "id": "citricos_uva",
+      "label": "Naranja, uva y otras",
+      "share": 0.25,
+      "options": [
+        {
+          "id": "3277",
+          "name": "Naranjas",
+          "price": 1.55,
+          "unit": "kg",
+          "packPrice": 4.65,
+          "image": "https://prod-mercadona.imgix.net/images/45e9468a6928470c2fef4b286fab0ccd.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "3235",
+          "name": "Naranja de mesa",
+          "price": 2.15,
+          "unit": "kg",
+          "packPrice": 0.67,
+          "image": "https://prod-mercadona.imgix.net/images/e9ff28c3b115649df7138f0f51dd1f9f.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "3832",
+          "name": "Kiwis verdes",
+          "price": 4.55,
+          "unit": "kg",
+          "packPrice": 4.87,
+          "image": "https://prod-mercadona.imgix.net/images/e887a535440a80f19a036df7d70f124a.jpg?fit=crop&h=300&w=300"
         }
       ]
     }
