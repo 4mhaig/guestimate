@@ -87,6 +87,7 @@ function Index() {
   });
   const [meals, setMeals] = useState<MealsConfig>(defaultMealsConfig(2));
   const [aperitivo, setAperitivo] = useState(false);
+  const [easyCooking, setEasyCooking] = useState(false);
   const [specialEvents, setSpecialEvents] = useState<SpecialEvents>({});
   const [restrictions, setRestrictions] = useState<Restriction[]>([]);
   const [restrictionCounts, setRestrictionCounts] = useState<Partial<Record<Restriction, People>>>({});
@@ -190,8 +191,8 @@ function Index() {
   // Compute basket (debounced)
   const rawItems = useMemo(
     () =>
-      computeBasket(eventType, people, restrictions, days, meals, aperitivo, specialEvents, restrictionCounts),
-    [eventType, people, restrictions, days, meals, aperitivo, specialEvents, restrictionCounts],
+      computeBasket(eventType, people, restrictions, days, meals, aperitivo, specialEvents, restrictionCounts, easyCooking),
+    [eventType, people, restrictions, days, meals, aperitivo, specialEvents, restrictionCounts, easyCooking],
   );
   const items: Item[] = useMemo(() => {
     return rawItems
@@ -256,6 +257,7 @@ function Index() {
     setPeople({ hombres: 0, mujeres: 0, adolescentes: 0, ninos: 0 });
     setMeals(defaultMealsConfig(2));
     setAperitivo(false);
+    setEasyCooking(false);
     setSpecialEvents({});
     setRestrictions([]);
     setRestrictionCounts({});
@@ -505,6 +507,8 @@ function Index() {
                   setSpecialEvents={setSpecialEvents}
                   aperitivo={aperitivo}
                   setAperitivo={setAperitivo}
+                  easyCooking={easyCooking}
+                  setEasyCooking={setEasyCooking}
                 />
               )}
               {step === 3 && (
@@ -995,6 +999,8 @@ function Step2({
   setSpecialEvents,
   aperitivo,
   setAperitivo,
+  easyCooking,
+  setEasyCooking,
 }: {
   people: People;
   setPeople: (p: People) => void;
@@ -1006,6 +1012,8 @@ function Step2({
   setSpecialEvents: (s: SpecialEvents) => void;
   aperitivo: boolean;
   setAperitivo: (b: boolean) => void;
+  easyCooking: boolean;
+  setEasyCooking: (b: boolean) => void;
 }) {
   const total = totalPeople(people);
   const rows: { key: keyof People; label: string }[] = [
@@ -1053,6 +1061,31 @@ function Step2({
             specialEvents={specialEvents}
             setSpecialEvents={setSpecialEvents}
           />
+          <button
+            onClick={() => setEasyCooking(!easyCooking)}
+            className={`mt-4 flex w-full items-center justify-between gap-4 rounded-2xl border p-4 text-left transition-all ${
+              easyCooking ? "border-primary bg-accent" : "border-border bg-card hover:border-primary/40"
+            }`}
+          >
+            <div>
+              <div className="text-sm font-semibold text-foreground">Quiero cocinar poco</div>
+              <div className="mt-0.5 text-sm text-muted-foreground">
+                Cambia las comidas y cenas por platos listos (lasaña, croquetas, ensaladilla…) para
+                disfrutar más y cocinar menos.
+              </div>
+            </div>
+            <span
+              className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${
+                easyCooking ? "bg-primary" : "bg-muted-foreground/30"
+              }`}
+            >
+              <motion.span
+                layout
+                transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                className={`inline-block h-5 w-5 rounded-full bg-white shadow ${easyCooking ? "ml-[22px]" : "ml-0.5"}`}
+              />
+            </span>
+          </button>
         </div>
       )}
     </div>

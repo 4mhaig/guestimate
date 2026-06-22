@@ -7,7 +7,7 @@
 // opciones a elegir por cada necesidad.
 // =============================================================
 
-import { CATALOG, BASICS, type ProductOption } from "./catalog";
+import { CATALOG, SPECIAL, BASICS, type ProductOption } from "./catalog";
 import { CATEGORY_META, type Category, type EventType, type Item } from "./guestimate";
 
 export type ResolvedLine = {
@@ -34,11 +34,22 @@ function round2(n: number) {
   return Math.round(n * 100) / 100;
 }
 
-// Usa el catálogo específico del evento si existe (p.ej. "carne:nochebuena"),
-// y si no, el genérico de la categoría.
-function catalogKey(category: Category, event: EventType | null): string {
-  if (event && CATALOG[`${category}:${event}`]) return `${category}:${event}`;
+// Usa el catálogo específico del evento/variante si existe (p.ej.
+// "carne:nochebuena" o "carne:rural_easy"), y si no, el genérico.
+function catalogKey(category: Category, key: string | null): string {
+  if (key && CATALOG[`${category}:${key}`]) return `${category}:${key}`;
   return category;
+}
+
+// Mapea un id de producto especial (sub_...) a su tipo en SPECIAL.
+function specialKind(id: string): string | null {
+  if (id.endsWith("_sg")) return "sin_gluten";
+  if (id === "sub_legumbres") return "legumbres";
+  if (id === "sub_bebida_vegetal") return "bebida_vegetal";
+  if (id === "sub_embutido_veg") return "embutido_veg";
+  if (id === "sub_lacteos_sl") return "lacteos_sl";
+  if (id === "sub_embutido_pavo") return "embutido_pavo";
+  return null;
 }
 
 function fmtAmount(amount: number, unit: string): string {
@@ -91,21 +102,36 @@ export function resolveBasket(
 
   for (const item of items) {
     // Productos especiales por restricción (sin gluten, legumbres, sin lactosa...).
-    // No tienen producto concreto de catálogo todavía: se muestran como línea aparte.
     if (item.id.startsWith("sub_")) {
       if (removed.has(item.id)) continue;
       const g = ensureGroup(item.category);
       const amount = item.unit === "u" ? item.qty : item.qty / 1000;
       const unit = item.unit === "g" ? "kg" : item.unit === "ml" ? "L" : "ud";
-      g.lines.push({
-        key: item.id,
-        slotLabel: item.name,
-        option: { id: item.id, name: item.name, price: 0, unit, packPrice: null, image: null },
-        alternatives: [],
-        amount,
-        amountLabel: fmtAmount(amount, unit),
-        cost: 0,
-      });
+      const kind = specialKind(item.id);
+      const options = (kind && SPECIAL[kind]) || [];
+      if (options.length) {
+        const idx = Math.min(Math.max(0, choices[item.id] ?? 0), options.length - 1);
+        const option = options[idx];
+        g.lines.push({
+          key: item.id,
+          slotLabel: item.name,
+          option,
+          alternatives: options,
+          amount,
+          amountLabel: fmtAmount(amount, option.unit),
+          cost: round2(option.price * amount),
+        });
+      } else {
+        g.lines.push({
+          key: item.id,
+          slotLabel: item.name,
+          option: { id: item.id, name: item.name, price: 0, unit, packPrice: null, image: null },
+          alternatives: [],
+          amount,
+          amountLabel: fmtAmount(amount, unit),
+          cost: 0,
+        });
+      }
       continue;
     }
 
@@ -130,7 +156,7 @@ export function resolveBasket(
       continue;
     }
 
-    const key = catalogKey(item.category, item.event ?? event);
+    const key = catalogKey(item.category, item.variant ?? item.event ?? event);
     const slots = CATALOG[key] ?? CATALOG[item.category];
     const g = ensureGroup(item.category);
 

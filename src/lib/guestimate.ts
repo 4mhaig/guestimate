@@ -51,6 +51,7 @@ export type Item = {
   qty: number; // raw in g, ml or units
   unit: "g" | "ml" | "u";
   event?: EventType; // evento al que pertenece (para resolver productos, p.ej. barbacoa dentro de casa rural)
+  variant?: string; // variante de catálogo, p.ej. "rural_easy" (cocinar poco)
 };
 
 export const EVENTS: {
@@ -183,10 +184,10 @@ function eventMultiplier(event: EventType, category: Category): number {
   }
 }
 
-function add(map: Map<string, Item>, p: Portion, qty: number, event?: EventType) {
+function add(map: Map<string, Item>, p: Portion, qty: number, event?: EventType, variant?: string) {
   const existing = map.get(p.id);
   if (existing) existing.qty += qty;
-  else map.set(p.id, { id: p.id, name: p.name, category: p.category, qty, unit: p.unit, event });
+  else map.set(p.id, { id: p.id, name: p.name, category: p.category, qty, unit: p.unit, event, variant });
 }
 
 const GROUP_BASICS: Portion[] = [
@@ -214,6 +215,7 @@ export function computeBasket(
   aperitivo: boolean = false,
   specialEvents: SpecialEvents = {},
   restrictionCounts: Partial<Record<Restriction, People>> = {},
+  easyCooking: boolean = false,
 ): Item[] {
   if (!event) return [];
   const map = new Map<string, Item>();
@@ -235,9 +237,17 @@ export function computeBasket(
           // Si ese día hay barbacoa/cumpleaños, aplicamos su multiplicador
           // a la comida y la cena (la celebración fuerte del día).
           if (special && isMain) qty *= eventMultiplier(special, p.category);
-          // Además, la carne (y el postre en cumpleaños) de ese día se resuelven
-          // con los PRODUCTOS de ese evento (p.ej. una barbacoa → chorizo/costilla).
-          if (special && isMain && (p.category === "carne" || (special === "cumple" && p.category === "postre"))) {
+          // "Cocinar poco": la proteína y la guarnición de comida/cena pasan a
+          // platos listos / precocinados.
+          if (easyCooking && isMain && (p.category === "carne" || p.category === "guarnicion")) {
+            add(map, { ...p, id: `${p.id}__easy` }, qty, undefined, "rural_easy");
+          } else if (
+            special &&
+            isMain &&
+            (p.category === "carne" || (special === "cumple" && p.category === "postre"))
+          ) {
+            // La carne (y el postre en cumpleaños) de un día especial usan los
+            // PRODUCTOS de ese evento (p.ej. una barbacoa → chorizo/costilla).
             add(map, { ...p, id: `${p.id}__${special}` }, qty, special);
           } else {
             add(map, p, qty);

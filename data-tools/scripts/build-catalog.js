@@ -167,6 +167,25 @@ const SPECS = {
     { id: 'platano', label: 'Plátano', share: 0.2, cats: ['Fruta y verdura'], inc: /plátano|banana/i, unit: 'kg', n: 3 },
     { id: 'citricos_uva', label: 'Naranja, uva y otras', share: 0.25, cats: ['Fruta y verdura'], inc: /naranja|mandarina|uva|kiwi|fresa|ciruela/i, unit: 'kg', n: 3 },
   ],
+
+  // ---- CASA RURAL "cocinar poco": platos listos / precocinados ----
+  'carne:rural_easy': [
+    { id: 'platos_listos', label: 'Platos listos (lasaña, canelones, pizza)', share: 0.4, cats: ['Congelados'], inc: /lasaña|canelones|musaka|pizza|tortilla de patata|arroz tres delicias|fideuá|paella de/i, exc: /placas|verdura|para paella/i, unit: 'kg', n: 3 },
+    { id: 'empanados_listos', label: 'Empanados y fritos (solo calentar)', share: 0.6, cats: ['Congelados', 'Carne'], inc: /croqueta|san jacobo|empanadilla|varitas|nugget|fingers|flamenquín|albóndiga|libritos/i, unit: 'kg', n: 3 },
+  ],
+  'guarnicion:rural_easy': [
+    { id: 'ensaladilla_prefritas', label: 'Ensaladilla y patatas listas', share: 1, cats: ['Congelados', 'Fruta y verdura'], inc: /ensaladilla|patatas prefritas|patatas (para horno|gajo|risoladas)/i, unit: 'kg', n: 3 },
+  ],
+};
+
+// Productos para las sustituciones por restricción (sin gluten, vegano, etc.).
+const SPECIAL_SPECS = {
+  sin_gluten: { cats: ['Panadería y pastelería'], inc: /pan.*sin gluten|molde sin gluten|pan redondo sin gluten/i, exc: /empanad|nugget|san jacobo|lagrimitas|filetes|croqueta|salchicha/i, unit: 'kg', n: 3 },
+  legumbres: { cats: ['Arroz, legumbres y pasta', 'Congelados'], inc: /garbanzo cocido|lenteja|alubia|judía blanca|tofu|soja texturizada/i, exc: /snack|harina|crema/i, unit: 'kg', n: 3 },
+  bebida_vegetal: { cats: ['Huevos, leche y mantequilla'], inc: /bebida de (avena|soja|almendra|arroz|coco)|bebida vegetal/i, unit: 'L', n: 3 },
+  embutido_veg: { cats: ['Aperitivos', 'Conservas, caldos y cremas', 'Charcutería y quesos'], inc: /hummus|paté vegetal|sobrasada vegana|veggie/i, unit: 'kg', n: 3 },
+  lacteos_sl: { cats: ['Huevos, leche y mantequilla'], inc: /leche.*sin lactosa|sin lactosa/i, exc: /café/i, unit: 'L', n: 3 },
+  embutido_pavo: { cats: ['Charcutería y quesos', 'Carne'], inc: /pavo.*loncha|jamón de pavo|fiambre de pavo|pechuga de pavo cocida/i, unit: 'kg', n: 3 },
 };
 
 // Productos concretos para los básicos de grupo de casa rural (1 unidad
@@ -231,6 +250,14 @@ async function main() {
     if (built.length) catalog[key] = built;
   }
 
+  // Productos especiales por restricción (sin gluten, legumbres, sin lactosa...).
+  const special = {};
+  for (const [kind, spec] of Object.entries(SPECIAL_SPECS)) {
+    const options = pickOptions(raw, spec);
+    report.push(`special · ${kind}: ${options.length} opciones${options.length ? ' → ' + options[0].name : ' ⚠️ SIN RESULTADOS'}`);
+    if (options.length) special[kind] = options;
+  }
+
   const basics = {};
   for (const [id, re] of Object.entries(BASICS)) {
     const found = raw
@@ -272,6 +299,7 @@ export type BasicProduct = { name: string; price: number; image: string | null }
 
   const body =
     `\nexport const CATALOG: Record<string, CatalogSlot[]> = ${JSON.stringify(catalog, null, 2)};\n` +
+    `\nexport const SPECIAL: Record<string, ProductOption[]> = ${JSON.stringify(special, null, 2)};\n` +
     `\nexport const BASICS: Record<string, BasicProduct> = ${JSON.stringify(basics, null, 2)};\n`;
 
   await writeFile(join(APP_ROOT, 'src', 'lib', 'catalog.ts'), header + body, 'utf8');

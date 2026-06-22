@@ -2082,6 +2082,236 @@ export const CATALOG: Record<string, CatalogSlot[]> = {
         }
       ]
     }
+  ],
+  "carne:rural_easy": [
+    {
+      "id": "platos_listos",
+      "label": "Platos listos (lasaña, canelones, pizza)",
+      "share": 0.4,
+      "options": [
+        {
+          "id": "86905",
+          "name": "Arroz tres delicias Hacendado ultracongelado",
+          "price": 2.85,
+          "unit": "kg",
+          "packPrice": 2.85,
+          "image": "https://prod-mercadona.imgix.net/images/428728aa152dad6c0476a1c0ce694804.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "35767",
+          "name": "Lasaña boloñesa familiar Hacendado ultracongelada",
+          "price": 4.91,
+          "unit": "kg",
+          "packPrice": 5.4,
+          "image": "https://prod-mercadona.imgix.net/images/d3aa6907a659d89fd40a5c7f195a56ce.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "86597",
+          "name": "Lasaña a la boloñesa Hacendado ultracongelada",
+          "price": 5,
+          "unit": "kg",
+          "packPrice": 3,
+          "image": "https://prod-mercadona.imgix.net/images/48e415b4c7b108dba53576be1917ace9.jpg?fit=crop&h=300&w=300"
+        }
+      ]
+    },
+    {
+      "id": "empanados_listos",
+      "label": "Empanados y fritos (solo calentar)",
+      "share": 0.6,
+      "options": [
+        {
+          "id": "63323",
+          "name": "Nuggets de pollo Hacendado ultracongelados",
+          "price": 5,
+          "unit": "kg",
+          "packPrice": 2.5,
+          "image": "https://prod-mercadona.imgix.net/images/a83470c87a6d3342c96dd0a449237604.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "2871",
+          "name": "Albóndigas de cerdo",
+          "price": 5.42,
+          "unit": "kg",
+          "packPrice": 4.55,
+          "image": "https://prod-mercadona.imgix.net/images/087eaf211a0fc38ef1ced35ff9b44a18.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "13496",
+          "name": "Croquetas de cocido Hacendado ultracongeladas",
+          "price": 5.57,
+          "unit": "kg",
+          "packPrice": 1.95,
+          "image": "https://prod-mercadona.imgix.net/images/1528c21f212a7b7eb203724cba48cfe9.jpg?fit=crop&h=300&w=300"
+        }
+      ]
+    }
+  ],
+  "guarnicion:rural_easy": [
+    {
+      "id": "ensaladilla_prefritas",
+      "label": "Ensaladilla y patatas listas",
+      "share": 1,
+      "options": [
+        {
+          "id": "61101",
+          "name": "Ensaladilla Hacendado ultracongelada",
+          "price": 1.1,
+          "unit": "kg",
+          "packPrice": 1.1,
+          "image": "https://prod-mercadona.imgix.net/images/2207791ea61f6613e34ad96bb909d9ab.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "61405",
+          "name": "Patatas prefritas corte grueso Hacendado ultracongeladas",
+          "price": 1.5,
+          "unit": "kg",
+          "packPrice": 3,
+          "image": "https://prod-mercadona.imgix.net/images/5fe57720adc49ea7a458cf7db5148525.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "61421",
+          "name": "Patatas prefritas corte fino Hacendado ultracongeladas",
+          "price": 1.85,
+          "unit": "kg",
+          "packPrice": 1.85,
+          "image": "https://prod-mercadona.imgix.net/images/ec0f8aa82a38e94c28092bdefaa1f16e.jpg?fit=crop&h=300&w=300"
+        }
+      ]
+    }
+  ]
+};
+
+export const SPECIAL: Record<string, ProductOption[]> = {
+  "sin_gluten": [
+    {
+      "id": "35711",
+      "name": "Pan de molde sin gluten blanco Hacendado",
+      "price": 5.48,
+      "unit": "kg",
+      "packPrice": 2.74,
+      "image": "https://prod-mercadona.imgix.net/images/4b2fd6f2a42c76ccb71db2be51fa7ec5.jpg?fit=crop&h=300&w=300"
+    },
+    {
+      "id": "86750",
+      "name": "Pan de molde cereales sin gluten Hacendado",
+      "price": 5.83,
+      "unit": "kg",
+      "packPrice": 2.74,
+      "image": "https://prod-mercadona.imgix.net/images/a8c90aab11776a9f62a00b0a10634ad7.jpg?fit=crop&h=300&w=300"
+    },
+    {
+      "id": "35849",
+      "name": "Pan redondo sin gluten Hacendado",
+      "price": 12.06,
+      "unit": "kg",
+      "packPrice": 1.93,
+      "image": "https://prod-mercadona.imgix.net/images/a3a8bd862ae9048c2fb1b2c56523bcad.jpg?fit=crop&h=300&w=300"
+    }
+  ],
+  "legumbres": [
+    {
+      "id": "26019",
+      "name": "Alubia cocida blanca Hacendado",
+      "price": 1.32,
+      "unit": "kg",
+      "packPrice": 0.75,
+      "image": "https://prod-mercadona.imgix.net/images/f3797bcd3c8ed58804490159df581279.jpg?fit=crop&h=300&w=300"
+    },
+    {
+      "id": "26029",
+      "name": "Garbanzo cocido Hacendado",
+      "price": 1.4,
+      "unit": "kg",
+      "packPrice": 0.8,
+      "image": "https://prod-mercadona.imgix.net/images/b8b807948038c4b64791632f799e9bd8.jpg?fit=crop&h=300&w=300"
+    },
+    {
+      "id": "26033",
+      "name": "Garbanzo cocido Pedrosillano Hacendado",
+      "price": 1.58,
+      "unit": "kg",
+      "packPrice": 0.9,
+      "image": "https://prod-mercadona.imgix.net/images/d3a3751f303595a3ff36d87de9730597.jpg?fit=crop&h=300&w=300"
+    }
+  ],
+  "bebida_vegetal": [
+    {
+      "id": "14706",
+      "name": "Bebida de soja con calcio y vitaminas sin azúcares añadidos Hacendado",
+      "price": 0.65,
+      "unit": "L",
+      "packPrice": 3.9,
+      "image": "https://prod-mercadona.imgix.net/images/35c4dba47482ff8310d7ea1b811a7d53.jpg?fit=crop&h=300&w=300"
+    },
+    {
+      "id": "29322",
+      "name": "Bebida de soja 0% azúcar Hacendado",
+      "price": 0.75,
+      "unit": "L",
+      "packPrice": 4.5,
+      "image": "https://prod-mercadona.imgix.net/images/78bb6c24a5d530445f7f3fbac945c0f5.jpg?fit=crop&h=300&w=300"
+    },
+    {
+      "id": "52639",
+      "name": "Bebida de avena Hacendado 0% azúcar",
+      "price": 0.75,
+      "unit": "L",
+      "packPrice": 4.5,
+      "image": "https://prod-mercadona.imgix.net/images/d37ca9bd4e181ab7c222ab18a0d579d4.jpg?fit=crop&h=300&w=300"
+    }
+  ],
+  "lacteos_sl": [
+    {
+      "id": "10730",
+      "name": "Leche desnatada sin lactosa Hacendado",
+      "price": 0.91,
+      "unit": "L",
+      "packPrice": 5.46,
+      "image": "https://prod-mercadona.imgix.net/images/5ad409227bf0b1c151395585e63b169f.jpg?fit=crop&h=300&w=300"
+    },
+    {
+      "id": "10721",
+      "name": "Leche semidesnatada sin lactosa Hacendado",
+      "price": 0.94,
+      "unit": "L",
+      "packPrice": 5.64,
+      "image": "https://prod-mercadona.imgix.net/images/6b02e742d27be2ee2db0994bc431fe99.jpg?fit=crop&h=300&w=300"
+    },
+    {
+      "id": "10698",
+      "name": "Leche entera sin lactosa Hacendado",
+      "price": 1.03,
+      "unit": "L",
+      "packPrice": 6.18,
+      "image": "https://prod-mercadona.imgix.net/images/69bbee0688a23e31f488fc531273bfaa.jpg?fit=crop&h=300&w=300"
+    }
+  ],
+  "embutido_pavo": [
+    {
+      "id": "59218",
+      "name": "Jamón de pavo Hacendado",
+      "price": 5.7,
+      "unit": "kg",
+      "packPrice": 2.85,
+      "image": "https://prod-mercadona.imgix.net/images/0a4b8f824e5ea4032abcee4e75a9092a.jpg?fit=crop&h=300&w=300"
+    },
+    {
+      "id": "22430",
+      "name": "Maxi pavo Hacendado finas lonchas",
+      "price": 7.63,
+      "unit": "kg",
+      "packPrice": 3.05,
+      "image": "https://prod-mercadona.imgix.net/images/18d308abcd2a05dcec6ee3cc012d6e86.jpg?fit=crop&h=300&w=300"
+    },
+    {
+      "id": "56619",
+      "name": "Jamón de pavo Hacendado finas lonchas",
+      "price": 8.44,
+      "unit": "kg",
+      "packPrice": 1.9,
+      "image": "https://prod-mercadona.imgix.net/images/b7691fb2718bc66ad695bb0454823efe.jpg?fit=crop&h=300&w=300"
+    }
   ]
 };
 
