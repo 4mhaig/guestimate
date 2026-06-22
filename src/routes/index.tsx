@@ -48,7 +48,8 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
-type Step = 1 | 2 | 3 | 4 | 5;
+type Step = 1 | 2 | 3 | 4;
+type View = "wizard" | "saved" | "feedback";
 type FlyTask = {
   id: number;
   label: string;
@@ -56,19 +57,28 @@ type FlyTask = {
   to: { x: number; y: number };
 };
 
-const STEP_LABELS = ["Evento", "Personas", "Restricciones", "Cesta", "Feedback"];
+const STEP_LABELS = ["Evento", "Personas", "Restricciones", "Cesta"];
+
+// Días (inclusive) entre dos fechas YYYY-MM-DD. Por defecto 2 si faltan.
+function daysBetween(start: string, end: string): number {
+  if (!start || !end) return 2;
+  const s = new Date(start).getTime();
+  const e = new Date(end).getTime();
+  if (Number.isNaN(s) || Number.isNaN(e) || e < s) return 2;
+  return Math.round((e - s) / 86400000) + 1;
+}
 
 function Index() {
   const [step, setStep] = useState<Step>(1);
   const [eventType, setEventType] = useState<EventType | null>(null);
-  const [date, setDate] = useState<string>("");
+  const [date, setDate] = useState<string>(""); // inicio (casa rural) o fecha del evento
+  const [endDate, setEndDate] = useState<string>(""); // fin del viaje (casa rural)
   const [people, setPeople] = useState<People>({
     hombres: 0,
     mujeres: 0,
     adolescentes: 0,
     ninos: 0,
   });
-  const [days, setDays] = useState(2);
   const [meals, setMeals] = useState<MealsConfig>(defaultMealsConfig(2));
   const [aperitivo, setAperitivo] = useState(false);
   const [specialEvents, setSpecialEvents] = useState<SpecialEvents>({});
@@ -77,6 +87,8 @@ function Index() {
   const [removed, setRemoved] = useState<Set<string>>(new Set());
   const [mobileBasketOpen, setMobileBasketOpen] = useState(false);
   const [savedEventId, setSavedEventId] = useState<string | null>(null);
+  const [view, setView] = useState<View>("wizard");
+  const [fbEvent, setFbEvent] = useState<{ id: string; label: string } | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [feedbackEmoji, setFeedbackEmoji] = useState<string | null>(null);
@@ -84,12 +96,15 @@ function Index() {
   const [notes, setNotes] = useState("");
   const [feedbackSent, setFeedbackSent] = useState(false);
 
-  // Fly-to-basket
   const basketIconRef = useRef<HTMLDivElement | null>(null);
   const mobileBasketRef = useRef<HTMLButtonElement | null>(null);
-  const [flyTasks, setFlyTasks] = useState<FlyTask[]>([]);
-  const seenIdsRef = useRef<Set<string>>(new Set());
   const reduced = useReducedMotion();
+
+  // En casa rural el nº de días sale de las fechas de inicio/fin.
+  const days = useMemo(
+    () => (eventType === "rural" ? daysBetween(date, endDate) : 1),
+    [eventType, date, endDate],
+  );
 
   // Days/meals sync
   useEffect(() => {
@@ -153,18 +168,16 @@ function Index() {
     setStep(1);
     setEventType(null);
     setDate("");
+    setEndDate("");
     setPeople({ hombres: 0, mujeres: 0, adolescentes: 0, ninos: 0 });
-    setDays(2);
     setMeals(defaultMealsConfig(2));
+    setAperitivo(false);
+    setSpecialEvents({});
     setRestrictions([]);
+    setChoices({});
     setOverrides({});
     setRemoved(new Set());
     setSavedEventId(null);
-    setFeedbackEmoji(null);
-    setRating(0);
-    setNotes("");
-    setFeedbackSent(false);
-    seenIdsRef.current = new Set();
   };
 
   const saveList = async () => {
@@ -183,10 +196,18 @@ function Index() {
         .select()
         .single();
       if (e1) throw e1;
+      const savedItems = resolved.groups.flatMap((g) =>
+        g.lines.map((l) => ({
+          category: g.label,
+          name: l.option.name,
+          amount: l.amountLabel,
+          cost: l.cost,
+        })),
+      );
       const { error: e2 } = await supabase.from("shopping_lists").insert({
         event_id: ev.id,
-        items,
-        total: items.length,
+        items: savedItems,
+        total: resolved.total,
       });
       if (e2) throw e2;
       setSavedEventId(ev.id);
@@ -205,12 +226,16 @@ function Index() {
     if (date) lines.push(`Fecha: ${date}`);
     lines.push(`Personas: ${totalPeople(people)}`);
     lines.push("");
-    const grouped = groupByCategory(items);
-    (Object.keys(grouped) as Array<keyof typeof grouped>).forEach((cat) => {
-      lines.push(`— ${CATEGORY_META[cat].label}`);
-      grouped[cat].forEach((it) => lines.push(`  • ${it.name} · ${formatQty(it)}`));
+    resolved.groups.forEach((g) => {
+      lines.push(`— ${g.label}`);
+      g.lines.forEach((l) =>
+        lines.push(
+          `  • ${l.option.name} · ${l.amountLabel}${l.cost > 0 ? ` · ${formatEuro(l.cost)}` : ""}`,
+        ),
+      );
       lines.push("");
     });
+    lines.push(`Total aprox (sin envío): ${formatEuro(resolved.total)}`);
     const text = lines.join("\n");
     const title = `Guestimate — ${EVENTS.find((e) => e.id === eventType)?.name ?? "Lista de la compra"}`;
     // En móvil abrimos el menú nativo de compartir; si no existe, copiamos.
@@ -231,14 +256,20 @@ function Index() {
     }
   };
 
+  const openFeedback = (id: string, label: string) => {
+    setFbEvent({ id, label });
+    setFeedbackEmoji(null);
+    setRating(0);
+    setNotes("");
+    setFeedbackSent(false);
+    setView("feedback");
+  };
+
   const sendFeedback = async () => {
-    if (!savedEventId) {
-      showToast("Guarda primero la lista");
-      return;
-    }
+    if (!fbEvent) return;
     try {
       const { error } = await supabase.from("feedback").insert({
-        event_id: savedEventId,
+        event_id: fbEvent.id,
         rating,
         food_accuracy: feedbackEmoji,
         notes,
@@ -251,8 +282,17 @@ function Index() {
     }
   };
 
+  const goHome = () => {
+    reset();
+    setView("wizard");
+  };
+
   const canNext = () => {
-    if (step === 1) return !!eventType;
+    if (step === 1) {
+      if (!eventType) return false;
+      if (eventType === "rural") return !!date && !!endDate;
+      return true;
+    }
     if (step === 2) return totalPeople(people) > 0;
     return true;
   };
@@ -263,16 +303,49 @@ function Index() {
     <div className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-30 border-b border-border/60 bg-background/80 backdrop-blur">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4">
-          <div className="flex items-center gap-2.5">
+          <button onClick={goHome} className="flex items-center gap-2.5" aria-label="Inicio">
             <div className="grid h-8 w-8 place-items-center rounded-lg bg-primary text-primary-foreground">
               <ShoppingBasket className="h-4 w-4" strokeWidth={1.8} />
             </div>
             <span className="text-lg font-bold tracking-tight">Guestimate</span>
+          </button>
+          <div className="flex items-center gap-4">
+            {view === "wizard" && <ProgressBasket step={step} />}
+            <button
+              onClick={() => setView("saved")}
+              className={`rounded-full px-3 py-1.5 text-sm font-medium transition-colors ${
+                view === "saved"
+                  ? "bg-accent text-accent-foreground"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              Mis listas
+            </button>
           </div>
-          <ProgressBasket step={step} />
         </div>
       </header>
 
+      {view === "saved" && (
+        <SavedListsView onFeedback={openFeedback} onNew={goHome} />
+      )}
+
+      {view === "feedback" && (
+        <FeedbackView
+          eventLabel={fbEvent?.label ?? ""}
+          feedbackEmoji={feedbackEmoji}
+          setFeedbackEmoji={setFeedbackEmoji}
+          rating={rating}
+          setRating={setRating}
+          notes={notes}
+          setNotes={setNotes}
+          onSend={sendFeedback}
+          sent={feedbackSent}
+          onDone={() => setView("saved")}
+        />
+      )}
+
+      {view === "wizard" && (
+      <>
       <main className="mx-auto grid max-w-7xl gap-8 px-5 py-8 lg:grid-cols-[1fr_380px]">
         <section className="min-w-0">
           <AnimatePresence mode="wait">
@@ -289,6 +362,8 @@ function Index() {
                   setEventType={setEventType}
                   date={date}
                   setDate={setDate}
+                  endDate={endDate}
+                  setEndDate={setEndDate}
                 />
               )}
               {step === 2 && (
@@ -297,7 +372,6 @@ function Index() {
                   setPeople={setPeople}
                   eventType={eventType}
                   days={days}
-                  setDays={setDays}
                   meals={meals}
                   setMeals={setMeals}
                   specialEvents={specialEvents}
@@ -326,44 +400,29 @@ function Index() {
                   saved={!!savedEventId}
                 />
               )}
-              {step === 5 && (
-                <Step5
-                  feedbackEmoji={feedbackEmoji}
-                  setFeedbackEmoji={setFeedbackEmoji}
-                  rating={rating}
-                  setRating={setRating}
-                  notes={notes}
-                  setNotes={setNotes}
-                  onSend={sendFeedback}
-                  sent={feedbackSent}
-                  onReset={reset}
-                />
-              )}
             </motion.div>
           </AnimatePresence>
 
-          {!feedbackSent && (
-            <div className="mt-10 flex items-center justify-between">
-              <button
-                onClick={() => setStep((s) => (s > 1 ? ((s - 1) as Step) : s))}
-                disabled={step === 1}
-                className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground disabled:opacity-0"
+          <div className="mt-10 flex items-center justify-between">
+            <button
+              onClick={() => setStep((s) => (s > 1 ? ((s - 1) as Step) : s))}
+              disabled={step === 1}
+              className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground disabled:opacity-0"
+            >
+              <ArrowLeft className="h-4 w-4" /> Atrás
+            </button>
+            {step < 4 && (
+              <motion.button
+                whileTap={{ scale: 0.96 }}
+                onClick={() => setStep((s) => Math.min(4, s + 1) as Step)}
+                disabled={!canNext()}
+                className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-sm transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
               >
-                <ArrowLeft className="h-4 w-4" /> Atrás
-              </button>
-              {step < 5 && (
-                <motion.button
-                  whileTap={{ scale: 0.96 }}
-                  onClick={() => setStep((s) => Math.min(5, s + 1) as Step)}
-                  disabled={!canNext()}
-                  className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-sm transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
-                >
-                  {step === 3 ? "Ver mi cesta" : step === 4 ? "Siguiente · Feedback" : "Siguiente"}
-                  <ArrowRight className="h-4 w-4" />
-                </motion.button>
-              )}
-            </div>
-          )}
+                {step === 3 ? "Ver mi cesta" : "Siguiente"}
+                <ArrowRight className="h-4 w-4" />
+              </motion.button>
+            )}
+          </div>
         </section>
 
         {/* Desktop sticky basket */}
@@ -419,7 +478,8 @@ function Index() {
           </motion.div>
         )}
       </AnimatePresence>
-
+      </>
+      )}
 
       {/* Toast */}
       <AnimatePresence>
@@ -438,9 +498,103 @@ function Index() {
   );
 }
 
+/* ---------- Mis listas guardadas ---------- */
+type SavedRow = {
+  id: string;
+  total: number | null;
+  created_at: string;
+  event: { id: string; type: string; date: string | null } | { id: string; type: string; date: string | null }[] | null;
+};
+
+function SavedListsView({
+  onFeedback,
+  onNew,
+}: {
+  onFeedback: (id: string, label: string) => void;
+  onNew: () => void;
+}) {
+  const [rows, setRows] = useState<SavedRow[] | null>(null);
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      const { data, error } = await supabase
+        .from("shopping_lists")
+        .select("id, total, created_at, event:events(id, type, date)")
+        .order("created_at", { ascending: false });
+      if (!active) return;
+      if (error) {
+        setFailed(true);
+        setRows([]);
+        return;
+      }
+      setRows((data ?? []) as SavedRow[]);
+    })();
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  return (
+    <main className="mx-auto max-w-2xl px-5 py-8">
+      <div className="flex items-center justify-between">
+        <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Mis listas</h1>
+        <button
+          onClick={onNew}
+          className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
+        >
+          Nuevo evento
+        </button>
+      </div>
+      <p className="mt-2 text-muted-foreground">
+        Tus listas guardadas. Cuando pase el evento, danos tu feedback para afinar las próximas.
+      </p>
+
+      {rows === null && <p className="mt-8 text-sm text-muted-foreground">Cargando…</p>}
+
+      {rows && rows.length === 0 && (
+        <div className="mt-10 rounded-2xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">
+          {failed
+            ? "No se pudieron cargar las listas. Inténtalo más tarde."
+            : "Aún no has guardado ninguna lista. Crea un evento y pulsa “Guardar lista”."}
+        </div>
+      )}
+
+      <div className="mt-6 space-y-3">
+        {rows?.map((r) => {
+          const ev = Array.isArray(r.event) ? r.event[0] : r.event;
+          const name = EVENTS.find((e) => e.id === ev?.type)?.name ?? "Evento";
+          const label = `${name}${ev?.date ? ` · ${ev.date}` : ""}`;
+          return (
+            <div
+              key={r.id}
+              className="flex items-center justify-between gap-3 rounded-2xl border border-border bg-card px-5 py-4"
+            >
+              <div className="min-w-0">
+                <div className="truncate text-sm font-semibold text-foreground">{name}</div>
+                <div className="text-xs text-muted-foreground">
+                  {ev?.date ? `${ev.date} · ` : ""}
+                  {r.total != null ? `${formatEuro(r.total)} aprox` : ""}
+                </div>
+              </div>
+              <button
+                onClick={() => ev && onFeedback(ev.id, label)}
+                className="shrink-0 rounded-full border border-border bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+              >
+                Dar feedback
+              </button>
+            </div>
+          );
+        })}
+      </div>
+    </main>
+  );
+}
+
 /* ---------- Progress ---------- */
 function ProgressBasket({ step }: { step: Step }) {
-  const pct = ((step - 1) / 4) * 100;
+  const pct = ((step - 1) / 3) * 100;
   return (
     <div className="hidden items-center gap-3 sm:flex">
       <div className="hidden text-xs font-medium text-muted-foreground md:block">
@@ -460,7 +614,7 @@ function ProgressBasket({ step }: { step: Step }) {
           style={{ clipPath: `inset(${100 - pct}% 0 0 0)` }}
         />
       </div>
-      <div className="text-xs tabular-nums text-muted-foreground">{step}/5</div>
+      <div className="text-xs tabular-nums text-muted-foreground">{step}/4</div>
     </div>
   );
 }
@@ -471,11 +625,15 @@ function Step1({
   setEventType,
   date,
   setDate,
+  endDate,
+  setEndDate,
 }: {
   eventType: EventType | null;
   setEventType: (e: EventType) => void;
   date: string;
   setDate: (s: string) => void;
+  endDate: string;
+  setEndDate: (s: string) => void;
 }) {
   return (
     <div>
@@ -513,14 +671,32 @@ function Step1({
       </div>
 
       {eventType === "rural" && (
-        <div className="mt-8 max-w-sm">
-          <label className="block text-sm font-medium text-foreground">¿Cuándo empieza el viaje?</label>
-          <input
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            className="mt-2 w-full rounded-xl border border-border bg-card px-4 py-3 text-sm text-foreground outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/15"
-          />
+        <div className="mt-8 grid max-w-md gap-4 sm:grid-cols-2">
+          <div>
+            <label className="block text-sm font-medium text-foreground">Día que empieza</label>
+            <input
+              type="date"
+              value={date}
+              max={endDate || undefined}
+              onChange={(e) => setDate(e.target.value)}
+              className="mt-2 w-full rounded-xl border border-border bg-card px-4 py-3 text-sm text-foreground outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/15"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-foreground">Día que termina</label>
+            <input
+              type="date"
+              value={endDate}
+              min={date || undefined}
+              onChange={(e) => setEndDate(e.target.value)}
+              className="mt-2 w-full rounded-xl border border-border bg-card px-4 py-3 text-sm text-foreground outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/15"
+            />
+          </div>
+          {date && endDate && (
+            <p className="text-xs text-muted-foreground sm:col-span-2">
+              Viaje de {daysBetween(date, endDate)} día(s).
+            </p>
+          )}
         </div>
       )}
     </div>
@@ -533,7 +709,6 @@ function Step2({
   setPeople,
   eventType,
   days,
-  setDays,
   meals,
   setMeals,
   specialEvents,
@@ -543,7 +718,6 @@ function Step2({
   setPeople: (p: People) => void;
   eventType: EventType | null;
   days: number;
-  setDays: (n: number) => void;
   meals: MealsConfig;
   setMeals: (m: MealsConfig) => void;
   specialEvents: SpecialEvents;
@@ -578,9 +752,10 @@ function Step2({
 
       {eventType === "rural" && (
         <div className="mt-10">
-          <div className="mb-4 max-w-xs">
-            <Stepper label="¿Cuántos días?" value={days} onChange={(v) => setDays(Math.max(1, v))} min={1} />
-          </div>
+          <p className="mb-4 text-sm text-muted-foreground">
+            Viaje de <span className="font-semibold text-foreground">{days} día(s)</span> (según las
+            fechas que elegiste).
+          </p>
           <MealsTable
             days={days}
             meals={meals}
@@ -930,7 +1105,8 @@ const FEEDBACK_FACES = [
   { emoji: "🤦", label: "Sobró mucho", value: "sobro_mucho" },
 ];
 
-function Step5({
+function FeedbackView({
+  eventLabel,
   feedbackEmoji,
   setFeedbackEmoji,
   rating,
@@ -939,8 +1115,9 @@ function Step5({
   setNotes,
   onSend,
   sent,
-  onReset,
+  onDone,
 }: {
+  eventLabel: string;
   feedbackEmoji: string | null;
   setFeedbackEmoji: (s: string) => void;
   rating: number;
@@ -949,11 +1126,11 @@ function Step5({
   setNotes: (s: string) => void;
   onSend: () => void;
   sent: boolean;
-  onReset: () => void;
+  onDone: () => void;
 }) {
   if (sent) {
     return (
-      <div className="flex flex-col items-center justify-center py-16 text-center">
+      <main className="mx-auto flex max-w-2xl flex-col items-center justify-center px-5 py-16 text-center">
         <motion.div
           initial={{ scale: 0, rotate: -45 }}
           animate={{ scale: 1, rotate: 0 }}
@@ -970,22 +1147,30 @@ function Step5({
         </motion.div>
         <h2 className="mt-8 text-2xl font-bold tracking-tight">¡Gracias!</h2>
         <p className="mt-2 max-w-sm text-muted-foreground">
-          Usaremos tu feedback para mejorar tu próxima lista.
+          Usaremos tu feedback para mejorar tus próximas listas.
         </p>
         <motion.button
           whileTap={{ scale: 0.97 }}
-          onClick={onReset}
+          onClick={onDone}
           className="mt-8 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-sm hover:opacity-90"
         >
-          Organizar otro evento
+          Volver a mis listas
         </motion.button>
-      </div>
+      </main>
     );
   }
   return (
-    <div>
+    <main className="mx-auto max-w-2xl px-5 py-8">
+      <button
+        onClick={onDone}
+        className="mb-6 inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground"
+      >
+        <ArrowLeft className="h-4 w-4" /> Mis listas
+      </button>
       <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">¿Cómo fue la comida?</h1>
-      <p className="mt-2 text-muted-foreground">Tu feedback mejora las próximas listas.</p>
+      <p className="mt-2 text-muted-foreground">
+        {eventLabel ? `${eventLabel} · ` : ""}Tu feedback mejora las próximas listas.
+      </p>
 
       <div className="mt-8 grid grid-cols-5 gap-2 sm:gap-3">
         {FEEDBACK_FACES.map((f) => {
@@ -1051,7 +1236,7 @@ function Step5({
       >
         Enviar feedback
       </motion.button>
-    </div>
+    </main>
   );
 }
 
