@@ -136,6 +136,11 @@ function Index() {
     return () => sub.subscription.unsubscribe();
   }, []);
 
+  // Al cambiar de vista o de paso, subir al principio de la página.
+  useEffect(() => {
+    if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [view, step]);
+
   // Nº de listas guardadas del usuario (badge en "Mis listas")
   useEffect(() => {
     if (!user) {

@@ -4,6 +4,8 @@ Webapp que calcula cuánta comida y bebida necesitas para un evento social y te 
 
 Guestimate = *guest* (invitado) + *estimate* (estimar): estima cuánto necesitas según tus invitados, ya sea para una barbacoa, una comida familiar, un cumpleaños, Nochebuena o una casa rural de varios días.
 
+🔗 **App en producción: [guestimate-ten.vercel.app](https://guestimate-ten.vercel.app)** (se actualiza sola con cada cambio en `main`).
+
 > ¿Eres una persona no técnica y quieres ponerlo en marcha desde cero? Ve directo a la **[Guía paso a paso](docs/GUIA-PASO-A-PASO.md)**.
 
 ## Qué hace ahora mismo
@@ -62,7 +64,9 @@ Datos: Supabase (PostgreSQL). La conexión está en `src/lib/supabase.ts` (usa l
 
 ### Despliegue
 
-El despliegue va a **Vercel**. `vite.config.ts` ya tiene el preset de Nitro `vercel`, así que basta con **importar el repositorio en [vercel.com](https://vercel.com)**. Ya **no** se usa Lovable para editar el proyecto: ahora se trabaja editando el repositorio directamente.
+Ya está desplegada en **Vercel**: [guestimate-ten.vercel.app](https://guestimate-ten.vercel.app). Cada push a `main` se despliega automáticamente. `vite.config.ts` tiene el preset de Nitro `vercel`, así que el repo se importa en Vercel sin configuración extra. Ya **no** se usa Lovable: se trabaja editando el repositorio directamente.
+
+El login (enlace mágico por email, Supabase Auth) requiere que en **Supabase → Authentication → URL Configuration** estén la Site URL y las Redirect URLs de producción (`https://guestimate-ten.vercel.app/**`) y de local (`http://localhost:8080/**`).
 
 ## Las herramientas de datos (carpeta `data-tools/`)
 
