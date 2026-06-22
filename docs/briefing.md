@@ -1,5 +1,7 @@
 # Guestimate — Briefing para Claude Code
 
+> **Nota:** este es el documento **original** del proyecto (histórico) y no refleja necesariamente cómo funciona hoy. El estado actual está en el [README](../README.md).
+
 ## Qué es este proyecto
 
 **Guestimate** es una herramienta web que calcula la cantidad de comida y bebida que necesitas para un evento social (barbacoa, comida familiar, cumpleaños, cena de amigos, Nochebuena...), genera una lista de la compra con cantidades exactas, compara precios en Mercadona (y más supermercados en el futuro), y aprende de cada evento mediante feedback del usuario.

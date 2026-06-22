@@ -1,8 +1,12 @@
-# 🎨 Prompt para Lovable (frontend)
+# 🎨 Prompt para Lovable (nota histórica)
 
-Copia y pega este prompt en [Lovable](https://lovable.dev) para generar el frontend de Guestimate. Luego conéctalo a tu Supabase y a este repositorio de GitHub.
+> **Este documento es histórico.** Este prompt se usó para la **primera generación** del frontend de Guestimate en [Lovable](https://lovable.dev). **Ya no se usa Lovable para iterar**: ahora el proyecto se edita directamente en el repositorio y se despliega en Vercel.
+>
+> Se conserva aquí solo como referencia de cómo nació la app. Para el estado actual del proyecto, mira el [README](../README.md). El producto ha evolucionado bastante desde este prompt (asistente de 4 pasos, cesta viva con productos concretos de Mercadona, casa rural con fechas, "Mis listas", etc.), así que **no lo tomes como descripción de lo que hace hoy**.
 
 ---
+
+## Prompt original que se usó en Lovable
 
 ```
 Crea una aplicación web responsive llamada "Guestimate" en React + Tailwind.
@@ -61,4 +65,4 @@ conectaremos a la lógica real.
 
 ---
 
-> 💡 La lógica de cálculo real está en `src/portions/` de este repositorio. Más adelante la expondremos como una **Supabase Edge Function** para que Lovable la llame.
+> 💡 Nota histórica: cuando se escribió este prompt, la idea era exponer la lógica de cálculo como una Supabase Edge Function para que Lovable la llamara. En la práctica el proyecto evolucionó de otra forma: la lógica de referencia vive en `data-tools/src/portions/` (Node) y la app tiene su propio motor en `src/lib/guestimate.ts`.
