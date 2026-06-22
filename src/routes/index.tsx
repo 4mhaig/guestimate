@@ -33,7 +33,9 @@ import {
   type SpecialEvents,
 } from "@/lib/guestimate";
 import { resolveBasket, formatEuro, DRINK_SLOTS, type ResolvedBasket } from "@/lib/products";
-import { supabase } from "@/lib/supabase";
+import { supabase, signInWithGoogle, signOut } from "@/lib/supabase";
+
+type AuthUser = { id: string; email?: string; name?: string; avatar?: string };
 import { Stepper } from "@/components/guestimate/Stepper";
 import { AnimatedNumber } from "@/components/guestimate/AnimatedNumber";
 import { BasketPanel } from "@/components/guestimate/Basket";
@@ -94,6 +96,16 @@ function Index() {
   const [savedEventId, setSavedEventId] = useState<string | null>(null);
   const [view, setView] = useState<View>("wizard");
   const [fbEvent, setFbEvent] = useState<{ id: string; label: string } | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
+
+  // Sesión (login con Google)
+  useEffect(() => {
+    const mapUser = (u: any): AuthUser | null =>
+      u ? { id: u.id, email: u.email, name: u.user_metadata?.name, avatar: u.user_metadata?.avatar_url } : null;
+    supabase.auth.getSession().then(({ data }) => setUser(mapUser(data.session?.user)));
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => setUser(mapUser(session?.user)));
+    return () => sub.subscription.unsubscribe();
+  }, []);
   const [toast, setToast] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [feedbackEmoji, setFeedbackEmoji] = useState<string | null>(null);
@@ -204,6 +216,12 @@ function Index() {
   };
 
   const saveList = async () => {
+    // Para guardar (y poder volver a la lista / dar feedback) hace falta sesión.
+    if (!user) {
+      showToast("Inicia sesión para guardar tu lista");
+      signInWithGoogle();
+      return;
+    }
     setSaving(true);
     try {
       const { data: ev, error: e1 } = await supabase
@@ -215,6 +233,7 @@ function Index() {
           restrictions,
           days: eventType === "rural" ? days : null,
           meals_config: eventType === "rural" ? meals : null,
+          user_id: user.id,
         })
         .select()
         .single();
@@ -340,7 +359,7 @@ function Index() {
             </div>
             <span className="text-lg font-bold tracking-tight">Guestimate</span>
           </button>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             {view === "wizard" && <ProgressBasket step={step} />}
             <button
               onClick={() => setView("saved")}
@@ -352,12 +371,35 @@ function Index() {
             >
               Mis listas
             </button>
+            {user ? (
+              <button
+                onClick={() => signOut()}
+                title={user.email}
+                className="flex items-center gap-2 rounded-full border border-border bg-card px-2 py-1 text-sm font-medium text-foreground transition-colors hover:border-primary/40"
+              >
+                {user.avatar ? (
+                  <img src={user.avatar} alt="" className="h-6 w-6 rounded-full" />
+                ) : (
+                  <span className="grid h-6 w-6 place-items-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
+                    {(user.name || user.email || "?").charAt(0).toUpperCase()}
+                  </span>
+                )}
+                <span className="hidden sm:inline">Salir</span>
+              </button>
+            ) : (
+              <button
+                onClick={() => signInWithGoogle()}
+                className="rounded-full bg-primary px-4 py-1.5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+              >
+                Entrar
+              </button>
+            )}
           </div>
         </div>
       </header>
 
       {view === "saved" && (
-        <SavedListsView onFeedback={openFeedback} onNew={goHome} />
+        <SavedListsView userId={user?.id ?? null} onFeedback={openFeedback} onNew={goHome} />
       )}
 
       {view === "feedback" && (
@@ -549,9 +591,11 @@ type SavedRow = {
 };
 
 function SavedListsView({
+  userId,
   onFeedback,
   onNew,
 }: {
+  userId: string | null;
   onFeedback: (id: string, label: string) => void;
   onNew: () => void;
 }) {
@@ -559,11 +603,16 @@ function SavedListsView({
   const [failed, setFailed] = useState(false);
 
   useEffect(() => {
+    if (!userId) {
+      setRows([]);
+      return;
+    }
     let active = true;
     (async () => {
       const { data, error } = await supabase
         .from("shopping_lists")
-        .select("id, total, created_at, event:events(id, type, date)")
+        .select("id, total, created_at, event:events!inner(id, type, date, user_id)")
+        .eq("event.user_id", userId)
         .order("created_at", { ascending: false });
       if (!active) return;
       if (error) {
@@ -576,7 +625,7 @@ function SavedListsView({
     return () => {
       active = false;
     };
-  }, []);
+  }, [userId]);
 
   const deleteList = async (r: SavedRow) => {
     if (typeof window !== "undefined" && !window.confirm("¿Eliminar esta lista?")) return;
@@ -602,9 +651,21 @@ function SavedListsView({
         Tus listas guardadas. Cuando pase el evento, danos tu feedback para afinar las próximas.
       </p>
 
-      {rows === null && <p className="mt-8 text-sm text-muted-foreground">Cargando…</p>}
+      {!userId && (
+        <div className="mt-10 rounded-2xl border border-dashed border-border p-10 text-center">
+          <p className="text-sm text-muted-foreground">Inicia sesión para ver y guardar tus listas.</p>
+          <button
+            onClick={() => signInWithGoogle()}
+            className="mt-4 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90"
+          >
+            Entrar con Google
+          </button>
+        </div>
+      )}
 
-      {rows && rows.length === 0 && (
+      {userId && rows === null && <p className="mt-8 text-sm text-muted-foreground">Cargando…</p>}
+
+      {userId && rows && rows.length === 0 && (
         <div className="mt-10 rounded-2xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">
           {failed
             ? "No se pudieron cargar las listas. Inténtalo más tarde."
