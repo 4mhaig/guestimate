@@ -1,17 +1,17 @@
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { RefreshCw, ShoppingBasket } from "lucide-react";
+import { ShoppingBasket } from "lucide-react";
 import { AnimatedNumber } from "./AnimatedNumber";
 import { CategoryIcon } from "./Icon";
 import { type ResolvedBasket, type ResolvedLine, formatEuro } from "@/lib/products";
 
 export function BasketPanel({
   resolved,
-  onCycle,
+  onSelect,
   registerIconTarget,
   hideEmpty,
 }: {
   resolved: ResolvedBasket;
-  onCycle?: (key: string) => void;
+  onSelect?: (key: string, index: number) => void;
   registerIconTarget?: (el: HTMLDivElement | null) => void;
   hideEmpty?: boolean;
 }) {
@@ -74,7 +74,7 @@ export function BasketPanel({
                 <div className="space-y-1">
                   <AnimatePresence initial={false}>
                     {g.lines.map((line) => (
-                      <ProductRow key={line.key} line={line} onCycle={onCycle} />
+                      <ProductRow key={line.key} line={line} onSelect={onSelect} />
                     ))}
                   </AnimatePresence>
                 </div>
@@ -89,13 +89,14 @@ export function BasketPanel({
 
 function ProductRow({
   line,
-  onCycle,
+  onSelect,
 }: {
   line: ResolvedLine;
-  onCycle?: (key: string) => void;
+  onSelect?: (key: string, index: number) => void;
 }) {
   const reduced = useReducedMotion();
-  const canSwap = onCycle && line.alternatives.length > 1;
+  const canSwap = !!onSelect && line.alternatives.length > 1;
+  const idx = line.alternatives.findIndex((o) => o.id === line.option.id);
   return (
     <motion.div
       layout
@@ -106,38 +107,30 @@ function ProductRow({
       className="flex items-center gap-3 rounded-xl bg-white px-3 py-2.5 hover:bg-muted/60"
     >
       <div className="min-w-0 flex-1">
-        <motion.div
-          key={line.option.name}
-          initial={{ opacity: 0, y: 4 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="truncate text-sm font-medium text-foreground"
-        >
-          {line.option.name}
-        </motion.div>
-        <div className="mt-0.5 flex items-center gap-2 text-xs text-muted-foreground">
-          <span>{line.amountLabel}</span>
-          {canSwap && (
-            <span className="text-[10px] text-muted-foreground/70">
-              {line.alternatives.findIndex((o) => o.id === line.option.id) + 1}/
-              {line.alternatives.length}
-            </span>
-          )}
+        {canSwap ? (
+          <select
+            value={idx}
+            onChange={(e) => onSelect?.(line.key, Number(e.target.value))}
+            className="w-full max-w-full truncate rounded-md bg-transparent text-sm font-medium text-foreground outline-none hover:text-primary focus:text-primary"
+            aria-label={`Elegir ${line.slotLabel}`}
+          >
+            {line.alternatives.map((o) => (
+              <option key={o.id} value={line.alternatives.indexOf(o)}>
+                {o.name} · {o.price}€/{o.unit}
+              </option>
+            ))}
+          </select>
+        ) : (
+          <div className="truncate text-sm font-medium text-foreground">{line.option.name}</div>
+        )}
+        <div className="mt-0.5 text-xs text-muted-foreground">
+          {line.amountLabel}
+          {canSwap ? ` · ${line.alternatives.length} opciones` : ""}
         </div>
       </div>
       <span className="shrink-0 text-sm font-semibold tabular-nums text-foreground">
         {line.cost > 0 ? formatEuro(line.cost) : "—"}
       </span>
-      {canSwap && (
-        <motion.button
-          whileTap={{ scale: 0.85, rotate: -90 }}
-          onClick={() => onCycle?.(line.key)}
-          className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-secondary/15 text-secondary hover:bg-secondary/25"
-          aria-label="Cambiar producto"
-          title="Cambiar producto"
-        >
-          <RefreshCw className="h-3.5 w-3.5" strokeWidth={2} />
-        </motion.button>
-      )}
     </motion.div>
   );
 }

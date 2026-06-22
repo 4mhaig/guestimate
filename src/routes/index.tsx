@@ -119,53 +119,9 @@ function Index() {
     () => resolveBasket(items, eventType, choices),
     [items, eventType, choices],
   );
-  const cycleChoice = (key: string) => {
-    let count = 0;
-    for (const g of resolved.groups) {
-      const line = g.lines.find((l) => l.key === key);
-      if (line) {
-        count = line.alternatives.length;
-        break;
-      }
-    }
-    if (count <= 1) return;
-    setChoices((prev) => ({ ...prev, [key]: ((prev[key] ?? 0) + 1) % count }));
+  const setChoice = (key: string, index: number) => {
+    setChoices((prev) => ({ ...prev, [key]: index }));
   };
-
-  // Detect new items → fly animation
-  useEffect(() => {
-    if (reduced) {
-      items.forEach((it) => seenIdsRef.current.add(it.id));
-      return;
-    }
-    const newOnes = items.filter((it) => !seenIdsRef.current.has(it.id));
-    if (newOnes.length === 0) return;
-    // Use bounding rect of the source area: center of current viewport step area
-    const target = (basketIconRef.current ?? mobileBasketRef.current)?.getBoundingClientRect();
-    if (!target) {
-      newOnes.forEach((it) => seenIdsRef.current.add(it.id));
-      return;
-    }
-    // Calculamos el destino UNA vez (centro del icono de la cesta).
-    const to = {
-      x: target.left + target.width / 2 - 18,
-      y: target.top + target.height / 2 - 14,
-    };
-    const baseId = Date.now();
-    const tasks: FlyTask[] = newOnes.slice(0, 3).map((it, i) => ({
-      id: baseId + i,
-      label: it.name,
-      from: { x: window.innerWidth / 2 - 24, y: window.innerHeight * 0.42 },
-      to,
-    }));
-    setFlyTasks((t) => [...t, ...tasks]);
-    newOnes.forEach((it) => seenIdsRef.current.add(it.id));
-    if (typeof navigator !== "undefined" && "vibrate" in navigator) {
-      try {
-        navigator.vibrate(10);
-      } catch {}
-    }
-  }, [items, reduced]);
 
   const adjustItem = (id: string, delta: number) => {
     const it = items.find((i) => i.id === id);
@@ -255,9 +211,21 @@ function Index() {
       grouped[cat].forEach((it) => lines.push(`  • ${it.name} · ${formatQty(it)}`));
       lines.push("");
     });
+    const text = lines.join("\n");
+    const title = `Guestimate — ${EVENTS.find((e) => e.id === eventType)?.name ?? "Lista de la compra"}`;
+    // En móvil abrimos el menú nativo de compartir; si no existe, copiamos.
+    if (typeof navigator !== "undefined" && "share" in navigator) {
+      try {
+        await navigator.share({ title, text });
+        return;
+      } catch (err) {
+        // El usuario canceló el diálogo: no hacemos nada.
+        if (err instanceof Error && err.name === "AbortError") return;
+      }
+    }
     try {
-      await navigator.clipboard.writeText(lines.join("\n"));
-      showToast("Copiado");
+      await navigator.clipboard.writeText(text);
+      showToast("Lista copiada");
     } catch {
       showToast("No se pudo copiar");
     }
@@ -347,7 +315,7 @@ function Index() {
               {step === 4 && (
                 <Step4
                   resolved={resolved}
-                  onCycle={cycleChoice}
+                  onSelect={setChoice}
                   eventType={eventType}
                   date={date}
                   totalPeople={totalPpl}
@@ -403,7 +371,7 @@ function Index() {
           <div className="sticky top-24 h-[calc(100vh-7rem)] overflow-hidden rounded-2xl border border-border bg-card shadow-[0_1px_2px_rgba(0,0,0,0.04),0_8px_24px_rgba(0,0,0,0.06)]">
             <BasketPanel
               resolved={resolved}
-              onCycle={cycleChoice}
+              onSelect={setChoice}
               registerIconTarget={(el) => (basketIconRef.current = el)}
             />
           </div>
@@ -445,18 +413,13 @@ function Index() {
                 </button>
               </div>
               <div className="h-[calc(85vh-3.25rem)]">
-                <BasketPanel resolved={resolved} onCycle={cycleChoice} />
+                <BasketPanel resolved={resolved} onSelect={setChoice} />
               </div>
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Fly-to-basket overlay */}
-      <FlyOverlay
-        tasks={flyTasks}
-        onDone={(id) => setFlyTasks((t) => t.filter((x) => x.id !== id))}
-      />
 
       {/* Toast */}
       <AnimatePresence>
@@ -827,7 +790,7 @@ function Step3({
 /* ---------- Step 4 ---------- */
 function Step4({
   resolved,
-  onCycle,
+  onSelect,
   eventType,
   date,
   totalPeople,
@@ -838,7 +801,7 @@ function Step4({
   saved,
 }: {
   resolved: ResolvedBasket;
-  onCycle: (key: string) => void;
+  onSelect: (key: string, index: number) => void;
   eventType: EventType | null;
   date: string;
   totalPeople: number;
@@ -890,28 +853,36 @@ function Step4({
             <div className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card">
               {g.lines.map((line) => {
                 const canSwap = line.alternatives.length > 1;
+                const idx = line.alternatives.findIndex((o) => o.id === line.option.id);
                 return (
                   <div key={line.key} className="flex items-center gap-3 px-5 py-3.5">
                     <div className="min-w-0 flex-1">
-                      <div className="truncate text-sm font-medium text-foreground">
-                        {line.option.name}
+                      {canSwap ? (
+                        <select
+                          value={idx}
+                          onChange={(e) => onSelect(line.key, Number(e.target.value))}
+                          className="w-full max-w-full truncate rounded-md bg-transparent text-sm font-medium text-foreground outline-none hover:text-primary focus:text-primary"
+                          aria-label={`Elegir ${line.slotLabel}`}
+                        >
+                          {line.alternatives.map((o, i) => (
+                            <option key={o.id} value={i}>
+                              {o.name} · {o.price}€/{o.unit}
+                            </option>
+                          ))}
+                        </select>
+                      ) : (
+                        <div className="truncate text-sm font-medium text-foreground">
+                          {line.option.name}
+                        </div>
+                      )}
+                      <div className="text-xs text-muted-foreground">
+                        {line.amountLabel}
+                        {canSwap ? ` · ${line.alternatives.length} opciones` : ""}
                       </div>
-                      <div className="text-xs text-muted-foreground">{line.amountLabel}</div>
                     </div>
                     <span className="shrink-0 text-sm font-semibold tabular-nums text-foreground">
                       {line.cost > 0 ? formatEuro(line.cost) : "—"}
                     </span>
-                    {canSwap && (
-                      <motion.button
-                        whileTap={{ scale: 0.85, rotate: -90 }}
-                        onClick={() => onCycle(line.key)}
-                        className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-secondary/15 text-secondary hover:bg-secondary/25"
-                        aria-label="Cambiar producto"
-                        title={`Cambiar (${line.alternatives.length} opciones)`}
-                      >
-                        <RefreshCw className="h-3.5 w-3.5" strokeWidth={2} />
-                      </motion.button>
-                    )}
                   </div>
                 );
               })}
