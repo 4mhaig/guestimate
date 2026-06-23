@@ -29,7 +29,7 @@ const SPECS = {
     { id: 'pollo', label: 'Pollo', share: 0.3, cats: ['Carne'], inc: /pechuga de pollo|muslo|contramuslo de pollo|jamoncit|pollo entero/i, unit: 'kg', n: 6 },
     { id: 'cerdo', label: 'Cerdo', share: 0.25, cats: ['Carne'], inc: /chuleta.*cerdo|lomo de cerdo|secreto|aguja de cerdo|cinta de lomo|magro/i, unit: 'kg', n: 6 },
     { id: 'ternera_pavo', label: 'Ternera / pavo', share: 0.2, cats: ['Carne'], inc: /ternera|añojo|vacuno|filetes? (de )?pavo|pechuga de pavo|escalope/i, exc: /cerdo/i, unit: 'kg', n: 6 },
-    { id: 'pescado', label: 'Pescado', share: 0.15, cats: ['Marisco y pescado', 'Congelados'], inc: /merluza|salmón|dorada|lubina|bacalao|emperador|trucha|rodaballo|gallo|lomos de pescado|panga|tilapia/i, exc: /relleno|pimientos|croqueta|palitos|varitas/i, unit: 'kg', n: 6 },
+    { id: 'pescado', label: 'Pescado', share: 0.15, cat: 'pescado', cats: ['Marisco y pescado', 'Congelados'], inc: /merluza|salmón|dorada|lubina|bacalao|emperador|trucha|rodaballo|gallo|lomos de pescado|panga|tilapia/i, exc: /relleno|pimientos|croqueta|palitos|varitas/i, unit: 'kg', n: 6 },
     { id: 'cordero_conejo', label: 'Cordero / conejo', share: 0.1, cats: ['Carne'], inc: /cordero|conejo|lechal|cabrito/i, unit: 'kg', n: 6 },
   ],
   // ---- CARNE/PROTEÍNA comida familiar (asado/guiso) ----
@@ -37,7 +37,7 @@ const SPECS = {
     { id: 'pollo', label: 'Pollo', share: 0.3, cats: ['Carne'], inc: /pechuga de pollo|muslo|contramuslo|jamoncit|pollo entero/i, unit: 'kg', n: 6 },
     { id: 'cerdo', label: 'Cerdo', share: 0.25, cats: ['Carne'], inc: /lomo de cerdo|chuleta.*cerdo|aguja de cerdo|cinta de lomo|secreto|magro/i, unit: 'kg', n: 6 },
     { id: 'ternera_pavo', label: 'Ternera / pavo', share: 0.2, cats: ['Carne'], inc: /ternera|añojo|vacuno|morcillo|filetes? (de )?pavo|pechuga de pavo|escalope/i, exc: /cerdo/i, unit: 'kg', n: 6 },
-    { id: 'pescado', label: 'Pescado', share: 0.15, cats: ['Marisco y pescado', 'Congelados'], inc: /merluza|salmón|dorada|lubina|bacalao|emperador|trucha|rodaballo|gallo|lomos de pescado/i, exc: /relleno|pimientos|croqueta|palitos|varitas/i, unit: 'kg', n: 6 },
+    { id: 'pescado', label: 'Pescado', share: 0.15, cat: 'pescado', cats: ['Marisco y pescado', 'Congelados'], inc: /merluza|salmón|dorada|lubina|bacalao|emperador|trucha|rodaballo|gallo|lomos de pescado/i, exc: /relleno|pimientos|croqueta|palitos|varitas/i, unit: 'kg', n: 6 },
     { id: 'cordero_conejo', label: 'Cordero / conejo', share: 0.1, cats: ['Carne'], inc: /cordero|conejo|lechal|cabrito/i, unit: 'kg', n: 6 },
   ],
   // ---- CARNE cumpleaños (para picar, apto niños) ----
@@ -54,7 +54,7 @@ const SPECS = {
   // ---- CARNE Nochebuena (festivo) ----
   'carne:nochebuena': [
     { id: 'cordero', label: 'Cordero / lechal', share: 0.35, cats: ['Carne'], inc: /cordero|lechal|paletilla|cabrito/i, unit: 'kg', n: 6 },
-    { id: 'marisco', label: 'Marisco', share: 0.35, cats: ['Marisco y pescado', 'Congelados'], inc: /langostino|gambón|gamba|marisco|mejillón|almeja|pulpo/i, unit: 'kg', n: 6 },
+    { id: 'marisco', label: 'Marisco y pescado', share: 0.35, cat: 'pescado', cats: ['Marisco y pescado', 'Congelados'], inc: /langostino|gambón|gamba|marisco|mejillón|almeja|pulpo|merluza|bacalao|dorada|lubina/i, unit: 'kg', n: 6 },
     { id: 'iberico_premium', label: 'Ibérico y solomillo', share: 0.3, cats: ['Carne'], inc: /presa|secreto|solomillo|ibérico|entrecot/i, unit: 'kg', n: 6 },
   ],
   // ---- ENTRANTES Nochebuena (ensalada festiva + marisco; tabla va a embutido) ----

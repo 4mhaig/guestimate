@@ -239,7 +239,8 @@ export const CATALOG: Record<string, CatalogSlot[]> = {
           "packPrice": 4.13,
           "image": "https://prod-mercadona.imgix.net/images/661d69880016e9ebeb58a4f23465e397.jpg?fit=crop&h=300&w=300"
         }
-      ]
+      ],
+      "cat": "pescado"
     },
     {
       "id": "cordero_conejo",
@@ -516,7 +517,8 @@ export const CATALOG: Record<string, CatalogSlot[]> = {
           "packPrice": 4.13,
           "image": "https://prod-mercadona.imgix.net/images/f59e557239c2f912e794f4f6ca61df0a.jpg?fit=crop&h=300&w=300"
         }
-      ]
+      ],
+      "cat": "pescado"
     },
     {
       "id": "cordero_conejo",
@@ -872,7 +874,7 @@ export const CATALOG: Record<string, CatalogSlot[]> = {
     },
     {
       "id": "marisco",
-      "label": "Marisco",
+      "label": "Marisco y pescado",
       "share": 0.35,
       "options": [
         {
@@ -882,6 +884,30 @@ export const CATALOG: Record<string, CatalogSlot[]> = {
           "unit": "kg",
           "packPrice": 1.8,
           "image": "https://prod-mercadona.imgix.net/images/5077ee2d933dcad572b8a81e0ade8a2f.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "62176",
+          "name": "Pescadilla de merluza sin cabeza Hacendado ultracongelada",
+          "price": 5.25,
+          "unit": "kg",
+          "packPrice": 5.25,
+          "image": "https://prod-mercadona.imgix.net/images/7f157b6427610d3b79250fc9d02b151d.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "63435",
+          "name": "Albóndigas de bacalao Camós congeladas",
+          "price": 5.25,
+          "unit": "kg",
+          "packPrice": 2.1,
+          "image": "https://prod-mercadona.imgix.net/images/57b28a09f9645a36cd5d3397c920bb64.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "63151",
+          "name": "Palitos de merluza a la romana Hacendado ultracongelados",
+          "price": 5.5,
+          "unit": "kg",
+          "packPrice": 2.75,
+          "image": "https://prod-mercadona.imgix.net/images/ee8c09059091a07b3982f17ae35551f9.jpg?fit=crop&h=300&w=300"
         },
         {
           "id": "85499",
@@ -898,32 +924,9 @@ export const CATALOG: Record<string, CatalogSlot[]> = {
           "unit": "kg",
           "packPrice": 2.9,
           "image": "https://prod-mercadona.imgix.net/images/77aaa4c3dcbd08ce70f4e5626000c420.jpg?fit=crop&h=300&w=300"
-        },
-        {
-          "id": "62401",
-          "name": "Mejillón de Chile entero cocido Hacendado ultracongelado",
-          "price": 7.22,
-          "unit": "kg",
-          "packPrice": 3.25,
-          "image": "https://prod-mercadona.imgix.net/images/b4e4b2663ea1d17228e8500f39b911d3.jpg?fit=crop&h=300&w=300"
-        },
-        {
-          "id": "62396",
-          "name": "Carne de mejillón de Chile cocido Hacendado ultracongelado",
-          "price": 9.09,
-          "unit": "kg",
-          "packPrice": 2.5,
-          "image": "https://prod-mercadona.imgix.net/images/0166a818db1acd99b8a10c4338f2f09e.jpg?fit=crop&h=300&w=300"
-        },
-        {
-          "id": "24712",
-          "name": "Langostino crudo Hacendado ultracongelado",
-          "price": 9.92,
-          "unit": "kg",
-          "packPrice": 5.95,
-          "image": "https://prod-mercadona.imgix.net/images/c48b090bf241f8eb71d0d3aa2fc36bed.jpg?fit=crop&h=300&w=300"
         }
-      ]
+      ],
+      "cat": "pescado"
     },
     {
       "id": "iberico_premium",

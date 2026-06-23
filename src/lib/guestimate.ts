@@ -40,6 +40,7 @@ export type Category =
   | "lacteos"
   | "embutido"
   | "fruta"
+  | "pescado"
   | "entrante"
   | "desayuno"
   | "otros";
@@ -81,7 +82,7 @@ export const RESTRICTIONS: { id: Restriction; label: string; note: string }[] = 
 ];
 
 export const CATEGORY_META: Record<Category, { label: string; icon: string }> = {
-  carne: { label: "Carne y proteína", icon: "Beef" },
+  carne: { label: "Carne", icon: "Beef" },
   pan: { label: "Pan y cereales", icon: "Croissant" },
   ensalada: { label: "Verdura y ensalada", icon: "Salad" },
   guarnicion: { label: "Guarniciones", icon: "ShoppingBasket" },
@@ -92,6 +93,7 @@ export const CATEGORY_META: Record<Category, { label: string; icon: string }> = 
   lacteos: { label: "Lácteos", icon: "Milk" },
   embutido: { label: "Embutidos y queso", icon: "Beef" },
   fruta: { label: "Fruta", icon: "Salad" },
+  pescado: { label: "Pescado", icon: "Fish" },
   entrante: { label: "Entrantes y marisco", icon: "Fish" },
   desayuno: { label: "Desayuno", icon: "Croissant" },
   otros: { label: "Básicos y otros", icon: "ShoppingBasket" },
