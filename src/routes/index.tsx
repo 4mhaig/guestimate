@@ -102,6 +102,7 @@ function Index() {
   const [specialRequests, setSpecialRequests] = useState("");
   const [aiAdds, setAiAdds] = useState<{ id: string; name: string; category: string; amount: string }[]>([]);
   const [aiBusy, setAiBusy] = useState(false);
+  const [aiTurns, setAiTurns] = useState<AiTurn[]>([]);
   const [overrides, setOverrides] = useState<Record<string, number>>({});
   const [removed, setRemoved] = useState<Set<string>>(new Set());
   const [mobileBasketOpen, setMobileBasketOpen] = useState(false);
@@ -240,7 +241,11 @@ function Index() {
     const groups = base.groups.map((g) => ({ ...g, lines: [...g.lines], cost: g.cost }));
     const touched = new Set(groups);
     for (const a of adds) {
-      const cat = (a.category as Item["category"]) || "otros";
+      // Buscamos el producto real más parecido del catálogo para darle precio.
+      const match = findCatalogMatch(a.name, prices);
+      // La categoría real la manda el producto encontrado (la IA suele
+      // acertar el producto pero fallar la categoría: queso→lácteos, etc.).
+      const cat = (match?.category as Item["category"]) || (a.category as Item["category"]) || "otros";
       const meta = CATEGORY_META[cat] ?? CATEGORY_META.otros;
       let g = groups.find((x) => x.category === cat);
       if (!g) {
@@ -248,18 +253,16 @@ function Index() {
         groups.push(g);
       }
       touched.add(g);
-      // Buscamos el producto real más parecido del catálogo para darle precio.
-      const match = findCatalogMatch(a.name, prices);
       if (match) {
-        const { amount, label } = parseAiAmount(a.amount, match.unit);
+        const { amount, label } = parseAiAmount(a.amount, match.option.unit);
         g.lines.push({
           key: a.id,
           slotLabel: a.name,
-          option: match,
+          option: match.option,
           alternatives: [],
           amount,
           amountLabel: label,
-          cost: Math.round(match.price * amount * 100) / 100,
+          cost: Math.round(match.option.price * amount * 100) / 100,
         });
       } else {
         // Sin producto equivalente en el catálogo: lo mostramos sin precio.
@@ -287,25 +290,36 @@ function Index() {
   );
 
   const applyAi = async () => {
-    if (!specialRequests.trim()) return;
+    const request = specialRequests.trim();
+    if (!request) return;
     setAiBusy(true);
     try {
       const lines = resolved.groups.flatMap((g) => g.lines.map((l) => l.option.name));
-      const result = await applyAiRequest({ data: { request: specialRequests.trim(), lines } });
-      if (result.error === "no_key") {
-        showToast("La IA no está configurada todavía");
-        return;
-      }
+      const result = await applyAiRequest({ data: { request, lines } });
       if (result.error) {
-        showToast("La IA no pudo procesar la petición");
+        setAiTurns((t) => [
+          ...t,
+          {
+            request,
+            added: [],
+            removed: [],
+            status: "error",
+            message:
+              result.error === "no_key"
+                ? "La IA no está configurada todavía."
+                : "No he podido procesar esa petición. Prueba a decirlo de otra forma.",
+          },
+        ]);
         return;
       }
       // Quitar: buscamos las líneas cuyo producto coincide con lo que pide quitar.
+      const removedNames: string[] = [];
       if (result.remove.length) {
         const toRemove = new Set<string>();
         for (const g of resolved.groups) {
           for (const l of g.lines) {
             if (result.remove.some((n) => l.option.name.toLowerCase().includes(n.toLowerCase()) || n.toLowerCase().includes(l.option.name.toLowerCase()))) {
+              if (!toRemove.has(l.key)) removedNames.push(l.option.name);
               toRemove.add(l.key);
             }
           }
@@ -313,16 +327,24 @@ function Index() {
         if (toRemove.size) setRemovedLines((prev) => new Set([...prev, ...toRemove]));
       }
       // Añadir: como líneas nuevas en su categoría.
+      const addedNames = result.add.map((a) => a.name);
       if (result.add.length) {
         setAiAdds((prev) => [
           ...prev,
           ...result.add.map((a, i) => ({ id: `ai_${Date.now()}_${i}`, name: a.name, category: a.category, amount: a.amount })),
         ]);
       }
-      const n = result.remove.length + result.add.length;
-      showToast(n ? "Lista actualizada con tu petición" : "No hubo cambios que aplicar");
+      const n = removedNames.length + addedNames.length;
+      setAiTurns((t) => [
+        ...t,
+        { request, added: addedNames, removed: removedNames, status: n ? "ok" : "nochange" },
+      ]);
+      setSpecialRequests(""); // limpiamos para invitar a seguir pidiendo
     } catch {
-      showToast("La IA no está disponible ahora");
+      setAiTurns((t) => [
+        ...t,
+        { request, added: [], removed: [], status: "error", message: "La IA no está disponible ahora mismo." },
+      ]);
     } finally {
       setAiBusy(false);
     }
@@ -453,6 +475,15 @@ function Index() {
       lines.push("");
     });
     lines.push(`Total aprox (sin envío): ${formatEuro(resolved.total)}`);
+    // Menú por día (solo casa rural)
+    if (eventType === "rural" && ruralMenu.length) {
+      lines.push("");
+      lines.push("MENÚ POR DÍA");
+      ruralMenu.forEach((d) => {
+        lines.push(`— Día ${d.day}${d.special ? ` (${d.special === "barbacoa" ? "barbacoa" : "cumpleaños"})` : ""}`);
+        d.meals.forEach((m) => lines.push(`  ${m.label}: ${m.dishes.join(", ")}`));
+      });
+    }
     if (specialRequests.trim()) {
       lines.push("");
       lines.push(`Peticiones: ${specialRequests.trim()}`);
@@ -644,6 +675,7 @@ function Index() {
                   setSpecialRequests={setSpecialRequests}
                   onApplyAi={applyAi}
                   aiBusy={aiBusy}
+                  aiTurns={aiTurns}
                 />
               )}
               {step === 4 && (
@@ -1375,6 +1407,16 @@ const DRINK_LABELS: Record<string, string> = {
 
 const SPLIT_RESTRICTIONS = ["vegano", "vegetariano", "celiaco", "lactosa", "sin_cerdo"];
 
+// Una interacción con la IA (lo que pediste y lo que hizo), para mostrar
+// el hilo como una conversación.
+type AiTurn = {
+  request: string;
+  added: string[];
+  removed: string[];
+  status: "ok" | "nochange" | "error";
+  message?: string;
+};
+
 const REST_PROFILES: { key: keyof People; label: string }[] = [
   { key: "hombres", label: "Hombres" },
   { key: "mujeres", label: "Mujeres" },
@@ -1394,6 +1436,7 @@ function Step3({
   setSpecialRequests,
   onApplyAi,
   aiBusy,
+  aiTurns,
 }: {
   restrictions: Restriction[];
   setRestrictions: (r: Restriction[]) => void;
@@ -1406,6 +1449,7 @@ function Step3({
   setSpecialRequests: (s: string) => void;
   onApplyAi: () => void;
   aiBusy: boolean;
+  aiTurns: AiTurn[];
 }) {
   const setRestCount = (r: Restriction, key: keyof People, value: number) => {
     const cur = restrictionCounts[r] ?? { hombres: 0, mujeres: 0, adolescentes: 0, ninos: 0 };
@@ -1550,14 +1594,66 @@ function Step3({
       <div className="mt-10">
         <h2 className="font-display text-lg font-semibold text-foreground">Peticiones especiales (IA)</h2>
         <p className="mt-0.5 text-sm text-muted-foreground">
-          Pide lo que quieras y la IA ajusta la lista. Ej: "incluye gildas y hummus", "quita el
-          pescado".
+          Pídele lo que quieras y ajusta la lista. Ej: "incluye gildas y hummus", "quita el pescado".
+          Puedes encadenar varias peticiones, una detrás de otra.
         </p>
+
+        {/* Hilo de conversación con la IA */}
+        {(aiTurns.length > 0 || aiBusy) && (
+          <div className="mt-4 space-y-3 rounded-2xl border border-border bg-card p-4">
+            {aiTurns.map((t, i) => (
+              <Fragment key={i}>
+                {/* Lo que pediste */}
+                <div className="flex justify-end">
+                  <span className="max-w-[85%] rounded-2xl rounded-br-sm bg-primary px-3.5 py-2 text-sm text-primary-foreground">
+                    {t.request}
+                  </span>
+                </div>
+                {/* Lo que hizo la IA */}
+                <div className="flex justify-start">
+                  <div className="max-w-[90%] rounded-2xl rounded-bl-sm bg-accent/50 px-3.5 py-2 text-sm text-foreground">
+                    {t.status === "error" && <span>{t.message}</span>}
+                    {t.status === "nochange" && (
+                      <span>No he cambiado nada en la lista con esa petición.</span>
+                    )}
+                    {t.status === "ok" && (
+                      <div className="space-y-1">
+                        <span className="font-medium">Hecho. Esto es lo que he cambiado:</span>
+                        {t.added.length > 0 && (
+                          <div className="flex items-start gap-1.5">
+                            <Plus className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" strokeWidth={2.2} />
+                            <span>Añadido: {t.added.join(", ")}</span>
+                          </div>
+                        )}
+                        {t.removed.length > 0 && (
+                          <div className="flex items-start gap-1.5">
+                            <Minus className="mt-0.5 h-3.5 w-3.5 shrink-0 text-destructive" strokeWidth={2.2} />
+                            <span>Quitado: {t.removed.join(", ")}</span>
+                          </div>
+                        )}
+                        <span className="block pt-0.5 text-xs text-muted-foreground">
+                          Lo verás reflejado en tu cesta. ¿Algo más?
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </Fragment>
+            ))}
+            {aiBusy && (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Sparkles className="h-4 w-4 animate-pulse text-secondary" />
+                Pensando…
+              </div>
+            )}
+          </div>
+        )}
+
         <textarea
           value={specialRequests}
           onChange={(e) => setSpecialRequests(e.target.value)}
-          rows={3}
-          placeholder="Escribe aquí tu petición…"
+          rows={2}
+          placeholder={aiTurns.length ? "Escribe otra petición…" : "Escribe aquí tu petición…"}
           className="mt-3 w-full resize-none rounded-2xl border border-border bg-card p-4 text-sm outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/15"
         />
         <motion.button
@@ -1567,7 +1663,7 @@ function Step3({
           className="mt-3 inline-flex items-center gap-2 rounded-full bg-secondary px-5 py-2.5 text-sm font-semibold text-secondary-foreground transition-opacity hover:opacity-90 disabled:opacity-40"
         >
           <Sparkles className="h-4 w-4" />
-          {aiBusy ? "Pensando…" : "Aplicar a la lista"}
+          {aiBusy ? "Pensando…" : aiTurns.length ? "Enviar" : "Aplicar a la lista"}
         </motion.button>
       </div>
     </div>

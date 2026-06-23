@@ -254,17 +254,22 @@ export function formatEuro(n: number): string {
 // buscamos el producto real más parecido del catálogo de Mercadona
 // para poder ponerle un precio de verdad (y unidad correcta).
 
-let _allOptions: ProductOption[] | null = null;
-function allCatalogOptions(): ProductOption[] {
+// Cada opción del catálogo junto con la categoría a la que pertenece
+// (la del slot si la fuerza, o la del prefijo de la clave: "carne:cumple" → "carne").
+type CatalogEntry = { option: ProductOption; category: Category };
+let _allOptions: CatalogEntry[] | null = null;
+function allCatalogOptions(): CatalogEntry[] {
   if (_allOptions) return _allOptions;
   const seen = new Set<string>();
-  const out: ProductOption[] = [];
-  for (const slots of Object.values(CATALOG)) {
+  const out: CatalogEntry[] = [];
+  for (const [key, slots] of Object.entries(CATALOG)) {
+    const baseCat = key.split(":")[0] as Category;
     for (const slot of slots) {
+      const category = ((slot.cat as Category) ?? baseCat) || "otros";
       for (const o of slot.options) {
         if (seen.has(o.id)) continue;
         seen.add(o.id);
-        out.push(o);
+        out.push({ option: o, category });
       }
     }
   }
@@ -288,29 +293,44 @@ function wordTokens(s: string): string[] {
     .filter((t) => t.length >= 3 && !STOPWORDS.has(t));
 }
 
+// Dos palabras "coinciden" si son iguales o una es prefijo de la otra
+// (para tolerar singular/plural: "pizza" ↔ "pizzas", "gilda" ↔ "gildas").
+function tokenMatch(a: string, b: string): boolean {
+  if (a === b) return true;
+  const [short, long] = a.length <= b.length ? [a, b] : [b, a];
+  return short.length >= 4 && long.startsWith(short) && long.length - short.length <= 2;
+}
+
 /** Busca el producto real del catálogo que mejor encaja con el nombre
- *  libre que ha propuesto la IA. Devuelve null si no hay nada parecido. */
-export function findCatalogMatch(name: string, prices?: Record<string, number>): ProductOption | null {
+ *  libre que ha propuesto la IA. Devuelve el producto Y su categoría real
+ *  (para colocarlo en el grupo correcto), o null si no hay nada parecido. */
+export function findCatalogMatch(
+  name: string,
+  prices?: Record<string, number>,
+): { option: ProductOption; category: Category } | null {
   const want = wordTokens(name);
   if (!want.length) return null;
   // La 1ª palabra suele ser el sustantivo principal ("Salmón ahumado",
   // "Lubina fresca"). La exigimos para evitar coincidencias por palabras
   // sueltas y secundarias ("ahumado" → salchichas ahumadas).
   const primary = want[0];
-  let best: ProductOption | null = null;
+  let best: CatalogEntry | null = null;
   let bestScore = 0;
-  for (const o of allCatalogOptions()) {
-    const have = new Set(wordTokens(o.name));
-    if (!have.has(primary)) continue;
+  for (const entry of allCatalogOptions()) {
+    const have = wordTokens(entry.option.name);
+    if (!have.some((h) => tokenMatch(primary, h))) continue;
     let score = 0;
-    for (const w of want) if (have.has(w)) score += 1;
+    for (const w of want) if (have.some((h) => tokenMatch(w, h))) score += 1;
+    // Bonus si el producto trata PRINCIPALMENTE de lo buscado (1ª palabra),
+    // p.ej. "Guacamole Hacendado" gana a "Nachos sabor guacamole".
+    if (have.length && tokenMatch(primary, have[0])) score += 0.5;
     if (score > bestScore) {
       bestScore = score;
-      best = o;
+      best = entry;
     }
   }
   if (!best || bestScore === 0) return null;
-  return withLivePrice(best, prices);
+  return { option: withLivePrice(best.option, prices), category: best.category };
 }
 
 function unitFamily(u: string): "weight" | "volume" | "count" {

@@ -64,6 +64,19 @@ export const RELEVANT_CATEGORIES = [
   'postres',
   'aceituna',
   'encurtid',
+  // Platos preparados / precocinados (pizzas, tortilla de patata, lasañas...)
+  'pizza',
+  'plato',
+  'precocinad',
+  'preparad',
+  'tortilla',
+  'congelad',
+  // Cremas para untar / mojar (hummus, guacamole, patés vegetales...)
+  'hummus',
+  'guacamole',
+  'paté',
+  'pate',
+  'crema de verdura',
   // Despensa básica (para casa rural y condimentos)
   'aceite',
   'especia',

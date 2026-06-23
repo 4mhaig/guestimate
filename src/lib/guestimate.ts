@@ -277,7 +277,8 @@ export function computeBasket(
   } else {
     BASE_MEAL.forEach((p) => {
       // Los aperitivos/snacks solo entran si el usuario activa el aperitivo
-      if (p.category === "snacks" && !aperitivo) return;
+      // (excepto en un cumpleaños, donde palomitas/chips son de rigor).
+      if (p.category === "snacks" && !aperitivo && event !== "cumple") return;
       const mult = eventMultiplier(event, p.category);
       add(map, p, p.per * units * mult);
     });
