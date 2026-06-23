@@ -218,6 +218,9 @@ export function computeBasket(
   specialEvents: SpecialEvents = {},
   restrictionCounts: Partial<Record<Restriction, People>> = {},
   easyCooking: boolean = false,
+  // Multiplicador aprendido del feedback de eventos anteriores de este tipo
+  // (>1 si solía faltar comida, <1 si solía sobrar). 1 = sin ajuste.
+  calibration: number = 1,
 ): Item[] {
   if (!event) return [];
   const map = new Map<string, Item>();
@@ -235,7 +238,7 @@ export function computeBasket(
         const mult = RURAL_MEAL_MULT[m];
         const isMain = m === "comida" || m === "cena";
         RURAL_MEALS[m].forEach((p) => {
-          let qty = p.per * units * mult;
+          let qty = p.per * units * mult * calibration;
           // Si ese día hay barbacoa/cumpleaños, aplicamos su multiplicador
           // a la comida y la cena (la celebración fuerte del día).
           if (special && isMain) qty *= eventMultiplier(special, p.category);
@@ -280,14 +283,14 @@ export function computeBasket(
       // (excepto en un cumpleaños, donde palomitas/chips son de rigor).
       if (p.category === "snacks" && !aperitivo && event !== "cumple") return;
       const mult = eventMultiplier(event, p.category);
-      add(map, p, p.per * units * mult);
+      add(map, p, p.per * units * mult * calibration);
     });
     // Con aperitivo añadimos algo de picoteo (embutido y queso)
     if (aperitivo) {
       add(
         map,
         { id: "picoteo", name: "Embutido y queso para picar", category: "embutido", per: 70, unit: "g" },
-        70 * units,
+        70 * units * calibration,
       );
     }
   }
@@ -394,6 +397,50 @@ export function defaultMealsConfig(days: number, mode: "all" | "standard" = "all
     }
   }
   return cfg;
+}
+
+// =============================================================
+// CALIBRACIÓN POR FEEDBACK
+// =============================================================
+// Convierte el feedback de eventos pasados ("faltó/sobró") en un ajuste
+// de cantidades por tipo de evento, para afinar futuros cálculos.
+
+// Cuánto mueve cada respuesta la cantidad (faltó → subir, sobró → bajar).
+const FEEDBACK_DELTA: Record<string, number> = {
+  falto_mucho: 0.15,
+  falto_algo: 0.07,
+  perfecto: 0,
+  sobro_algo: -0.07,
+  sobro_mucho: -0.15,
+};
+
+// Mínimo de opiniones por tipo para fiarnos, y tope del ajuste (±%).
+const CALIBRATION_MIN_SAMPLES = 2;
+const CALIBRATION_CAP = 0.15;
+
+export type Calibration = { mult: number; n: number; pct: number };
+
+/** Agrega el feedback (cada fila = tipo de evento + valoración de cantidad)
+ *  en un ajuste por tipo: multiplicador, nº de opiniones y % redondeado. */
+export function buildCalibration(
+  rows: { type: string | null | undefined; food_accuracy: string | null | undefined }[],
+): Record<string, Calibration> {
+  const acc: Record<string, { sum: number; n: number }> = {};
+  for (const row of rows) {
+    const type = row.type;
+    const delta = row.food_accuracy ? FEEDBACK_DELTA[row.food_accuracy] : undefined;
+    if (!type || delta === undefined) continue;
+    (acc[type] ??= { sum: 0, n: 0 }).sum += delta;
+    acc[type].n += 1;
+  }
+  const out: Record<string, Calibration> = {};
+  for (const [type, { sum, n }] of Object.entries(acc)) {
+    if (n < CALIBRATION_MIN_SAMPLES) continue;
+    const adj = Math.max(-CALIBRATION_CAP, Math.min(CALIBRATION_CAP, sum / n));
+    if (Math.round(adj * 100) === 0) continue; // ajuste insignificante
+    out[type] = { mult: 1 + adj, n, pct: Math.round(adj * 100) };
+  }
+  return out;
 }
 
 // =============================================================

@@ -24,8 +24,10 @@ import {
   CATEGORY_META,
   EVENTS,
   RESTRICTIONS,
+  buildCalibration,
   buildRuralMenu,
   computeBasket,
+  type Calibration,
   defaultMealsConfig,
   formatQty,
   groupByCategory,
@@ -199,11 +201,15 @@ function Index() {
     });
   }, [days]);
 
+  // Ajuste de cantidades aprendido del feedback de eventos anteriores.
+  const [calibration, setCalibration] = useState<Record<string, Calibration>>({});
+  const cal = (eventType && calibration[eventType]) || null;
+
   // Compute basket (debounced)
   const rawItems = useMemo(
     () =>
-      computeBasket(eventType, people, restrictions, days, meals, aperitivo, specialEvents, restrictionCounts, easyCooking),
-    [eventType, people, restrictions, days, meals, aperitivo, specialEvents, restrictionCounts, easyCooking],
+      computeBasket(eventType, people, restrictions, days, meals, aperitivo, specialEvents, restrictionCounts, easyCooking, cal?.mult ?? 1),
+    [eventType, people, restrictions, days, meals, aperitivo, specialEvents, restrictionCounts, easyCooking, cal?.mult],
   );
   const items: Item[] = useMemo(() => {
     return rawItems
@@ -227,6 +233,27 @@ function Index() {
         const map: Record<string, number> = {};
         for (const p of data) if (p.name && p.price != null) map[p.name] = Number(p.price);
         setPrices(map);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  // Calibración: leemos el feedback de eventos pasados (con su tipo) y lo
+  // convertimos en un ajuste de cantidades por tipo de evento.
+  useEffect(() => {
+    let active = true;
+    supabase
+      .from("feedback")
+      .select("food_accuracy, events(type)")
+      .then(({ data }) => {
+        if (!active || !data) return;
+        const rows = data.map((r) => {
+          const ev = (r as { events?: { type?: string } | { type?: string }[] }).events;
+          const type = Array.isArray(ev) ? ev[0]?.type : ev?.type;
+          return { type, food_accuracy: (r as { food_accuracy?: string }).food_accuracy };
+        });
+        setCalibration(buildCalibration(rows));
       });
     return () => {
       active = false;
@@ -698,6 +725,7 @@ function Index() {
                   totalPeople={totalPpl}
                   restrictions={restrictions}
                   ruralMenu={ruralMenu}
+                  calibration={cal}
                   onSave={saveList}
                   onShare={shareList}
                   saving={saving}
@@ -1767,6 +1795,7 @@ function Step4({
   totalPeople,
   restrictions,
   ruralMenu,
+  calibration,
   onSave,
   onShare,
   saving,
@@ -1780,6 +1809,7 @@ function Step4({
   totalPeople: number;
   restrictions: Restriction[];
   ruralMenu: MenuDay[];
+  calibration: Calibration | null;
   onSave: () => void;
   onShare: () => void;
   saving: boolean;
@@ -1795,6 +1825,20 @@ function Step4({
         Para {totalPeople} {totalPeople === 1 ? "persona" : "personas"}
         {date ? ` · ${date}` : ""} · {lineCount} productos
       </p>
+
+      {calibration && (
+        <div className="mt-4 flex items-start gap-2 rounded-xl border border-primary/30 bg-primary/5 px-4 py-3 text-sm text-foreground">
+          <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-primary" strokeWidth={1.8} />
+          <span>
+            Cantidades afinadas con la experiencia de {calibration.n} evento
+            {calibration.n === 1 ? "" : "s"} parecido{calibration.n === 1 ? "" : "s"}:{" "}
+            <span className="font-medium">
+              {calibration.pct > 0 ? `+${calibration.pct}%` : `${calibration.pct}%`} de comida
+            </span>{" "}
+            {calibration.pct > 0 ? "(antes solía faltar)" : "(antes solía sobrar)"}.
+          </span>
+        </div>
+      )}
 
       {activeNotes.length > 0 && (
         <div className="mt-6 space-y-2">
