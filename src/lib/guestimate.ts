@@ -403,26 +403,39 @@ export function defaultMealsConfig(days: number, mode: "all" | "standard" = "all
 // legible: qué se come en cada comida de cada día. Refleja los días
 // especiales (barbacoa/cumpleaños) y el modo "cocinar poco".
 
-export type MenuSlot = "desayuno" | "comida" | "aperitivo" | "merienda" | "cena";
+export type MenuSlot = "desayuno" | "aperitivo" | "comida" | "merienda" | "cena";
 export type MenuMeal = { slot: MenuSlot; label: string; dishes: string[] };
 export type MenuDay = { day: number; special: SpecialEvent | null; meals: MenuMeal[] };
 
+// Productos concretos elegidos en la cesta, para nombrarlos en el menú
+// (p.ej. el plato precocinado real en vez de un genérico "plato preparado").
+export type MenuDishes = {
+  easyCarne?: string[]; // platos listos / empanados de "cocinar poco"
+  easyGuarnicion?: string[]; // guarnición lista de "cocinar poco"
+  barbacoa?: string[]; // productos de la barbacoa (chorizo, costillas...)
+};
+
 const MENU_LABELS: Record<MenuSlot, string> = {
   desayuno: "Desayuno",
-  comida: "Comida",
   aperitivo: "Aperitivo",
+  comida: "Comida",
   merienda: "Merienda",
   cena: "Cena",
 };
-// Orden cronológico de las comidas en el día (el aperitivo va por la tarde).
-const MENU_ORDER: MenuSlot[] = ["desayuno", "comida", "aperitivo", "merienda", "cena"];
+// Orden cronológico: el aperitivo va ANTES de la comida.
+const MENU_ORDER: MenuSlot[] = ["desayuno", "aperitivo", "comida", "merienda", "cena"];
 
 export function buildRuralMenu(
   days: number,
   meals: MealsConfig,
   specialEvents: SpecialEvents = {},
   easyCooking: boolean = false,
+  dishes: MenuDishes = {},
 ): MenuDay[] {
+  const easyCarne = dishes.easyCarne?.length ? dishes.easyCarne : null;
+  const easyGuar = dishes.easyGuarnicion?.length ? dishes.easyGuarnicion : null;
+  const bbq = dishes.barbacoa?.length ? dishes.barbacoa : null;
+
   const out: MenuDay[] = [];
   for (let d = 1; d <= days; d++) {
     const dayMeals = meals[d] || { desayuno: true, comida: true, merienda: false, cena: true };
@@ -434,12 +447,23 @@ export function buildRuralMenu(
       const isMain = m === "comida" || m === "cena";
       const dishes: string[] = [];
       for (const p of RURAL_MEALS[m]) {
-        if (special && isMain && p.category === "carne") {
-          dishes.push(special === "barbacoa" ? "Barbacoa: carne y embutido a la brasa" : "Carne / proteína");
+        if (special === "barbacoa" && isMain && p.category === "carne") {
+          // La barbacoa se hace UNA vez (en la comida); en la cena, restos.
+          if (m === "comida") {
+            dishes.push(bbq ? `Barbacoa: ${bbq.join(", ")}` : "Barbacoa: carne y embutido a la brasa");
+          } else {
+            dishes.push("Restos de la barbacoa");
+          }
+        } else if (special === "cumple" && isMain && p.category === "carne") {
+          dishes.push("Carne para picar");
         } else if (special === "cumple" && isMain && p.category === "postre") {
           dishes.push("Tarta de cumpleaños");
-        } else if (easyCooking && isMain && !special && (p.category === "carne" || p.category === "guarnicion")) {
-          dishes.push(p.category === "carne" ? "Plato preparado (precocinado)" : "Guarnición lista");
+        } else if (easyCooking && isMain && !special && p.category === "carne") {
+          if (easyCarne) dishes.push(...easyCarne);
+          else dishes.push("Plato preparado (precocinado)");
+        } else if (easyCooking && isMain && !special && p.category === "guarnicion") {
+          if (easyGuar) dishes.push(...easyGuar);
+          else dishes.push("Guarnición lista");
         } else {
           dishes.push(p.name);
         }

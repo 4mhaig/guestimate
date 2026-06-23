@@ -283,11 +283,21 @@ function Index() {
     return { groups, total };
   }, [items, eventType, choices, removedLines, drinks, prices, aiAdds]);
 
-  // Menú sugerido por día (solo casa rural).
-  const ruralMenu: MenuDay[] = useMemo(
-    () => (eventType === "rural" ? buildRuralMenu(days, meals, specialEvents, easyCooking) : []),
-    [eventType, days, meals, specialEvents, easyCooking],
-  );
+  // Menú sugerido por día (solo casa rural). Tomamos los productos
+  // concretos elegidos en la cesta para nombrarlos en el menú (el plato
+  // precocinado real, los productos de la barbacoa...).
+  const ruralMenu: MenuDay[] = useMemo(() => {
+    if (eventType !== "rural") return [];
+    const lines = resolved.groups.flatMap((g) => g.lines);
+    const pick = (keys: string[]) =>
+      lines.filter((l) => keys.includes(l.key)).map((l) => l.option.name);
+    const dishes = {
+      easyCarne: pick(["carne:platos_listos", "carne:empanados_listos"]),
+      easyGuarnicion: pick(["guarnicion:ensaladilla_prefritas"]),
+      barbacoa: pick(["carne:embutido_bbq", "carne:panceta", "carne:pollo_bbq", "carne:chuletas_bbq"]),
+    };
+    return buildRuralMenu(days, meals, specialEvents, easyCooking, dishes);
+  }, [eventType, days, meals, specialEvents, easyCooking, resolved]);
 
   const applyAi = async () => {
     const request = specialRequests.trim();
