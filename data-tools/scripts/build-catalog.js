@@ -26,166 +26,166 @@ const APP_ROOT = join(ROOT, '..');
 const SPECS = {
   // ---- CARNE estándar (comida familiar, casa rural...) ----
   carne: [
-    { id: 'pollo', label: 'Pollo', share: 0.35, cats: ['Carne'], inc: /pechuga de pollo|muslo|contramuslo de pollo|jamoncit|pollo entero/i, unit: 'kg', n: 3 },
-    { id: 'cerdo', label: 'Cerdo', share: 0.35, cats: ['Carne'], inc: /chuleta.*cerdo|lomo de cerdo|secreto|aguja de cerdo|cinta de lomo|magro/i, unit: 'kg', n: 3 },
-    { id: 'ternera_pavo', label: 'Ternera / pavo', share: 0.3, cats: ['Carne'], inc: /ternera|añojo|vacuno|filetes? (de )?pavo|pechuga de pavo|escalope/i, exc: /cerdo/i, unit: 'kg', n: 3 },
+    { id: 'pollo', label: 'Pollo', share: 0.35, cats: ['Carne'], inc: /pechuga de pollo|muslo|contramuslo de pollo|jamoncit|pollo entero/i, unit: 'kg', n: 6 },
+    { id: 'cerdo', label: 'Cerdo', share: 0.35, cats: ['Carne'], inc: /chuleta.*cerdo|lomo de cerdo|secreto|aguja de cerdo|cinta de lomo|magro/i, unit: 'kg', n: 6 },
+    { id: 'ternera_pavo', label: 'Ternera / pavo', share: 0.3, cats: ['Carne'], inc: /ternera|añojo|vacuno|filetes? (de )?pavo|pechuga de pavo|escalope/i, exc: /cerdo/i, unit: 'kg', n: 6 },
   ],
   // ---- CARNE comida familiar (asado/guiso) ----
   'carne:familiar': [
-    { id: 'pollo', label: 'Pollo', share: 0.35, cats: ['Carne'], inc: /pechuga de pollo|muslo|contramuslo|jamoncit|pollo entero/i, unit: 'kg', n: 3 },
-    { id: 'cerdo', label: 'Cerdo', share: 0.35, cats: ['Carne'], inc: /lomo de cerdo|chuleta.*cerdo|aguja de cerdo|cinta de lomo|secreto|magro/i, unit: 'kg', n: 3 },
-    { id: 'ternera_pavo', label: 'Ternera / pavo', share: 0.3, cats: ['Carne'], inc: /ternera|añojo|vacuno|morcillo|filetes? (de )?pavo|pechuga de pavo|escalope/i, exc: /cerdo/i, unit: 'kg', n: 3 },
+    { id: 'pollo', label: 'Pollo', share: 0.35, cats: ['Carne'], inc: /pechuga de pollo|muslo|contramuslo|jamoncit|pollo entero/i, unit: 'kg', n: 6 },
+    { id: 'cerdo', label: 'Cerdo', share: 0.35, cats: ['Carne'], inc: /lomo de cerdo|chuleta.*cerdo|aguja de cerdo|cinta de lomo|secreto|magro/i, unit: 'kg', n: 6 },
+    { id: 'ternera_pavo', label: 'Ternera / pavo', share: 0.3, cats: ['Carne'], inc: /ternera|añojo|vacuno|morcillo|filetes? (de )?pavo|pechuga de pavo|escalope/i, exc: /cerdo/i, unit: 'kg', n: 6 },
   ],
   // ---- CARNE cumpleaños (para picar, apto niños) ----
   'carne:cumple': [
-    { id: 'empanados', label: 'Empanados y para picar', share: 0.4, cats: ['Carne', 'Congelados'], inc: /empanad|nugget|varitas|lagrimitas|san jacobo|fingers|crujiente/i, unit: 'kg', n: 3 },
-    { id: 'hamburguesas', label: 'Hamburguesas y salchichas', share: 0.3, cats: ['Carne'], inc: /hamburguesa|salchicha/i, unit: 'kg', n: 3 },
-    { id: 'alitas', label: 'Alitas y jamoncitos', share: 0.3, cats: ['Carne'], inc: /alas.*pollo|jamoncit/i, unit: 'kg', n: 3 },
+    { id: 'empanados', label: 'Empanados y para picar', share: 0.4, cats: ['Carne', 'Congelados'], inc: /empanad|nugget|varitas|lagrimitas|san jacobo|fingers|crujiente/i, unit: 'kg', n: 6 },
+    { id: 'hamburguesas', label: 'Hamburguesas y salchichas', share: 0.3, cats: ['Carne'], inc: /hamburguesa|salchicha/i, unit: 'kg', n: 6 },
+    { id: 'alitas', label: 'Alitas y jamoncitos', share: 0.3, cats: ['Carne'], inc: /alas.*pollo|jamoncit/i, unit: 'kg', n: 6 },
   ],
   // ---- CARNE cena de amigos (tabla de picoteo) ----
   'carne:amigos': [
-    { id: 'iberico', label: 'Ibéricos y embutido', share: 0.5, cats: ['Charcutería y quesos', 'Carne'], inc: /ibérico|salchichón|lomo embuchado|fuet|cecina|jamón (serrano|ibérico)|chorizo (vela|sarta)/i, unit: 'kg', n: 3 },
-    { id: 'queso', label: 'Quesos', share: 0.5, cat: 'embutido', cats: ['Charcutería y quesos'], inc: /queso (curado|viejo|manchego|mezcla|semicurado|añejo|ibérico)|cuña|tabla de queso/i, exc: /rallado|crema|untable|batido|fresco|0%/i, unit: 'kg', n: 3 },
+    { id: 'iberico', label: 'Ibéricos y embutido', share: 0.5, cats: ['Charcutería y quesos', 'Carne'], inc: /ibérico|salchichón|lomo embuchado|fuet|cecina|jamón (serrano|ibérico)|chorizo (vela|sarta)/i, unit: 'kg', n: 6 },
+    { id: 'queso', label: 'Quesos', share: 0.5, cat: 'embutido', cats: ['Charcutería y quesos'], inc: /queso (curado|viejo|manchego|mezcla|semicurado|añejo|ibérico)|cuña|tabla de queso/i, exc: /rallado|crema|untable|batido|fresco|0%/i, unit: 'kg', n: 6 },
   ],
   // ---- CARNE Nochebuena (festivo) ----
   'carne:nochebuena': [
-    { id: 'cordero', label: 'Cordero / lechal', share: 0.35, cats: ['Carne'], inc: /cordero|lechal|paletilla|cabrito/i, unit: 'kg', n: 3 },
-    { id: 'marisco', label: 'Marisco', share: 0.35, cats: ['Marisco y pescado', 'Congelados'], inc: /langostino|gambón|gamba|marisco|mejillón|almeja|pulpo/i, unit: 'kg', n: 3 },
-    { id: 'iberico_premium', label: 'Ibérico y solomillo', share: 0.3, cats: ['Carne'], inc: /presa|secreto|solomillo|ibérico|entrecot/i, unit: 'kg', n: 3 },
+    { id: 'cordero', label: 'Cordero / lechal', share: 0.35, cats: ['Carne'], inc: /cordero|lechal|paletilla|cabrito/i, unit: 'kg', n: 6 },
+    { id: 'marisco', label: 'Marisco', share: 0.35, cats: ['Marisco y pescado', 'Congelados'], inc: /langostino|gambón|gamba|marisco|mejillón|almeja|pulpo/i, unit: 'kg', n: 6 },
+    { id: 'iberico_premium', label: 'Ibérico y solomillo', share: 0.3, cats: ['Carne'], inc: /presa|secreto|solomillo|ibérico|entrecot/i, unit: 'kg', n: 6 },
   ],
   // ---- ENTRANTES Nochebuena (ensalada festiva + marisco; tabla va a embutido) ----
   'ensalada:nochebuena': [
-    { id: 'hoja', label: 'Ensalada festiva', share: 0.4, cats: ['Fruta y verdura'], inc: /lechuga|ensalada|brotes|canónigos|rúcula|escarola|aguacate/i, exc: /tomate/i, unit: 'kg', n: 3 },
-    { id: 'marisco_entrante', label: 'Marisco para entrante', share: 0.6, cat: 'entrante', cats: ['Marisco y pescado', 'Congelados'], inc: /langostino|gambón|salpicón|salmón ahumado|gulas|cóctel de marisco/i, unit: 'kg', n: 3 },
-    { id: 'tabla', label: 'Tabla de ibéricos y queso', share: 0.5, cat: 'embutido', cats: ['Charcutería y quesos'], inc: /ibérico|jamón|queso (curado|viejo|manchego|mezcla)|paté|cuña/i, exc: /rallado|batido|fresco|0%/i, unit: 'kg', n: 3 },
+    { id: 'hoja', label: 'Ensalada festiva', share: 0.4, cats: ['Fruta y verdura'], inc: /lechuga|ensalada|brotes|canónigos|rúcula|escarola|aguacate/i, exc: /tomate/i, unit: 'kg', n: 6 },
+    { id: 'marisco_entrante', label: 'Marisco para entrante', share: 0.6, cat: 'entrante', cats: ['Marisco y pescado', 'Congelados'], inc: /langostino|gambón|salpicón|salmón ahumado|gulas|cóctel de marisco/i, unit: 'kg', n: 6 },
+    { id: 'tabla', label: 'Tabla de ibéricos y queso', share: 0.5, cat: 'embutido', cats: ['Charcutería y quesos'], inc: /ibérico|jamón|queso (curado|viejo|manchego|mezcla)|paté|cuña/i, exc: /rallado|batido|fresco|0%/i, unit: 'kg', n: 6 },
   ],
   // ---- APERITIVO / SNACKS por evento ----
   'snacks:cumple': [
-    { id: 'patatas_fritas', label: 'Patatas fritas y chips', share: 0.4, cats: ['Aperitivos'], inc: /patatas fritas|chips|nachos/i, unit: 'kg', n: 3 },
-    { id: 'palomitas', label: 'Palomitas y gusanitos', share: 0.35, cats: ['Aperitivos'], inc: /palomita|gusanito|ganchito|cortez/i, unit: 'kg', n: 3 },
-    { id: 'frutos_secos', label: 'Frutos secos', share: 0.25, cats: ['Aperitivos'], inc: /cacahuete|cóctel|frutos secos/i, unit: 'kg', n: 3 },
+    { id: 'patatas_fritas', label: 'Patatas fritas y chips', share: 0.4, cats: ['Aperitivos'], inc: /patatas fritas|chips|nachos/i, unit: 'kg', n: 6 },
+    { id: 'palomitas', label: 'Palomitas y gusanitos', share: 0.35, cats: ['Aperitivos'], inc: /palomita|gusanito|ganchito|cortez/i, unit: 'kg', n: 6 },
+    { id: 'frutos_secos', label: 'Frutos secos', share: 0.25, cats: ['Aperitivos'], inc: /cacahuete|cóctel|frutos secos/i, unit: 'kg', n: 6 },
   ],
   'snacks:nochebuena': [
-    { id: 'frutos_secos', label: 'Frutos secos premium', share: 0.4, cats: ['Aperitivos'], inc: /almendra|nuez|nueces|pistacho|anacardo|cóctel/i, unit: 'kg', n: 3 },
-    { id: 'aceitunas', label: 'Aceitunas y encurtidos', share: 0.3, cats: ['Aperitivos', 'Conservas, caldos y cremas'], inc: /aceituna|banderilla|encurtido|pepinillo/i, unit: 'kg', n: 3 },
-    { id: 'picos', label: 'Picos y regañás', share: 0.3, cats: ['Panadería y pastelería', 'Aperitivos'], inc: /picos|regaña|colines|pan tostado/i, unit: 'kg', n: 3 },
+    { id: 'frutos_secos', label: 'Frutos secos premium', share: 0.4, cats: ['Aperitivos'], inc: /almendra|nuez|nueces|pistacho|anacardo|cóctel/i, unit: 'kg', n: 6 },
+    { id: 'aceitunas', label: 'Aceitunas y encurtidos', share: 0.3, cats: ['Aperitivos', 'Conservas, caldos y cremas'], inc: /aceituna|banderilla|encurtido|pepinillo/i, unit: 'kg', n: 6 },
+    { id: 'picos', label: 'Picos y regañás', share: 0.3, cats: ['Panadería y pastelería', 'Aperitivos'], inc: /picos|regaña|colines|pan tostado/i, unit: 'kg', n: 6 },
   ],
   // ---- CARNE barbacoa (variada) ----
   'carne:barbacoa': [
-    { id: 'embutido_bbq', label: 'Para la parrilla (chorizo, salchichas)', share: 0.3, cats: ['Carne', 'Charcutería y quesos'], inc: /chorizo (parrilla|criollo|fresco|oreado)|salchicha (fresca|parrilla|criolla)|butifarra|longaniza/i, unit: 'kg', n: 3 },
-    { id: 'panceta', label: 'Panceta y secreto', share: 0.2, cats: ['Carne'], inc: /panceta|secreto|costilla|churrasco/i, unit: 'kg', n: 3 },
-    { id: 'pollo_bbq', label: 'Pollo (alas, muslos)', share: 0.25, cats: ['Carne'], inc: /alas.*pollo|muslo|contramuslo|jamoncit|brocheta/i, unit: 'kg', n: 3 },
-    { id: 'chuletas_bbq', label: 'Chuletas y cinta', share: 0.25, cats: ['Carne'], inc: /chuleta|cinta de lomo|lomo de cerdo|aguja/i, unit: 'kg', n: 3 },
+    { id: 'embutido_bbq', label: 'Para la parrilla (chorizo, salchichas)', share: 0.3, cats: ['Carne', 'Charcutería y quesos'], inc: /chorizo (parrilla|criollo|fresco|oreado)|salchicha (fresca|parrilla|criolla)|butifarra|longaniza/i, unit: 'kg', n: 6 },
+    { id: 'panceta', label: 'Panceta y secreto', share: 0.2, cats: ['Carne'], inc: /panceta|secreto|costilla|churrasco/i, unit: 'kg', n: 6 },
+    { id: 'pollo_bbq', label: 'Pollo (alas, muslos)', share: 0.25, cats: ['Carne'], inc: /alas.*pollo|muslo|contramuslo|jamoncit|brocheta/i, unit: 'kg', n: 6 },
+    { id: 'chuletas_bbq', label: 'Chuletas y cinta', share: 0.25, cats: ['Carne'], inc: /chuleta|cinta de lomo|lomo de cerdo|aguja/i, unit: 'kg', n: 6 },
   ],
   // ---- BEBIDA SIN ALCOHOL ----
   bebida_sin: [
-    { id: 'agua', label: 'Agua', share: 0.4, cats: ['Agua y refrescos'], inc: /agua mineral/i, unit: 'L', n: 3 },
-    { id: 'cola', label: 'Refresco de cola', share: 0.25, cats: ['Agua y refrescos'], inc: /cola/i, exc: /gambón|rape|colas de/i, unit: 'L', n: 3 },
-    { id: 'naranja_limon', label: 'Refresco naranja / limón', share: 0.2, cats: ['Agua y refrescos'], inc: /naranja|limón|gaseosa|tónica|seven|sprite|fanta/i, unit: 'L', n: 3 },
-    { id: 'zumo', label: 'Zumo', share: 0.15, cats: ['Zumos'], inc: /zumo|néctar/i, unit: 'L', n: 3 },
+    { id: 'agua', label: 'Agua', share: 0.4, cats: ['Agua y refrescos'], inc: /agua mineral/i, unit: 'L', n: 6 },
+    { id: 'cola', label: 'Refresco de cola', share: 0.25, cats: ['Agua y refrescos'], inc: /cola/i, exc: /gambón|rape|colas de/i, unit: 'L', n: 6 },
+    { id: 'naranja_limon', label: 'Refresco naranja / limón', share: 0.2, cats: ['Agua y refrescos'], inc: /naranja|limón|gaseosa|tónica|seven|sprite|fanta/i, unit: 'L', n: 6 },
+    { id: 'zumo', label: 'Zumo', share: 0.15, cats: ['Zumos'], inc: /zumo|néctar/i, unit: 'L', n: 6 },
   ],
   // ---- BEBIDA CON ALCOHOL ----
   bebida_con: [
-    { id: 'cerveza', label: 'Cerveza', share: 0.6, cats: ['Bodega'], inc: /cerveza/i, exc: /sin alcohol|0,0|0\.0/i, unit: 'L', n: 3 },
-    { id: 'vino', label: 'Vino', share: 0.4, cats: ['Bodega'], inc: /vino (tinto|blanco|rosado)/i, unit: 'L', n: 3 },
+    { id: 'cerveza', label: 'Cerveza', share: 0.6, cats: ['Bodega'], inc: /cerveza/i, exc: /sin alcohol|0,0|0\.0/i, unit: 'L', n: 6 },
+    { id: 'vino', label: 'Vino', share: 0.4, cats: ['Bodega'], inc: /vino (tinto|blanco|rosado)/i, unit: 'L', n: 6 },
   ],
   // ---- PAN ----
   pan: [
-    { id: 'pan', label: 'Pan', share: 1, cats: ['Panadería y pastelería'], inc: /barra|baguet|chapata|hogaza|pan de pueblo|pan rústic|pan candeal|pan gallego|payés/i, unit: 'kg', n: 3 },
+    { id: 'pan', label: 'Pan', share: 1, cats: ['Panadería y pastelería'], inc: /barra|baguet|chapata|hogaza|pan de pueblo|pan rústic|pan candeal|pan gallego|payés/i, unit: 'kg', n: 6 },
   ],
   // ---- ENSALADA / VERDURA ----
   ensalada: [
-    { id: 'hoja', label: 'Lechuga / bolsa de ensalada', share: 0.45, cats: ['Fruta y verdura'], inc: /lechuga|ensalada|brotes|canónigos|rúcula|escarola/i, exc: /tomate/i, unit: 'kg', n: 3 },
-    { id: 'tomate', label: 'Tomate', share: 0.3, cats: ['Fruta y verdura'], inc: /tomate/i, unit: 'kg', n: 3 },
-    { id: 'crudites', label: 'Crudités (zanahoria, pepino, aguacate)', share: 0.25, cats: ['Fruta y verdura'], inc: /zanahoria|pepino|pimiento|aguacate|apio/i, unit: 'kg', n: 3 },
+    { id: 'hoja', label: 'Lechuga / bolsa de ensalada', share: 0.45, cats: ['Fruta y verdura'], inc: /lechuga|ensalada|brotes|canónigos|rúcula|escarola/i, exc: /tomate/i, unit: 'kg', n: 6 },
+    { id: 'tomate', label: 'Tomate', share: 0.3, cats: ['Fruta y verdura'], inc: /tomate/i, unit: 'kg', n: 6 },
+    { id: 'crudites', label: 'Crudités (zanahoria, pepino, aguacate)', share: 0.25, cats: ['Fruta y verdura'], inc: /zanahoria|pepino|pimiento|aguacate|apio/i, unit: 'kg', n: 6 },
   ],
   // ---- GUARNICIÓN (patata + pasta/arroz, muy socorrido en casa rural) ----
   guarnicion: [
-    { id: 'patata', label: 'Patatas', share: 0.5, cats: ['Fruta y verdura', 'Congelados'], inc: /patata/i, exc: /chips|snack|onduladas|sabor/i, unit: 'kg', n: 3 },
-    { id: 'pasta_arroz', label: 'Pasta y arroz', share: 0.5, cats: ['Arroz, legumbres y pasta'], inc: /espagueti|macarr|tallarin|penne|fusilli|espiral|hélice|pasta|^arroz|fideo/i, exc: /sésamo|tahini|integral en|salsa|queso en polvo/i, unit: 'kg', n: 3 },
+    { id: 'patata', label: 'Patatas', share: 0.5, cats: ['Fruta y verdura', 'Congelados'], inc: /patata/i, exc: /chips|snack|onduladas|sabor/i, unit: 'kg', n: 6 },
+    { id: 'pasta_arroz', label: 'Pasta y arroz', share: 0.5, cats: ['Arroz, legumbres y pasta'], inc: /espagueti|macarr|tallarin|penne|fusilli|espiral|hélice|pasta|^arroz|fideo/i, exc: /sésamo|tahini|integral en|salsa|queso en polvo/i, unit: 'kg', n: 6 },
   ],
   'guarnicion:barbacoa': [
-    { id: 'patata', label: 'Patatas para asar', share: 0.6, cats: ['Fruta y verdura', 'Congelados'], inc: /patata/i, exc: /chips|snack|onduladas|sabor/i, unit: 'kg', n: 3 },
-    { id: 'ensaladilla', label: 'Ensaladilla y guarnición', share: 0.4, cats: ['Congelados', 'Fruta y verdura', 'Conservas, caldos y cremas'], inc: /ensaladilla|maíz|menestra|pimiento asado/i, unit: 'kg', n: 3 },
+    { id: 'patata', label: 'Patatas para asar', share: 0.6, cats: ['Fruta y verdura', 'Congelados'], inc: /patata/i, exc: /chips|snack|onduladas|sabor/i, unit: 'kg', n: 6 },
+    { id: 'ensaladilla', label: 'Ensaladilla y guarnición', share: 0.4, cats: ['Congelados', 'Fruta y verdura', 'Conservas, caldos y cremas'], inc: /ensaladilla|maíz|menestra|pimiento asado/i, unit: 'kg', n: 6 },
   ],
   'guarnicion:cumple': [
-    { id: 'patatas_fritas', label: 'Patatas fritas', share: 0.6, cats: ['Aperitivos'], inc: /patatas fritas|chips/i, unit: 'kg', n: 3 },
-    { id: 'palomitas', label: 'Palomitas y gusanitos', share: 0.4, cats: ['Aperitivos'], inc: /palomita|gusanito|ganchito|cortez/i, unit: 'kg', n: 3 },
+    { id: 'patatas_fritas', label: 'Patatas fritas', share: 0.6, cats: ['Aperitivos'], inc: /patatas fritas|chips/i, unit: 'kg', n: 6 },
+    { id: 'palomitas', label: 'Palomitas y gusanitos', share: 0.4, cats: ['Aperitivos'], inc: /palomita|gusanito|ganchito|cortez/i, unit: 'kg', n: 6 },
   ],
   'guarnicion:nochebuena': [
-    { id: 'asar', label: 'Patatas panaderas / asar', share: 0.6, cats: ['Fruta y verdura', 'Congelados'], inc: /patata/i, exc: /chips|snack|onduladas|sabor|fritas/i, unit: 'kg', n: 3 },
-    { id: 'guarnicion_festiva', label: 'Guarnición festiva', share: 0.4, cats: ['Congelados', 'Fruta y verdura'], inc: /espárrago|champiñón|setas|menestra|pimiento del piquillo|puré/i, unit: 'kg', n: 3 },
+    { id: 'asar', label: 'Patatas panaderas / asar', share: 0.6, cats: ['Fruta y verdura', 'Congelados'], inc: /patata/i, exc: /chips|snack|onduladas|sabor|fritas/i, unit: 'kg', n: 6 },
+    { id: 'guarnicion_festiva', label: 'Guarnición festiva', share: 0.4, cats: ['Congelados', 'Fruta y verdura'], inc: /espárrago|champiñón|setas|menestra|pimiento del piquillo|puré/i, unit: 'kg', n: 6 },
   ],
   // ---- POSTRE (general) ----
   postre: [
-    { id: 'postre', label: 'Postre', share: 1, cats: ['Postres y yogures', 'Panadería y pastelería'], inc: /tarta|tiramis|brownie|natilla|flan|mousse|cheesecake|profiterol/i, exc: /steak|tartar/i, unit: 'kg', n: 3 },
+    { id: 'postre', label: 'Postre', share: 1, cats: ['Postres y yogures', 'Panadería y pastelería'], inc: /tarta|tiramis|brownie|natilla|flan|mousse|cheesecake|profiterol/i, exc: /steak|tartar/i, unit: 'kg', n: 6 },
   ],
   // ---- POSTRE barbacoa (fruta y refrescante) ----
   'postre:barbacoa': [
-    { id: 'fruta', label: 'Fruta de postre', share: 0.5, cats: ['Fruta y verdura'], inc: /sandía|melón|piña|uva|fresa|cereza|melocotón/i, unit: 'kg', n: 3 },
-    { id: 'dulce', label: 'Tarta o helado', share: 0.5, cats: ['Postres y yogures', 'Panadería y pastelería'], inc: /tarta|helado|tiramis|brownie/i, exc: /steak|tartar/i, unit: 'kg', n: 3 },
+    { id: 'fruta', label: 'Fruta de postre', share: 0.5, cats: ['Fruta y verdura'], inc: /sandía|melón|piña|uva|fresa|cereza|melocotón/i, unit: 'kg', n: 6 },
+    { id: 'dulce', label: 'Tarta o helado', share: 0.5, cats: ['Postres y yogures', 'Panadería y pastelería'], inc: /tarta|helado|tiramis|brownie/i, exc: /steak|tartar/i, unit: 'kg', n: 6 },
   ],
   // ---- POSTRE cena de amigos (tarta de queso, algo ligero) ----
   'postre:amigos': [
-    { id: 'tarta_queso', label: 'Tarta de queso / tiramisú', share: 0.6, cats: ['Postres y yogures', 'Panadería y pastelería'], inc: /tarta de queso|cheesecake|tiramis|brownie|mousse/i, unit: 'kg', n: 3 },
-    { id: 'fruta_dulce', label: 'Fruta y dulces', share: 0.4, cats: ['Fruta y verdura'], inc: /uva|fresa|frambuesa|arándano|cereza/i, unit: 'kg', n: 3 },
+    { id: 'tarta_queso', label: 'Tarta de queso / tiramisú', share: 0.6, cats: ['Postres y yogures', 'Panadería y pastelería'], inc: /tarta de queso|cheesecake|tiramis|brownie|mousse/i, unit: 'kg', n: 6 },
+    { id: 'fruta_dulce', label: 'Fruta y dulces', share: 0.4, cats: ['Fruta y verdura'], inc: /uva|fresa|frambuesa|arándano|cereza/i, unit: 'kg', n: 6 },
   ],
   // ---- ENSALADA barbacoa (fresca, con maíz y variado) ----
   'ensalada:barbacoa': [
-    { id: 'hoja', label: 'Lechuga / bolsa de ensalada', share: 0.5, cats: ['Fruta y verdura'], inc: /lechuga|ensalada|brotes|canónigos|rúcula|escarola/i, exc: /tomate/i, unit: 'kg', n: 3 },
-    { id: 'maiz_tomate', label: 'Tomate, maíz y aguacate', share: 0.5, cats: ['Fruta y verdura', 'Conservas, caldos y cremas'], inc: /tomate|maíz|aguacate|cebolla/i, unit: 'kg', n: 3 },
+    { id: 'hoja', label: 'Lechuga / bolsa de ensalada', share: 0.5, cats: ['Fruta y verdura'], inc: /lechuga|ensalada|brotes|canónigos|rúcula|escarola/i, exc: /tomate/i, unit: 'kg', n: 6 },
+    { id: 'maiz_tomate', label: 'Tomate, maíz y aguacate', share: 0.5, cats: ['Fruta y verdura', 'Conservas, caldos y cremas'], inc: /tomate|maíz|aguacate|cebolla/i, unit: 'kg', n: 6 },
   ],
   // ---- POSTRE para cumpleaños (tarta protagonista) ----
   'postre:cumple': [
-    { id: 'tarta', label: 'Tarta de cumpleaños', share: 0.7, cats: ['Postres y yogures', 'Panadería y pastelería', 'Congelados'], inc: /tarta|cheesecake|red velvet/i, exc: /steak|tartar/i, unit: 'kg', n: 3 },
-    { id: 'dulces', label: 'Dulces y chuches', share: 0.3, cats: ['Aperitivos', 'Postres y yogures'], inc: /gominola|chuche|caramelo|galleta|magdalena|bizcocho|donut/i, unit: 'kg', n: 3 },
+    { id: 'tarta', label: 'Tarta de cumpleaños', share: 0.7, cats: ['Postres y yogures', 'Panadería y pastelería', 'Congelados'], inc: /tarta|cheesecake|red velvet/i, exc: /steak|tartar/i, unit: 'kg', n: 6 },
+    { id: 'dulces', label: 'Dulces y chuches', share: 0.3, cats: ['Aperitivos', 'Postres y yogures'], inc: /gominola|chuche|caramelo|galleta|magdalena|bizcocho|donut/i, unit: 'kg', n: 6 },
   ],
   // ---- SNACKS / APERITIVO ----
   snacks: [
-    { id: 'patatas_fritas', label: 'Patatas fritas y chips', share: 0.4, cats: ['Aperitivos'], inc: /patatas fritas|chips|nachos|tortilla chip/i, unit: 'kg', n: 3 },
-    { id: 'aceitunas', label: 'Aceitunas y encurtidos', share: 0.3, cats: ['Aperitivos', 'Conservas, caldos y cremas'], inc: /aceituna|banderilla|encurtido|pepinillo/i, unit: 'kg', n: 3 },
-    { id: 'frutos_secos', label: 'Frutos secos', share: 0.3, cats: ['Aperitivos'], inc: /cacahuete|almendra|pistacho|anacardo|cóctel|frutos secos/i, unit: 'kg', n: 3 },
+    { id: 'patatas_fritas', label: 'Patatas fritas y chips', share: 0.4, cats: ['Aperitivos'], inc: /patatas fritas|chips|nachos|tortilla chip/i, unit: 'kg', n: 6 },
+    { id: 'aceitunas', label: 'Aceitunas y encurtidos', share: 0.3, cats: ['Aperitivos', 'Conservas, caldos y cremas'], inc: /aceituna|banderilla|encurtido|pepinillo/i, unit: 'kg', n: 6 },
+    { id: 'frutos_secos', label: 'Frutos secos', share: 0.3, cats: ['Aperitivos'], inc: /cacahuete|almendra|pistacho|anacardo|cóctel|frutos secos/i, unit: 'kg', n: 6 },
   ],
   // ---- LÁCTEOS ----
   lacteos: [
-    { id: 'leche', label: 'Leche', share: 0.6, cats: ['Huevos, leche y mantequilla'], inc: /leche (entera|semi|desnatada)/i, exc: /sin lactosa|condensada/i, unit: 'L', n: 3 },
-    { id: 'yogur', label: 'Yogur', share: 0.4, cats: ['Postres y yogures'], inc: /yogur/i, unit: 'kg', n: 3 },
+    { id: 'leche', label: 'Leche', share: 0.6, cats: ['Huevos, leche y mantequilla'], inc: /leche (entera|semi|desnatada)/i, exc: /sin lactosa|condensada/i, unit: 'L', n: 6 },
+    { id: 'yogur', label: 'Yogur', share: 0.4, cats: ['Postres y yogures'], inc: /yogur/i, unit: 'kg', n: 6 },
   ],
   // ---- EMBUTIDO Y QUESO ----
   embutido: [
-    { id: 'embutido', label: 'Jamón y embutido', share: 0.6, cats: ['Charcutería y quesos', 'Carne'], inc: /jamón (serrano|cocido|york)|chorizo|salchichón|lomo|mortadela|pavo lonchas|fuet/i, unit: 'kg', n: 3 },
-    { id: 'queso', label: 'Queso', share: 0.4, cats: ['Charcutería y quesos'], inc: /queso/i, exc: /rallado|crema/i, unit: 'kg', n: 3 },
+    { id: 'embutido', label: 'Jamón y embutido', share: 0.6, cats: ['Charcutería y quesos', 'Carne'], inc: /jamón (serrano|cocido|york)|chorizo|salchichón|lomo|mortadela|pavo lonchas|fuet/i, unit: 'kg', n: 6 },
+    { id: 'queso', label: 'Queso', share: 0.4, cats: ['Charcutería y quesos'], inc: /queso/i, exc: /rallado|crema/i, unit: 'kg', n: 6 },
   ],
   // ---- DESAYUNO (galletas y bollería) ----
   desayuno: [
-    { id: 'bolleria', label: 'Galletas y bollería', share: 1, cats: ['Panadería y pastelería'], inc: /galleta|magdalena|bizcocho|napolitana|sobao|croissant|donut|palmera|tostada de desayuno|bollo/i, exc: /salada|salado|sésamo|orégano|arroz|integral en|soluble|achicoria|cracker/i, unit: 'kg', n: 3 },
+    { id: 'bolleria', label: 'Galletas y bollería', share: 1, cats: ['Panadería y pastelería'], inc: /galleta|magdalena|bizcocho|napolitana|sobao|croissant|donut|palmera|tostada de desayuno|bollo/i, exc: /salada|salado|sésamo|orégano|arroz|integral en|soluble|achicoria|cracker/i, unit: 'kg', n: 6 },
   ],
   // ---- FRUTA (variada: varias piezas, no una sola) ----
   fruta: [
-    { id: 'melon_sandia', label: 'Melón / sandía', share: 0.3, cats: ['Fruta y verdura'], inc: /sandía|melón|piña/i, unit: 'kg', n: 3 },
-    { id: 'manzana_pera', label: 'Manzana / pera', share: 0.25, cats: ['Fruta y verdura'], inc: /manzana|pera/i, exc: /tomate/i, unit: 'kg', n: 3 },
-    { id: 'platano', label: 'Plátano', share: 0.2, cats: ['Fruta y verdura'], inc: /plátano|banana/i, unit: 'kg', n: 3 },
-    { id: 'citricos_uva', label: 'Naranja, uva y otras', share: 0.25, cats: ['Fruta y verdura'], inc: /naranja|mandarina|uva|kiwi|fresa|ciruela/i, unit: 'kg', n: 3 },
+    { id: 'melon_sandia', label: 'Melón / sandía', share: 0.3, cats: ['Fruta y verdura'], inc: /sandía|melón|piña/i, unit: 'kg', n: 6 },
+    { id: 'manzana_pera', label: 'Manzana / pera', share: 0.25, cats: ['Fruta y verdura'], inc: /manzana|pera/i, exc: /tomate/i, unit: 'kg', n: 6 },
+    { id: 'platano', label: 'Plátano', share: 0.2, cats: ['Fruta y verdura'], inc: /plátano|banana/i, unit: 'kg', n: 6 },
+    { id: 'citricos_uva', label: 'Naranja, uva y otras', share: 0.25, cats: ['Fruta y verdura'], inc: /naranja|mandarina|uva|kiwi|fresa|ciruela/i, unit: 'kg', n: 6 },
   ],
 
   // ---- CASA RURAL "cocinar poco": platos listos / precocinados ----
   'carne:rural_easy': [
-    { id: 'platos_listos', label: 'Platos listos (lasaña, canelones, pizza)', share: 0.4, cats: ['Congelados'], inc: /lasaña|canelones|musaka|pizza|tortilla de patata|arroz tres delicias|fideuá|paella de/i, exc: /placas|verdura|para paella/i, unit: 'kg', n: 3 },
-    { id: 'empanados_listos', label: 'Empanados y fritos (solo calentar)', share: 0.6, cats: ['Congelados', 'Carne'], inc: /croqueta|san jacobo|empanadilla|varitas|nugget|fingers|flamenquín|albóndiga|libritos/i, unit: 'kg', n: 3 },
+    { id: 'platos_listos', label: 'Platos listos (lasaña, canelones, pizza)', share: 0.4, cats: ['Congelados'], inc: /lasaña|canelones|musaka|pizza|tortilla de patata|arroz tres delicias|fideuá|paella de/i, exc: /placas|verdura|para paella/i, unit: 'kg', n: 6 },
+    { id: 'empanados_listos', label: 'Empanados y fritos (solo calentar)', share: 0.6, cats: ['Congelados', 'Carne'], inc: /croqueta|san jacobo|empanadilla|varitas|nugget|fingers|flamenquín|albóndiga|libritos/i, unit: 'kg', n: 6 },
   ],
   'guarnicion:rural_easy': [
-    { id: 'ensaladilla_prefritas', label: 'Ensaladilla y patatas listas', share: 1, cats: ['Congelados', 'Fruta y verdura'], inc: /ensaladilla|patatas prefritas|patatas (para horno|gajo|risoladas)/i, unit: 'kg', n: 3 },
+    { id: 'ensaladilla_prefritas', label: 'Ensaladilla y patatas listas', share: 1, cats: ['Congelados', 'Fruta y verdura'], inc: /ensaladilla|patatas prefritas|patatas (para horno|gajo|risoladas)/i, unit: 'kg', n: 6 },
   ],
 };
 
 // Productos para las sustituciones por restricción (sin gluten, vegano, etc.).
 const SPECIAL_SPECS = {
-  sin_gluten: { cats: ['Panadería y pastelería'], inc: /pan.*sin gluten|molde sin gluten|pan redondo sin gluten/i, exc: /empanad|nugget|san jacobo|lagrimitas|filetes|croqueta|salchicha/i, unit: 'kg', n: 3 },
-  legumbres: { cats: ['Arroz, legumbres y pasta', 'Congelados'], inc: /garbanzo cocido|lenteja|alubia|judía blanca|tofu|soja texturizada/i, exc: /snack|harina|crema/i, unit: 'kg', n: 3 },
-  bebida_vegetal: { cats: ['Huevos, leche y mantequilla'], inc: /bebida de (avena|soja|almendra|arroz|coco)|bebida vegetal/i, unit: 'L', n: 3 },
-  embutido_veg: { cats: ['Aperitivos', 'Conservas, caldos y cremas', 'Charcutería y quesos'], inc: /hummus|paté vegetal|sobrasada vegana|veggie/i, unit: 'kg', n: 3 },
-  lacteos_sl: { cats: ['Huevos, leche y mantequilla'], inc: /leche.*sin lactosa|sin lactosa/i, exc: /café/i, unit: 'L', n: 3 },
-  embutido_pavo: { cats: ['Charcutería y quesos', 'Carne'], inc: /pavo.*loncha|jamón de pavo|fiambre de pavo|pechuga de pavo cocida/i, unit: 'kg', n: 3 },
+  sin_gluten: { cats: ['Panadería y pastelería'], inc: /pan.*sin gluten|molde sin gluten|pan redondo sin gluten/i, exc: /empanad|nugget|san jacobo|lagrimitas|filetes|croqueta|salchicha/i, unit: 'kg', n: 6 },
+  legumbres: { cats: ['Arroz, legumbres y pasta', 'Congelados'], inc: /garbanzo cocido|lenteja|alubia|judía blanca|tofu|soja texturizada/i, exc: /snack|harina|crema/i, unit: 'kg', n: 6 },
+  bebida_vegetal: { cats: ['Huevos, leche y mantequilla'], inc: /bebida de (avena|soja|almendra|arroz|coco)|bebida vegetal/i, unit: 'L', n: 6 },
+  embutido_veg: { cats: ['Aperitivos', 'Conservas, caldos y cremas', 'Charcutería y quesos'], inc: /hummus|paté vegetal|sobrasada vegana|veggie/i, unit: 'kg', n: 6 },
+  lacteos_sl: { cats: ['Huevos, leche y mantequilla'], inc: /leche.*sin lactosa|sin lactosa/i, exc: /café/i, unit: 'L', n: 6 },
+  embutido_pavo: { cats: ['Charcutería y quesos', 'Carne'], inc: /pavo.*loncha|jamón de pavo|fiambre de pavo|pechuga de pavo cocida/i, unit: 'kg', n: 6 },
 };
 
 // Productos concretos para los básicos de grupo de casa rural (1 unidad
