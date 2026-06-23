@@ -40,7 +40,7 @@ import {
   type SpecialEvent,
   type SpecialEvents,
 } from "@/lib/guestimate";
-import { resolveBasket, formatEuro, findCatalogMatch, parseAiAmount, DRINK_SLOTS, type ResolvedBasket } from "@/lib/products";
+import { resolveBasket, formatEuro, findCatalogMatch, resolveAiAmount, DRINK_SLOTS, type ResolvedBasket } from "@/lib/products";
 import { applyAiRequest } from "@/lib/ai";
 import { supabase, signInWithEmail, signOut } from "@/lib/supabase";
 
@@ -254,15 +254,15 @@ function Index() {
       }
       touched.add(g);
       if (match) {
-        const { amount, label } = parseAiAmount(a.amount, match.option.unit);
+        const { amountLabel, cost } = resolveAiAmount(match.option, a.amount);
         g.lines.push({
           key: a.id,
           slotLabel: a.name,
           option: match.option,
           alternatives: [],
-          amount,
-          amountLabel: label,
-          cost: Math.round(match.option.price * amount * 100) / 100,
+          amount: 0,
+          amountLabel,
+          cost,
         });
       } else {
         // Sin producto equivalente en el catálogo: lo mostramos sin precio.

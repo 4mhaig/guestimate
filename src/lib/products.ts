@@ -340,25 +340,37 @@ function unitFamily(u: string): "weight" | "volume" | "count" {
   return "count";
 }
 
-/** Interpreta una cantidad en texto de la IA ("200 g", "1 bote", "6 ud")
- *  hacia la unidad base del producto encontrado (kg / L / ud). */
-export function parseAiAmount(text: string, unit: string): { amount: number; label: string } {
+/** Calcula la cantidad mostrada y el coste de un producto que la IA añade,
+ *  a partir de su cantidad en texto ("200 g", "1 bote", "6 ud", "").
+ *
+ *  - Si la IA da peso/volumen acorde con el producto (p.ej. "200 g" de algo
+ *    que se vende por kg) → usamos el precio de referencia €/kg.
+ *  - Si pide unidades/botes/tarrinas, o no especifica, o la unidad no
+ *    cuadra con la del producto → lo tratamos como N PAQUETES y cobramos el
+ *    precio del paquete (no €/kg × 1 kg, que daba precios absurdos como
+ *    "1 kg de guacamole" = 8 €). */
+export function resolveAiAmount(
+  option: ProductOption,
+  text: string,
+): { amountLabel: string; cost: number } {
   const m = normalize(text || "").match(/([\d]+(?:[.,][\d]+)?)\s*([a-z]+)?/);
   let num = m ? parseFloat(m[1].replace(",", ".")) : NaN;
   if (!isFinite(num) || num <= 0) num = 1;
-  const givenFamily = m && m[2] ? unitFamily(m[2]) : null;
-  const targetFamily = unitFamily(unit);
+  const givenUnit = m?.[2] ?? "";
+  const givenFamily = givenUnit ? unitFamily(givenUnit) : null;
+  const refFamily = unitFamily(option.unit);
 
-  // Si la unidad de la IA es de otra familia que la del producto real
-  // (p.ej. pide "200 g" pero se vende por unidad), usamos 1 para no
-  // calcular un precio absurdo.
-  if (givenFamily && givenFamily !== targetFamily) {
-    return { amount: 1, label: fmtAmount(1, unit) };
+  // Peso/volumen en la misma familia que el producto → precio €/kg o €/L.
+  if (givenFamily && givenFamily === refFamily && refFamily !== "count") {
+    let amount = num;
+    if (option.unit === "kg" && /^(g|gr)$/.test(givenUnit)) amount = num / 1000;
+    else if (option.unit === "L" && givenUnit === "ml") amount = num / 1000;
+    else if (option.unit === "L" && givenUnit === "cl") amount = num / 100;
+    return { amountLabel: fmtAmount(amount, option.unit), cost: round2(option.price * amount) };
   }
-  let amount = num;
-  if (unit === "kg" && m && /^(g|gr)$/.test(m[2] ?? "")) amount = num / 1000;
-  else if (unit === "L" && m && (m[2] === "ml")) amount = num / 1000;
-  else if (unit === "L" && m && (m[2] === "cl")) amount = num / 100;
-  else if (unit === "ud") amount = Math.max(1, Math.round(num));
-  return { amount, label: fmtAmount(amount, unit) };
+
+  // Resto de casos: N paquetes al precio del paquete.
+  const n = Math.max(1, Math.round(num));
+  const packPrice = option.packPrice ?? option.price;
+  return { amountLabel: `${n} ud`, cost: round2(packPrice * n) };
 }
