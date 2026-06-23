@@ -1,0 +1,47 @@
+name: Refrescar precios de Mercadona
+
+# Se ejecuta cada lunes a las 05:00 UTC, y también a mano desde la pestaña Actions.
+on:
+  schedule:
+    - cron: "0 5 * * 1"
+  workflow_dispatch: {}
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Instalar dependencias (data-tools)
+        working-directory: data-tools
+        run: npm install
+
+      - name: Descargar precios de Mercadona y subir a Supabase
+        working-directory: data-tools
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          MERCADONA_POSTAL_CODE: ${{ secrets.MERCADONA_POSTAL_CODE }}
+        run: npm run scrape
+
+      - name: Regenerar el catálogo de la app
+        working-directory: data-tools
+        run: node scripts/build-catalog.js
+
+      - name: Guardar el catálogo si ha cambiado
+        run: |
+          git config user.name "guestimate-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add src/lib/catalog.ts
+          if git diff --cached --quiet; then
+            echo "El catálogo no ha cambiado."
+          else
+            git commit -m "Refrescar catálogo de precios (automático)"
+            git push
+          fi
