@@ -25,20 +25,24 @@ const APP_ROOT = join(ROOT, '..');
 // spec de slot: { id, label, share, cats:[categorías], inc:/regex/, exc:/regex/, unit:"kg"|"L", n }
 const SPECS = {
   // ---- CARNE/PROTEÍNA estándar (comida familiar, casa rural...) ----
+  // Una sola línea: eliges UN tipo de proteína; el desplegable ofrece variedad
+  // (pollo, cerdo, ternera, pavo, pescado, cordero...).
   carne: [
-    { id: 'pollo', label: 'Pollo', share: 0.3, cats: ['Carne'], inc: /pechuga de pollo|muslo|contramuslo de pollo|jamoncit|pollo entero/i, unit: 'kg', n: 6 },
-    { id: 'cerdo', label: 'Cerdo', share: 0.25, cats: ['Carne'], inc: /chuleta.*cerdo|lomo de cerdo|secreto|aguja de cerdo|cinta de lomo|magro/i, unit: 'kg', n: 6 },
-    { id: 'ternera_pavo', label: 'Ternera / pavo', share: 0.2, cats: ['Carne'], inc: /ternera|añojo|vacuno|filetes? (de )?pavo|pechuga de pavo|escalope/i, exc: /cerdo/i, unit: 'kg', n: 6 },
-    { id: 'pescado', label: 'Pescado', share: 0.15, cat: 'pescado', cats: ['Marisco y pescado', 'Congelados'], inc: /merluza|salmón|dorada|lubina|bacalao|emperador|trucha|rodaballo|gallo|lomos de pescado|panga|tilapia/i, exc: /relleno|pimientos|croqueta|palitos|varitas/i, unit: 'kg', n: 6 },
-    { id: 'cordero_conejo', label: 'Cordero / conejo', share: 0.1, cats: ['Carne'], inc: /cordero|conejo|lechal|cabrito/i, unit: 'kg', n: 6 },
-  ],
-  // ---- CARNE/PROTEÍNA comida familiar (asado/guiso) ----
-  'carne:familiar': [
-    { id: 'pollo', label: 'Pollo', share: 0.3, cats: ['Carne'], inc: /pechuga de pollo|muslo|contramuslo|jamoncit|pollo entero/i, unit: 'kg', n: 6 },
-    { id: 'cerdo', label: 'Cerdo', share: 0.25, cats: ['Carne'], inc: /lomo de cerdo|chuleta.*cerdo|aguja de cerdo|cinta de lomo|secreto|magro/i, unit: 'kg', n: 6 },
-    { id: 'ternera_pavo', label: 'Ternera / pavo', share: 0.2, cats: ['Carne'], inc: /ternera|añojo|vacuno|morcillo|filetes? (de )?pavo|pechuga de pavo|escalope/i, exc: /cerdo/i, unit: 'kg', n: 6 },
-    { id: 'pescado', label: 'Pescado', share: 0.15, cat: 'pescado', cats: ['Marisco y pescado', 'Congelados'], inc: /merluza|salmón|dorada|lubina|bacalao|emperador|trucha|rodaballo|gallo|lomos de pescado/i, exc: /relleno|pimientos|croqueta|palitos|varitas/i, unit: 'kg', n: 6 },
-    { id: 'cordero_conejo', label: 'Cordero / conejo', share: 0.1, cats: ['Carne'], inc: /cordero|conejo|lechal|cabrito/i, unit: 'kg', n: 6 },
+    {
+      id: 'principal',
+      label: 'Carne o pescado',
+      share: 1,
+      unit: 'kg',
+      n: 9,
+      mix: [
+        { cats: ['Carne'], inc: /pechuga de pollo|muslo|contramuslo de pollo|jamoncit|pollo entero/i, take: 2 },
+        { cats: ['Carne'], inc: /chuleta.*cerdo|lomo de cerdo|secreto|aguja de cerdo|cinta de lomo|magro/i, take: 2 },
+        { cats: ['Carne'], inc: /ternera|añojo|vacuno|entrecot/i, exc: /cerdo|hígado|casquer|riñon|molleja|rabo|callos/i, take: 2 },
+        { cats: ['Carne'], inc: /filetes? (de )?pavo|pechuga de pavo|escalope/i, take: 1 },
+        { cats: ['Marisco y pescado', 'Congelados'], inc: /merluza|salmón|dorada|lubina|bacalao|emperador/i, exc: /relleno|varitas|palitos|croqueta|albóndiga|rebozad|buñuelo/i, take: 2 },
+        { cats: ['Carne'], inc: /cordero|conejo|lechal/i, take: 1 },
+      ],
+    },
   ],
   // ---- CARNE cumpleaños (para picar, apto niños) ----
   'carne:cumple': [
@@ -206,30 +210,44 @@ const BASICS = {
   huevos: /^huevos/i,
 };
 
-function pickOptions(products, spec) {
-  const inCat = (x) => spec.cats.includes(x.category);
+const toOption = (x) => ({
+  id: String(x.external_id),
+  name: x.name,
+  price: Number(x.price.toFixed(2)),
+  unit: x.unit,
+  packPrice: x.pack_price != null ? Number(Number(x.pack_price).toFixed(2)) : null,
+  image: x.image_url || null,
+});
+
+// Selecciona productos de UNA familia (cats + inc/exc + unit), los más baratos.
+function pickFrom(products, sub, unit, take) {
   let pool = products.filter(
     (x) =>
-      inCat(x) &&
-      x.unit === spec.unit &&
+      sub.cats.includes(x.category) &&
+      x.unit === unit &&
       typeof x.price === 'number' &&
       x.price > 0 &&
-      spec.inc.test(x.name) &&
-      !(spec.exc && spec.exc.test(x.name)),
+      sub.inc.test(x.name) &&
+      !(sub.exc && sub.exc.test(x.name)),
   );
-  // dedupe por nombre
   const seen = new Set();
   pool = pool.filter((x) => (seen.has(x.name) ? false : seen.add(x.name)));
-  // ordenar por precio ascendente (opción económica primero)
   pool.sort((a, b) => a.price - b.price);
-  return pool.slice(0, spec.n || 3).map((x) => ({
-    id: String(x.external_id),
-    name: x.name,
-    price: Number(x.price.toFixed(2)),
-    unit: x.unit,
-    packPrice: x.pack_price != null ? Number(Number(x.pack_price).toFixed(2)) : null,
-    image: x.image_url || null,
-  }));
+  return pool.slice(0, take ?? pool.length);
+}
+
+function pickOptions(products, spec) {
+  // spec.mix: varias familias (pollo, cerdo, pescado...) → un desplegable
+  // con variedad de TIPOS, pero una sola línea en la cesta.
+  if (spec.mix) {
+    let picked = [];
+    for (const sub of spec.mix) picked.push(...pickFrom(products, sub, spec.unit, sub.take ?? 2));
+    const seen = new Set();
+    picked = picked.filter((x) => (seen.has(x.name) ? false : seen.add(x.name)));
+    picked.sort((a, b) => a.price - b.price);
+    return picked.slice(0, spec.n || 8).map(toOption);
+  }
+  return pickFrom(products, spec, spec.unit, spec.n || 3).map(toOption);
 }
 
 async function main() {

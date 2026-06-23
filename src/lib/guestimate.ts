@@ -82,7 +82,7 @@ export const RESTRICTIONS: { id: Restriction; label: string; note: string }[] = 
 ];
 
 export const CATEGORY_META: Record<Category, { label: string; icon: string }> = {
-  carne: { label: "Carne", icon: "Beef" },
+  carne: { label: "Carne o pescado", icon: "Beef" },
   pan: { label: "Pan y cereales", icon: "Croissant" },
   ensalada: { label: "Verdura y ensalada", icon: "Salad" },
   guarnicion: { label: "Guarniciones", icon: "ShoppingBasket" },
