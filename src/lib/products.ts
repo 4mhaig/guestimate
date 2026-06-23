@@ -246,3 +246,99 @@ export function resolveBasket(
 export function formatEuro(n: number): string {
   return n.toLocaleString("es-ES", { style: "currency", currency: "EUR" });
 }
+
+// =============================================================
+// Emparejar texto libre de la IA con un producto real del catálogo
+// =============================================================
+// La IA propone nombres en lenguaje natural ("Lubina fresca"). Aquí
+// buscamos el producto real más parecido del catálogo de Mercadona
+// para poder ponerle un precio de verdad (y unidad correcta).
+
+let _allOptions: ProductOption[] | null = null;
+function allCatalogOptions(): ProductOption[] {
+  if (_allOptions) return _allOptions;
+  const seen = new Set<string>();
+  const out: ProductOption[] = [];
+  for (const slots of Object.values(CATALOG)) {
+    for (const slot of slots) {
+      for (const o of slot.options) {
+        if (seen.has(o.id)) continue;
+        seen.add(o.id);
+        out.push(o);
+      }
+    }
+  }
+  _allOptions = out;
+  return out;
+}
+
+const STOPWORDS = new Set([
+  "de", "del", "la", "el", "los", "las", "y", "con", "sin", "al",
+  "fresco", "fresca", "frescos", "frescas", "natural", "naturales",
+]);
+
+const COMBINING = /[̀-ͯ]/g;
+function normalize(s: string): string {
+  return s.toLowerCase().normalize("NFD").replace(COMBINING, "");
+}
+
+function wordTokens(s: string): string[] {
+  return normalize(s)
+    .split(/[^a-z0-9]+/)
+    .filter((t) => t.length >= 3 && !STOPWORDS.has(t));
+}
+
+/** Busca el producto real del catálogo que mejor encaja con el nombre
+ *  libre que ha propuesto la IA. Devuelve null si no hay nada parecido. */
+export function findCatalogMatch(name: string, prices?: Record<string, number>): ProductOption | null {
+  const want = wordTokens(name);
+  if (!want.length) return null;
+  // La 1ª palabra suele ser el sustantivo principal ("Salmón ahumado",
+  // "Lubina fresca"). La exigimos para evitar coincidencias por palabras
+  // sueltas y secundarias ("ahumado" → salchichas ahumadas).
+  const primary = want[0];
+  let best: ProductOption | null = null;
+  let bestScore = 0;
+  for (const o of allCatalogOptions()) {
+    const have = new Set(wordTokens(o.name));
+    if (!have.has(primary)) continue;
+    let score = 0;
+    for (const w of want) if (have.has(w)) score += 1;
+    if (score > bestScore) {
+      bestScore = score;
+      best = o;
+    }
+  }
+  if (!best || bestScore === 0) return null;
+  return withLivePrice(best, prices);
+}
+
+function unitFamily(u: string): "weight" | "volume" | "count" {
+  const n = normalize(u);
+  if (["g", "gr", "kg", "kilo", "kilos"].includes(n)) return "weight";
+  if (["ml", "cl", "l", "litro", "litros"].includes(n)) return "volume";
+  return "count";
+}
+
+/** Interpreta una cantidad en texto de la IA ("200 g", "1 bote", "6 ud")
+ *  hacia la unidad base del producto encontrado (kg / L / ud). */
+export function parseAiAmount(text: string, unit: string): { amount: number; label: string } {
+  const m = normalize(text || "").match(/([\d]+(?:[.,][\d]+)?)\s*([a-z]+)?/);
+  let num = m ? parseFloat(m[1].replace(",", ".")) : NaN;
+  if (!isFinite(num) || num <= 0) num = 1;
+  const givenFamily = m && m[2] ? unitFamily(m[2]) : null;
+  const targetFamily = unitFamily(unit);
+
+  // Si la unidad de la IA es de otra familia que la del producto real
+  // (p.ej. pide "200 g" pero se vende por unidad), usamos 1 para no
+  // calcular un precio absurdo.
+  if (givenFamily && givenFamily !== targetFamily) {
+    return { amount: 1, label: fmtAmount(1, unit) };
+  }
+  let amount = num;
+  if (unit === "kg" && m && /^(g|gr)$/.test(m[2] ?? "")) amount = num / 1000;
+  else if (unit === "L" && m && (m[2] === "ml")) amount = num / 1000;
+  else if (unit === "L" && m && (m[2] === "cl")) amount = num / 100;
+  else if (unit === "ud") amount = Math.max(1, Math.round(num));
+  return { amount, label: fmtAmount(amount, unit) };
+}

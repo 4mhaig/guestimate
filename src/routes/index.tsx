@@ -34,7 +34,7 @@ import {
   type SpecialEvent,
   type SpecialEvents,
 } from "@/lib/guestimate";
-import { resolveBasket, formatEuro, DRINK_SLOTS, type ResolvedBasket } from "@/lib/products";
+import { resolveBasket, formatEuro, findCatalogMatch, parseAiAmount, DRINK_SLOTS, type ResolvedBasket } from "@/lib/products";
 import { applyAiRequest } from "@/lib/ai";
 import { supabase, signInWithEmail, signOut } from "@/lib/supabase";
 
@@ -231,7 +231,8 @@ function Index() {
     const adds = aiAdds.filter((a) => !removedLines.has(a.id));
     if (!adds.length) return base;
     // Inyectamos los productos que ha añadido la IA en su categoría.
-    const groups = base.groups.map((g) => ({ ...g, lines: [...g.lines] }));
+    const groups = base.groups.map((g) => ({ ...g, lines: [...g.lines], cost: g.cost }));
+    const touched = new Set(groups);
     for (const a of adds) {
       const cat = (a.category as Item["category"]) || "otros";
       const meta = CATEGORY_META[cat] ?? CATEGORY_META.otros;
@@ -240,17 +241,37 @@ function Index() {
         g = { category: cat, label: meta.label, icon: meta.icon, lines: [], cost: 0 };
         groups.push(g);
       }
-      g.lines.push({
-        key: a.id,
-        slotLabel: a.name,
-        option: { id: a.id, name: a.name, price: 0, unit: "", packPrice: null, image: null },
-        alternatives: [],
-        amount: 0,
-        amountLabel: a.amount || "añadido por ti",
-        cost: 0,
-      });
+      touched.add(g);
+      // Buscamos el producto real más parecido del catálogo para darle precio.
+      const match = findCatalogMatch(a.name, prices);
+      if (match) {
+        const { amount, label } = parseAiAmount(a.amount, match.unit);
+        g.lines.push({
+          key: a.id,
+          slotLabel: a.name,
+          option: match,
+          alternatives: [],
+          amount,
+          amountLabel: label,
+          cost: Math.round(match.price * amount * 100) / 100,
+        });
+      } else {
+        // Sin producto equivalente en el catálogo: lo mostramos sin precio.
+        g.lines.push({
+          key: a.id,
+          slotLabel: a.name,
+          option: { id: a.id, name: a.name, price: 0, unit: "", packPrice: null, image: null },
+          alternatives: [],
+          amount: 0,
+          amountLabel: a.amount || "añadido por ti",
+          cost: 0,
+        });
+      }
     }
-    return { groups, total: base.total };
+    // Recalculamos el coste de los grupos afectados y el total general.
+    for (const g of touched) g.cost = Math.round(g.lines.reduce((s, l) => s + l.cost, 0) * 100) / 100;
+    const total = Math.round(groups.reduce((s, g) => s + g.cost, 0) * 100) / 100;
+    return { groups, total };
   }, [items, eventType, choices, removedLines, drinks, prices, aiAdds]);
 
   const applyAi = async () => {
@@ -1603,7 +1624,7 @@ function Step4({
                   {g.label}
                 </h3>
               </div>
-              <span className="text-xs tabular-nums text-muted-foreground">{formatEuro(g.cost)}</span>
+              <span className="text-xs tabular-nums text-muted-foreground">{g.cost > 0 ? formatEuro(g.cost) : "—"}</span>
             </div>
             <div className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card">
               {g.lines.map((line) => {
@@ -1636,7 +1657,11 @@ function Step4({
                       </div>
                     </div>
                     <span className="shrink-0 text-sm font-semibold tabular-nums text-foreground">
-                      {line.cost > 0 ? formatEuro(line.cost) : "—"}
+                      {line.cost > 0 ? (
+                        formatEuro(line.cost)
+                      ) : (
+                        <span className="text-xs font-normal text-muted-foreground">sin precio</span>
+                      )}
                     </span>
                     <motion.button
                       whileTap={{ scale: 0.85 }}
