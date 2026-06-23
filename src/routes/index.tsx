@@ -146,8 +146,19 @@ function Index() {
     setAuthError(null);
     const { error } = await signInWithEmail(authEmail.trim());
     setAuthBusy(false);
-    if (error) setAuthError("No se pudo enviar el enlace. Inténtalo de nuevo.");
-    else setAuthSent(true);
+    if (error) {
+      console.error("signInWithOtp error:", error);
+      const msg = error.message || "";
+      if (error.status === 429 || /rate limit|too many/i.test(msg)) {
+        setAuthError("Has pedido varios enlaces en poco tiempo. Espera unos minutos e inténtalo de nuevo.");
+      } else if (/signups? not allowed|not enabled/i.test(msg)) {
+        setAuthError("El registro por email no está habilitado en el servidor. Avísanos.");
+      } else {
+        setAuthError(`No se pudo enviar el enlace: ${msg || "error desconocido"}`);
+      }
+    } else {
+      setAuthSent(true);
+    }
   };
 
   // Sesión (login por enlace mágico)
