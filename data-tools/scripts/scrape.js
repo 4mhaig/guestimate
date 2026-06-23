@@ -13,7 +13,7 @@
 // =============================================================
 
 import 'dotenv/config';
-import { writeFile } from 'node:fs/promises';
+import { writeFile, mkdir } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { scrapeRelevantProducts } from '../src/scraper/mercadona.js';
@@ -28,8 +28,9 @@ async function main() {
 
   const products = await scrapeRelevantProducts(postalCode, (msg) => console.log(msg));
 
-  // 1) Guardar siempre en local
+  // 1) Guardar siempre en local (creamos la carpeta data/ si no existe)
   const outPath = join(ROOT, 'data', 'products.json');
+  await mkdir(dirname(outPath), { recursive: true });
   await writeFile(outPath, JSON.stringify(products, null, 2), 'utf8');
   console.log(`\n💾 Guardado en ${outPath}`);
 
