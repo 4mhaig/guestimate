@@ -21,34 +21,15 @@ Esta guía te lleva de cero a tener Guestimate funcionando en tu ordenador. No n
 - Cuenta de **GitHub** ✅ (ya la tienes).
 - Cuenta de **Supabase** (gratis) → la creamos en el Paso 3.
 
-> Antes se usaba **Lovable** para crear la web. Ya **no hace falta**: ahora el proyecto se edita directamente en el repositorio. Si tienes curiosidad sobre cómo se generó al principio, lo dejamos explicado en [`docs/PROMPT-LOVABLE.md`](PROMPT-LOVABLE.md).
+> Antes se usaba **Lovable** para crear la web. Ya **no hace falta**: ahora el proyecto se edita directamente en el repositorio y se despliega en Vercel.
 
 ---
 
-## Paso 1 · Probar el motor de cálculo
+## Paso 1 · Arrancar la web en tu ordenador
 
-El "motor de cálculo" es el corazón de Guestimate: decide cuánta comida y bebida hace falta. Vive en la carpeta `data-tools/` y puedes probarlo **sin internet ni cuentas**.
-
-En la Terminal, dentro de la carpeta del proyecto:
+Vamos a abrir la app en el navegador. Esto se hace desde la **raíz** del proyecto.
 
 ```bash
-cd data-tools     # entrar en la carpeta de herramientas de datos
-npm install       # instala lo necesario (solo la primera vez)
-npm run demo      # muestra ejemplos de cálculo
-```
-
-Verás cantidades calculadas para una barbacoa, un cumpleaños y una casa rural.
-
-¿Quieres cambiar las cantidades (que salga más o menos carne, por ejemplo)? Edita el archivo `data-tools/src/portions/data.js`. Está todo comentado en español.
-
----
-
-## Paso 2 · Arrancar la web en tu ordenador
-
-Ahora vamos a abrir la app en el navegador. Esto se hace desde la **raíz** del proyecto (si vienes del paso anterior, sal de `data-tools/` con `cd ..`).
-
-```bash
-cd ..            # volver a la raíz (sáltatelo si ya estás en la raíz)
 npm install      # instala lo necesario (solo la primera vez)
 npm run dev      # arranca la web
 ```
@@ -59,7 +40,7 @@ Para **parar** la web, vuelve a la Terminal y pulsa `Ctrl + C`.
 
 ---
 
-## Paso 3 · Crear la base de datos en Supabase
+## Paso 2 · Crear la base de datos en Supabase
 
 Supabase es donde se guardan los productos de Mercadona, las listas y el feedback.
 
@@ -72,7 +53,7 @@ Supabase es donde se guardan los productos de Mercadona, las listas y el feedbac
 
 ---
 
-## Paso 4 · Conectar tus claves de Supabase
+## Paso 3 · Conectar tus claves de Supabase
 
 1. En Supabase: **Project Settings** (rueda dentada) → **API**.
 2. Copia dos valores:
@@ -94,7 +75,7 @@ Supabase es donde se guardan los productos de Mercadona, las listas y el feedbac
 
 ---
 
-## Paso 5 · Descargar precios de Mercadona
+## Paso 4 · Descargar precios de Mercadona
 
 Desde la carpeta `data-tools/`:
 
@@ -110,19 +91,19 @@ Puedes volver a ejecutarlo cuando quieras para actualizar precios.
 
 ---
 
-## Paso 6 · Construir el catálogo de la app
+## Paso 5 · Construir el catálogo de la app
 
 La app no lee directamente `products.json`: usa un catálogo ya preparado. Para generarlo, desde la carpeta `data-tools/`:
 
 ```bash
-node scripts/build-catalog.js
+npm run build-catalog
 ```
 
 Esto crea el archivo `src/lib/catalog.ts`, que es lo que la app usa para mostrar productos concretos de Mercadona en la cesta. Vuelve a ejecutarlo cada vez que actualices los precios (Paso 5).
 
 ---
 
-## Paso 7 · Probar de punta a punta
+## Paso 6 · Probar de punta a punta
 
 1. Arranca la web (Paso 2: desde la raíz, `npm run dev`) y abre **http://localhost:8080**.
 2. Crea un evento (ej. barbacoa, 10 personas).
@@ -133,7 +114,7 @@ Esto crea el archivo `src/lib/catalog.ts`, que es lo que la app usa para mostrar
 
 ---
 
-## Paso 8 · Publicar la web (opcional)
+## Paso 7 · Publicar la web (opcional)
 
 Cuando quieras tenerla online, el despliegue va a **Vercel**:
 
@@ -146,7 +127,7 @@ Cuando quieras tenerla online, el despliegue va a **Vercel**:
 ## ❓ Problemas frecuentes
 
 - **"command not found: npm"** → no tienes Node.js instalado (ver Paso 0).
-- **Ejecuté un comando y no funciona** → comprueba en qué carpeta estás. Los comandos `dev`/`build` van en la **raíz**; los de datos (`scrape`, `demo`, `build-catalog`, `test`) van en **`data-tools/`**.
+- **Ejecuté un comando y no funciona** → comprueba en qué carpeta estás. Los comandos `dev`/`build` van en la **raíz**; los de datos (`scrape`, `build-catalog`) van en **`data-tools/`**.
 - **El scraper falla con error 403/429** → Mercadona limitó las peticiones. Espera unos minutos y reintenta.
 - **No sube nada a Supabase** → revisa que `data-tools/.env` tenga bien la URL y la `service_role` key, y que ejecutaste el `schema.sql`.
-- **La cesta no muestra productos** → asegúrate de haber ejecutado el Paso 6 (`build-catalog.js`) después de descargar los precios.
+- **La cesta no muestra productos** → asegúrate de haber ejecutado el Paso 5 (`npm run build-catalog`) después de descargar los precios.

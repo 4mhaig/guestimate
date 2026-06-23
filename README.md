@@ -14,16 +14,12 @@ Guestimate = *guest* (invitado) + *estimate* (estimar): estima cuánto necesitas
 - **Cesta viva**: muestra productos **concretos** de Mercadona con su **precio aproximado** (sin contar el envío).
 - **Eliges entre 2-3 opciones** por producto mediante un desplegable, y puedes **eliminar** lo que no quieras.
 - **Bebidas**: eliges cuáles incluir. Opción de añadir **aperitivo**.
-- **Casa rural**: fechas de inicio y fin, y eventos especiales por día (barbacoa, cumpleaños...).
-- **Peticiones especiales**: un texto libre para pedir cosas concretas.
-- **Mis listas**: guarda tus listas y deja **feedback** después del evento.
+- **Casa rural**: fechas de inicio y fin, eventos especiales por día (barbacoa, cumpleaños...), opción de "cocinar poco" (platos preparados) y un **menú sugerido por día** (qué se come en cada comida).
+- **Peticiones especiales con IA**: un texto libre ("añade hummus", "quita el pescado") que **modifica la lista**; la IA empareja lo que pide con productos reales del catálogo y muestra el cambio como una conversación.
+- **Login** por enlace mágico al email (Supabase Auth).
+- **Mis listas**: guarda tus listas y deja **feedback** después del evento. Ese feedback (faltó/sobró) **afina las cantidades** de los próximos eventos del mismo tipo.
 
 Paleta visual "berry + crema" y tipografía Fraunces en los títulos.
-
-### Próximamente (aún no está hecho)
-
-- **Login con Google** (mediante Supabase Auth).
-- Que la **IA tenga en cuenta las peticiones especiales** al armar la cesta.
 
 ## Estructura del repositorio
 
@@ -35,19 +31,20 @@ guestimate/
 │   ├── routes/             pantallas (asistente por pasos + cesta viva)
 │   ├── components/         componentes (cesta, asistente, iconos, UI)
 │   └── lib/
-│       ├── guestimate.ts   motor de cálculo de la app
+│       ├── guestimate.ts   motor de cálculo (cantidades, menú, calibración por feedback)
+│       ├── products.ts     resuelve cantidades → productos concretos + precio
+│       ├── ai.ts           peticiones especiales con IA (Groq), se ejecuta en el servidor
 │       ├── catalog.ts      catálogo de productos (GENERADO, ver más abajo)
 │       └── supabase.ts     conexión a Supabase (clave pública)
 │
 ├── data-tools/           ← HERRAMIENTAS DE DATOS: scraper de Mercadona + utilidades Node
 │   ├── src/scraper/        descarga productos y precios de la API de Mercadona
-│   ├── src/portions/       motor de cálculo de referencia (Node)
-│   ├── scripts/            scrape.js, build-catalog.js, demo.js
+│   ├── scripts/            scrape.js, build-catalog.js
 │   ├── db/schema.sql       tablas de Supabase
 │   ├── data/products.json  productos descargados (GENERADO, no se sube a GitHub)
 │   └── .env                claves de Supabase (NO se sube)
 │
-└── docs/                 ← briefing original, guía paso a paso y nota histórica de Lovable
+└── docs/                 ← briefing original y guía paso a paso
 ```
 
 ## La app (frontend)
@@ -74,15 +71,15 @@ Sirven para descargar los productos y precios de Mercadona y construir el catál
 
 ```bash
 cd data-tools
-npm install                    # instalar dependencias (solo la primera vez)
-npm run scrape                 # descarga productos de Mercadona → data/products.json y Supabase
-node scripts/build-catalog.js  # genera el catálogo de la app → src/lib/catalog.ts
-npm run demo                   # prueba el motor de cálculo (sin internet ni cuentas)
-npm test                       # tests
+npm install            # instalar dependencias (solo la primera vez)
+npm run scrape         # descarga productos de Mercadona → data/products.json y Supabase
+npm run build-catalog  # genera el catálogo de la app → src/lib/catalog.ts
 ```
 
 - `npm run scrape` necesita un `data-tools/.env` con las claves de Supabase (ver `data-tools/.env.example`). Guarda los productos en `data-tools/data/products.json` y, si está configurado Supabase, los sube a la tabla `products`.
-- `node scripts/build-catalog.js` lee ese `products.json` y genera `src/lib/catalog.ts`, que es lo que la app usa para mostrar productos concretos en la cesta.
+- `npm run build-catalog` lee ese `products.json` y genera `src/lib/catalog.ts`, que es lo que la app usa para mostrar productos concretos en la cesta.
+
+Los precios se refrescan solos cada semana con una GitHub Action (`.github/workflows/refresh-prices.yml`).
 
 Base de datos: el esquema está en `data-tools/db/schema.sql` (tablas `products`, `events`, `shopping_lists`, `feedback`).
 
@@ -90,7 +87,6 @@ Base de datos: el esquema está en `data-tools/db/schema.sql` (tablas `products`
 
 - [Guía paso a paso](docs/GUIA-PASO-A-PASO.md) — para ponerlo todo en marcha desde cero (para no técnicos).
 - [Briefing](docs/briefing.md) — la definición **original** del producto (documento histórico).
-- [Nota sobre Lovable](docs/PROMPT-LOVABLE.md) — el prompt que se usó para la primera generación del frontend (histórico).
 
 ## Licencia
 
