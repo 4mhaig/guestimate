@@ -1516,8 +1516,8 @@ function Step3({
       <div className="mt-10">
         <h2 className="font-display text-lg font-semibold text-foreground">Peticiones especiales (IA)</h2>
         <p className="mt-0.5 text-sm text-muted-foreground">
-          Pide lo que quieras y la IA ajusta la lista. Ej: "no compres agua embotellada", "incluye
-          gildas y hummus", "quita el pescado".
+          Pide lo que quieras y la IA ajusta la lista. Ej: "incluye gildas y hummus", "quita el
+          pescado".
         </p>
         <textarea
           value={specialRequests}
