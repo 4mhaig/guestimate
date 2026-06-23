@@ -203,10 +203,28 @@ function Index() {
   // Productos concretos + precio (elección de opción por línea)
   const [choices, setChoices] = useState<Record<string, number>>({});
   const [removedLines, setRemovedLines] = useState<Set<string>>(new Set());
+  const [prices, setPrices] = useState<Record<string, number>>({});
+
+  // Precios en vivo desde Supabase (se actualizan cuando el scraper refresca la BD).
+  useEffect(() => {
+    let active = true;
+    supabase
+      .from("products")
+      .select("name, price")
+      .then(({ data }) => {
+        if (!active || !data) return;
+        const map: Record<string, number> = {};
+        for (const p of data) if (p.name && p.price != null) map[p.name] = Number(p.price);
+        setPrices(map);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
   const [drinks, setDrinks] = useState<Set<string>>(() => new Set());
   const resolved: ResolvedBasket = useMemo(
-    () => resolveBasket(items, eventType, { choices, removed: removedLines, drinks }),
-    [items, eventType, choices, removedLines, drinks],
+    () => resolveBasket(items, eventType, { choices, removed: removedLines, drinks, prices }),
+    [items, eventType, choices, removedLines, drinks, prices],
   );
   const setChoice = (key: string, index: number) => {
     setChoices((prev) => ({ ...prev, [key]: index }));

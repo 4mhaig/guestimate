@@ -70,7 +70,16 @@ export type ResolveOptions = {
   /** Ids de bebidas a incluir (agua, cola, naranja_limon, zumo, cerveza, vino).
    *  Si es undefined se incluyen todas. */
   drinks?: Set<string>;
+  /** Precios en vivo desde Supabase (nombre de producto → precio de referencia).
+   *  Si un producto está aquí, se usa este precio en vez del del catálogo. */
+  prices?: Record<string, number>;
 };
+
+// Devuelve la opción con el precio en vivo si lo tenemos en Supabase.
+function withLivePrice(o: ProductOption, prices?: Record<string, number>): ProductOption {
+  const live = prices?.[o.name];
+  return live != null && live > 0 ? { ...o, price: live } : o;
+}
 
 // Ids de los "slots" de bebida del catálogo, para la selección de bebidas.
 export const DRINK_SLOTS = {
@@ -89,6 +98,7 @@ export function resolveBasket(
   const choices = opts.choices ?? {};
   const removed = opts.removed ?? new Set<string>();
   const drinks = opts.drinks;
+  const prices = opts.prices;
   const groups = new Map<Category, ResolvedGroup>();
   const ensureGroup = (cat: Category): ResolvedGroup => {
     let g = groups.get(cat);
@@ -110,13 +120,14 @@ export function resolveBasket(
       const kind = specialKind(item.id);
       const options = (kind && SPECIAL[kind]) || [];
       if (options.length) {
-        const idx = Math.min(Math.max(0, choices[item.id] ?? 0), options.length - 1);
-        const option = options[idx];
+        const alternatives = options.map((o) => withLivePrice(o, prices));
+        const idx = Math.min(Math.max(0, choices[item.id] ?? 0), alternatives.length - 1);
+        const option = alternatives[idx];
         g.lines.push({
           key: item.id,
           slotLabel: item.name,
           option,
-          alternatives: options,
+          alternatives,
           amount,
           amountLabel: fmtAmount(amount, option.unit),
           cost: round2(option.price * amount),
@@ -141,8 +152,9 @@ export function resolveBasket(
       const basic = BASICS[item.id];
       const g = ensureGroup("otros");
       const units = Math.max(1, Math.round(item.qty));
+      const basicPrice = basic ? prices?.[basic.name] ?? basic.price : 0;
       const option: ProductOption = basic
-        ? { id: item.id, name: basic.name, price: basic.price, unit: "ud", packPrice: basic.price, image: basic.image }
+        ? { id: item.id, name: basic.name, price: basicPrice, unit: "ud", packPrice: basicPrice, image: basic.image }
         : { id: item.id, name: item.name, price: 0, unit: "ud", packPrice: null, image: null };
       g.lines.push({
         key: item.id,
@@ -151,7 +163,7 @@ export function resolveBasket(
         alternatives: [option],
         amount: units,
         amountLabel: `${units} ud`,
-        cost: round2((basic?.price ?? 0) * units),
+        cost: round2(basicPrice * units),
       });
       continue;
     }
@@ -190,15 +202,16 @@ export function resolveBasket(
       if (removed.has(lineKey)) continue;
       const slotQty = item.qty * slot.share; // en g/ml/u
       const amount = item.unit === "u" ? slotQty : slotQty / 1000; // → kg/L
-      const idx = Math.min(Math.max(0, choices[lineKey] ?? 0), slot.options.length - 1);
-      const option = slot.options[idx];
+      const alternatives = slot.options.map((o) => withLivePrice(o, prices));
+      const idx = Math.min(Math.max(0, choices[lineKey] ?? 0), alternatives.length - 1);
+      const option = alternatives[idx];
       // Un slot puede ir a otra categoría (p.ej. el queso de "cena de amigos" → embutido).
       const target = ensureGroup((slot.cat as Category) ?? item.category);
       target.lines.push({
         key: lineKey,
         slotLabel: slot.label,
         option,
-        alternatives: slot.options,
+        alternatives,
         amount,
         amountLabel: fmtAmount(amount, option.unit),
         cost: round2(option.price * amount),
