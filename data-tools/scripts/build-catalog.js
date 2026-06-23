@@ -24,17 +24,21 @@ const APP_ROOT = join(ROOT, '..');
 //
 // spec de slot: { id, label, share, cats:[categorías], inc:/regex/, exc:/regex/, unit:"kg"|"L", n }
 const SPECS = {
-  // ---- CARNE estándar (comida familiar, casa rural...) ----
+  // ---- CARNE/PROTEÍNA estándar (comida familiar, casa rural...) ----
   carne: [
-    { id: 'pollo', label: 'Pollo', share: 0.35, cats: ['Carne'], inc: /pechuga de pollo|muslo|contramuslo de pollo|jamoncit|pollo entero/i, unit: 'kg', n: 6 },
-    { id: 'cerdo', label: 'Cerdo', share: 0.35, cats: ['Carne'], inc: /chuleta.*cerdo|lomo de cerdo|secreto|aguja de cerdo|cinta de lomo|magro/i, unit: 'kg', n: 6 },
-    { id: 'ternera_pavo', label: 'Ternera / pavo', share: 0.3, cats: ['Carne'], inc: /ternera|añojo|vacuno|filetes? (de )?pavo|pechuga de pavo|escalope/i, exc: /cerdo/i, unit: 'kg', n: 6 },
+    { id: 'pollo', label: 'Pollo', share: 0.3, cats: ['Carne'], inc: /pechuga de pollo|muslo|contramuslo de pollo|jamoncit|pollo entero/i, unit: 'kg', n: 6 },
+    { id: 'cerdo', label: 'Cerdo', share: 0.25, cats: ['Carne'], inc: /chuleta.*cerdo|lomo de cerdo|secreto|aguja de cerdo|cinta de lomo|magro/i, unit: 'kg', n: 6 },
+    { id: 'ternera_pavo', label: 'Ternera / pavo', share: 0.2, cats: ['Carne'], inc: /ternera|añojo|vacuno|filetes? (de )?pavo|pechuga de pavo|escalope/i, exc: /cerdo/i, unit: 'kg', n: 6 },
+    { id: 'pescado', label: 'Pescado', share: 0.15, cats: ['Marisco y pescado', 'Congelados'], inc: /merluza|salmón|dorada|lubina|bacalao|emperador|trucha|rodaballo|gallo|lomos de pescado|panga|tilapia/i, exc: /relleno|pimientos|croqueta|palitos|varitas/i, unit: 'kg', n: 6 },
+    { id: 'cordero_conejo', label: 'Cordero / conejo', share: 0.1, cats: ['Carne'], inc: /cordero|conejo|lechal|cabrito/i, unit: 'kg', n: 6 },
   ],
-  // ---- CARNE comida familiar (asado/guiso) ----
+  // ---- CARNE/PROTEÍNA comida familiar (asado/guiso) ----
   'carne:familiar': [
-    { id: 'pollo', label: 'Pollo', share: 0.35, cats: ['Carne'], inc: /pechuga de pollo|muslo|contramuslo|jamoncit|pollo entero/i, unit: 'kg', n: 6 },
-    { id: 'cerdo', label: 'Cerdo', share: 0.35, cats: ['Carne'], inc: /lomo de cerdo|chuleta.*cerdo|aguja de cerdo|cinta de lomo|secreto|magro/i, unit: 'kg', n: 6 },
-    { id: 'ternera_pavo', label: 'Ternera / pavo', share: 0.3, cats: ['Carne'], inc: /ternera|añojo|vacuno|morcillo|filetes? (de )?pavo|pechuga de pavo|escalope/i, exc: /cerdo/i, unit: 'kg', n: 6 },
+    { id: 'pollo', label: 'Pollo', share: 0.3, cats: ['Carne'], inc: /pechuga de pollo|muslo|contramuslo|jamoncit|pollo entero/i, unit: 'kg', n: 6 },
+    { id: 'cerdo', label: 'Cerdo', share: 0.25, cats: ['Carne'], inc: /lomo de cerdo|chuleta.*cerdo|aguja de cerdo|cinta de lomo|secreto|magro/i, unit: 'kg', n: 6 },
+    { id: 'ternera_pavo', label: 'Ternera / pavo', share: 0.2, cats: ['Carne'], inc: /ternera|añojo|vacuno|morcillo|filetes? (de )?pavo|pechuga de pavo|escalope/i, exc: /cerdo/i, unit: 'kg', n: 6 },
+    { id: 'pescado', label: 'Pescado', share: 0.15, cats: ['Marisco y pescado', 'Congelados'], inc: /merluza|salmón|dorada|lubina|bacalao|emperador|trucha|rodaballo|gallo|lomos de pescado/i, exc: /relleno|pimientos|croqueta|palitos|varitas/i, unit: 'kg', n: 6 },
+    { id: 'cordero_conejo', label: 'Cordero / conejo', share: 0.1, cats: ['Carne'], inc: /cordero|conejo|lechal|cabrito/i, unit: 'kg', n: 6 },
   ],
   // ---- CARNE cumpleaños (para picar, apto niños) ----
   'carne:cumple': [

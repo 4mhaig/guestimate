@@ -85,6 +85,13 @@ export function BasketPanel({
           </AnimatePresence>
         </div>
       </div>
+
+      {lineCount > 0 && (
+        <p className="border-t border-border px-5 py-3 text-[11px] leading-snug text-muted-foreground">
+          Elegimos por defecto lo más económico de cada categoría. Cambia el producto en los
+          desplegables. Precios orientativos de Mercadona.
+        </p>
+      )}
     </div>
   );
 }

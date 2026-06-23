@@ -1579,8 +1579,9 @@ function Step4({
       </div>
 
       <p className="mt-3 text-xs text-muted-foreground">
-        Los productos y precios son orientativos y están basados en Mercadona. Pueden variar
-        según tu tienda y la fecha.
+        Por defecto elegimos la opción más económica de cada categoría; puedes cambiarla por otra
+        en los desplegables de cada producto. Los productos y precios son orientativos, están
+        basados en Mercadona y pueden variar según tu tienda y la fecha.
       </p>
 
       <div className="mt-8 flex flex-wrap gap-3">

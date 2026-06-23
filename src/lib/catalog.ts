@@ -24,7 +24,7 @@ export const CATALOG: Record<string, CatalogSlot[]> = {
     {
       "id": "pollo",
       "label": "Pollo",
-      "share": 0.35,
+      "share": 0.3,
       "options": [
         {
           "id": "25183",
@@ -79,7 +79,7 @@ export const CATALOG: Record<string, CatalogSlot[]> = {
     {
       "id": "cerdo",
       "label": "Cerdo",
-      "share": 0.35,
+      "share": 0.25,
       "options": [
         {
           "id": "4590",
@@ -134,7 +134,7 @@ export const CATALOG: Record<string, CatalogSlot[]> = {
     {
       "id": "ternera_pavo",
       "label": "Ternera / pavo",
-      "share": 0.3,
+      "share": 0.2,
       "options": [
         {
           "id": "4109",
@@ -183,6 +183,116 @@ export const CATALOG: Record<string, CatalogSlot[]> = {
           "unit": "kg",
           "packPrice": 5.5,
           "image": "https://prod-mercadona.imgix.net/images/9b98483e96624180d8a01e2f7e085f87.jpg?fit=crop&h=300&w=300"
+        }
+      ]
+    },
+    {
+      "id": "pescado",
+      "label": "Pescado",
+      "share": 0.15,
+      "options": [
+        {
+          "id": "62176",
+          "name": "Pescadilla de merluza sin cabeza Hacendado ultracongelada",
+          "price": 5.25,
+          "unit": "kg",
+          "packPrice": 5.25,
+          "image": "https://prod-mercadona.imgix.net/images/7f157b6427610d3b79250fc9d02b151d.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "63435",
+          "name": "Albóndigas de bacalao Camós congeladas",
+          "price": 5.25,
+          "unit": "kg",
+          "packPrice": 2.1,
+          "image": "https://prod-mercadona.imgix.net/images/57b28a09f9645a36cd5d3397c920bb64.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "62191",
+          "name": "Filetes de panga Hacendado ultracongelados",
+          "price": 5.28,
+          "unit": "kg",
+          "packPrice": 4.75,
+          "image": "https://prod-mercadona.imgix.net/images/e5cb902b5acb5cd8f005ba60630c6973.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "63159",
+          "name": "Figuritas de merluza empanadas Hacendado ultracongeladas",
+          "price": 7.2,
+          "unit": "kg",
+          "packPrice": 3.6,
+          "image": "https://prod-mercadona.imgix.net/images/9f980df4041647987946b516409b7a34.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "63140",
+          "name": "Merluza empanada pan fino Hacendado ultracongelada",
+          "price": 7.65,
+          "unit": "kg",
+          "packPrice": 3.9,
+          "image": "https://prod-mercadona.imgix.net/images/3a2d84d03fc17dd0645cf0bcc9231d83.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "81200.1",
+          "name": "Trucha abierta en libro con cabeza",
+          "price": 7.95,
+          "unit": "kg",
+          "packPrice": 4.13,
+          "image": "https://prod-mercadona.imgix.net/images/661d69880016e9ebeb58a4f23465e397.jpg?fit=crop&h=300&w=300"
+        }
+      ]
+    },
+    {
+      "id": "cordero_conejo",
+      "label": "Cordero / conejo",
+      "share": 0.1,
+      "options": [
+        {
+          "id": "2797",
+          "name": "Conejo entero",
+          "price": 8.1,
+          "unit": "kg",
+          "packPrice": 9.8,
+          "image": "https://prod-mercadona.imgix.net/images/9d4f2a1f38c18b9e3ea6e4523882a709.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "25972",
+          "name": "Medio conejo troceado",
+          "price": 9.4,
+          "unit": "kg",
+          "packPrice": 5.64,
+          "image": "https://prod-mercadona.imgix.net/images/f1dd2afe2729b8a5a95104788147cd27.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "21814",
+          "name": "Trozos de cordero para guisar",
+          "price": 12.5,
+          "unit": "kg",
+          "packPrice": 6.25,
+          "image": "https://prod-mercadona.imgix.net/images/874e080c6030ece1445e23e9a57108aa.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "2860",
+          "name": "Filetes hígado de cordero",
+          "price": 13,
+          "unit": "kg",
+          "packPrice": 4.42,
+          "image": "https://prod-mercadona.imgix.net/images/d1cb99db6ba095cc639db66bc24e425a.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "21663",
+          "name": "Garreta paletilla de cordero congelada",
+          "price": 13.9,
+          "unit": "kg",
+          "packPrice": 6.67,
+          "image": "https://prod-mercadona.imgix.net/images/b211700854706d94cb9705d8b38f4723.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "8839",
+          "name": "Burger de cordero al romero",
+          "price": 14.58,
+          "unit": "kg",
+          "packPrice": 3.5,
+          "image": "https://prod-mercadona.imgix.net/images/ea1c49c71c2424324ad4ac73badbfedf.jpg?fit=crop&h=300&w=300"
         }
       ]
     }
@@ -191,7 +301,7 @@ export const CATALOG: Record<string, CatalogSlot[]> = {
     {
       "id": "pollo",
       "label": "Pollo",
-      "share": 0.35,
+      "share": 0.3,
       "options": [
         {
           "id": "25183",
@@ -246,7 +356,7 @@ export const CATALOG: Record<string, CatalogSlot[]> = {
     {
       "id": "cerdo",
       "label": "Cerdo",
-      "share": 0.35,
+      "share": 0.25,
       "options": [
         {
           "id": "4590",
@@ -301,7 +411,7 @@ export const CATALOG: Record<string, CatalogSlot[]> = {
     {
       "id": "ternera_pavo",
       "label": "Ternera / pavo",
-      "share": 0.3,
+      "share": 0.2,
       "options": [
         {
           "id": "4109",
@@ -350,6 +460,116 @@ export const CATALOG: Record<string, CatalogSlot[]> = {
           "unit": "kg",
           "packPrice": 5.5,
           "image": "https://prod-mercadona.imgix.net/images/9b98483e96624180d8a01e2f7e085f87.jpg?fit=crop&h=300&w=300"
+        }
+      ]
+    },
+    {
+      "id": "pescado",
+      "label": "Pescado",
+      "share": 0.15,
+      "options": [
+        {
+          "id": "62176",
+          "name": "Pescadilla de merluza sin cabeza Hacendado ultracongelada",
+          "price": 5.25,
+          "unit": "kg",
+          "packPrice": 5.25,
+          "image": "https://prod-mercadona.imgix.net/images/7f157b6427610d3b79250fc9d02b151d.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "63435",
+          "name": "Albóndigas de bacalao Camós congeladas",
+          "price": 5.25,
+          "unit": "kg",
+          "packPrice": 2.1,
+          "image": "https://prod-mercadona.imgix.net/images/57b28a09f9645a36cd5d3397c920bb64.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "63159",
+          "name": "Figuritas de merluza empanadas Hacendado ultracongeladas",
+          "price": 7.2,
+          "unit": "kg",
+          "packPrice": 3.6,
+          "image": "https://prod-mercadona.imgix.net/images/9f980df4041647987946b516409b7a34.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "63140",
+          "name": "Merluza empanada pan fino Hacendado ultracongelada",
+          "price": 7.65,
+          "unit": "kg",
+          "packPrice": 3.9,
+          "image": "https://prod-mercadona.imgix.net/images/3a2d84d03fc17dd0645cf0bcc9231d83.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "81200.1",
+          "name": "Trucha abierta en libro con cabeza",
+          "price": 7.95,
+          "unit": "kg",
+          "packPrice": 4.13,
+          "image": "https://prod-mercadona.imgix.net/images/661d69880016e9ebeb58a4f23465e397.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "81200.2",
+          "name": "Trucha abierta en libro sin cabeza y sin espina",
+          "price": 7.95,
+          "unit": "kg",
+          "packPrice": 4.13,
+          "image": "https://prod-mercadona.imgix.net/images/f59e557239c2f912e794f4f6ca61df0a.jpg?fit=crop&h=300&w=300"
+        }
+      ]
+    },
+    {
+      "id": "cordero_conejo",
+      "label": "Cordero / conejo",
+      "share": 0.1,
+      "options": [
+        {
+          "id": "2797",
+          "name": "Conejo entero",
+          "price": 8.1,
+          "unit": "kg",
+          "packPrice": 9.8,
+          "image": "https://prod-mercadona.imgix.net/images/9d4f2a1f38c18b9e3ea6e4523882a709.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "25972",
+          "name": "Medio conejo troceado",
+          "price": 9.4,
+          "unit": "kg",
+          "packPrice": 5.64,
+          "image": "https://prod-mercadona.imgix.net/images/f1dd2afe2729b8a5a95104788147cd27.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "21814",
+          "name": "Trozos de cordero para guisar",
+          "price": 12.5,
+          "unit": "kg",
+          "packPrice": 6.25,
+          "image": "https://prod-mercadona.imgix.net/images/874e080c6030ece1445e23e9a57108aa.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "2860",
+          "name": "Filetes hígado de cordero",
+          "price": 13,
+          "unit": "kg",
+          "packPrice": 4.42,
+          "image": "https://prod-mercadona.imgix.net/images/d1cb99db6ba095cc639db66bc24e425a.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "21663",
+          "name": "Garreta paletilla de cordero congelada",
+          "price": 13.9,
+          "unit": "kg",
+          "packPrice": 6.67,
+          "image": "https://prod-mercadona.imgix.net/images/b211700854706d94cb9705d8b38f4723.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "8839",
+          "name": "Burger de cordero al romero",
+          "price": 14.58,
+          "unit": "kg",
+          "packPrice": 3.5,
+          "image": "https://prod-mercadona.imgix.net/images/ea1c49c71c2424324ad4ac73badbfedf.jpg?fit=crop&h=300&w=300"
         }
       ]
     }
