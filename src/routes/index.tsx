@@ -84,6 +84,19 @@ function daysBetween(start: string, end: string): number {
   return Math.round((e - s) / 86400000) + 1;
 }
 
+// Persistencia del asistente en el navegador: así, al ir a iniciar sesión
+// (el enlace mágico recarga la página), no se pierde la lista en curso.
+const WIZARD_KEY = "guestimate:wizard:v1";
+function loadWizard(): Record<string, any> | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.localStorage.getItem(WIZARD_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
 function Index() {
   const [step, setStep] = useState<Step>(1);
   const [eventType, setEventType] = useState<EventType | null>(null);
@@ -260,6 +273,57 @@ function Index() {
     };
   }, []);
   const [drinks, setDrinks] = useState<Set<string>>(() => new Set());
+
+  // Persistencia del asistente (para no perder la lista al iniciar sesión: el
+  // enlace mágico recarga la página). Restauramos DESPUÉS de montar (no en el
+  // estado inicial) para no romper la hidratación del SSR.
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => {
+    const s = loadWizard();
+    if (s) {
+      if (s.step != null) setStep(s.step);
+      if (s.eventType !== undefined) setEventType(s.eventType);
+      if (s.date != null) setDate(s.date);
+      if (s.endDate != null) setEndDate(s.endDate);
+      if (s.people) setPeople(s.people);
+      if (s.meals) setMeals(s.meals);
+      if (s.aperitivo != null) setAperitivo(s.aperitivo);
+      if (s.easyCooking != null) setEasyCooking(s.easyCooking);
+      if (s.specialEvents) setSpecialEvents(s.specialEvents);
+      if (s.restrictions) setRestrictions(s.restrictions);
+      if (s.restrictionCounts) setRestrictionCounts(s.restrictionCounts);
+      if (s.specialRequests != null) setSpecialRequests(s.specialRequests);
+      if (s.aiAdds) setAiAdds(s.aiAdds);
+      if (s.overrides) setOverrides(s.overrides);
+      if (s.removed) setRemoved(new Set(s.removed));
+      if (s.choices) setChoices(s.choices);
+      if (s.removedLines) setRemovedLines(new Set(s.removedLines));
+      if (s.drinks) setDrinks(new Set(s.drinks));
+    }
+    setHydrated(true);
+    // Solo al montar.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Guardamos el progreso en cada cambio (una vez restaurado, para no pisar
+  // el borrador con los valores por defecto del primer render).
+  useEffect(() => {
+    if (!hydrated || typeof window === "undefined") return;
+    const snap = {
+      step, eventType, date, endDate, people, meals, aperitivo, easyCooking,
+      specialEvents, restrictions, restrictionCounts, specialRequests, aiAdds,
+      overrides, removed: [...removed], choices, removedLines: [...removedLines], drinks: [...drinks],
+    };
+    try {
+      window.localStorage.setItem(WIZARD_KEY, JSON.stringify(snap));
+    } catch {
+      // localStorage lleno o no disponible: no pasa nada.
+    }
+  }, [
+    hydrated, step, eventType, date, endDate, people, meals, aperitivo, easyCooking,
+    specialEvents, restrictions, restrictionCounts, specialRequests, aiAdds,
+    overrides, removed, choices, removedLines, drinks,
+  ]);
   const resolved: ResolvedBasket = useMemo(() => {
     const base = resolveBasket(items, eventType, { choices, removed: removedLines, drinks, prices, restrictions });
     const adds = aiAdds.filter((a) => !removedLines.has(a.id));
@@ -487,6 +551,12 @@ function Index() {
       });
       if (e2) throw e2;
       setSavedEventId(ev.id);
+      // Lista ya guardada en la cuenta: limpiamos el borrador del navegador.
+      try {
+        window.localStorage.removeItem(WIZARD_KEY);
+      } catch {
+        // no pasa nada
+      }
       showToast("Lista guardada");
     } catch (err) {
       console.error(err);
