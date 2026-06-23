@@ -239,18 +239,20 @@ export function computeBasket(
           // Si ese día hay barbacoa/cumpleaños, aplicamos su multiplicador
           // a la comida y la cena (la celebración fuerte del día).
           if (special && isMain) qty *= eventMultiplier(special, p.category);
-          // "Cocinar poco": la proteína y la guarnición de comida/cena pasan a
-          // platos listos / precocinados.
-          if (easyCooking && isMain && (p.category === "carne" || p.category === "guarnicion")) {
-            add(map, { ...p, id: `${p.id}__easy` }, qty, undefined, "rural_easy");
-          } else if (
+          // Un día con evento especial MANDA sobre "cocinar poco": aunque el
+          // viaje sea de cocinar poco, si ese día hay barbacoa/cumpleaños, la
+          // carne (y el postre en cumpleaños) usan los PRODUCTOS de ese evento
+          // (p.ej. barbacoa → chorizo/costilla), no los precocinados.
+          if (
             special &&
             isMain &&
             (p.category === "carne" || (special === "cumple" && p.category === "postre"))
           ) {
-            // La carne (y el postre en cumpleaños) de un día especial usan los
-            // PRODUCTOS de ese evento (p.ej. una barbacoa → chorizo/costilla).
             add(map, { ...p, id: `${p.id}__${special}` }, qty, special);
+          } else if (easyCooking && isMain && (p.category === "carne" || p.category === "guarnicion")) {
+            // "Cocinar poco": la proteína y la guarnición de comida/cena de los
+            // días normales pasan a platos listos / precocinados.
+            add(map, { ...p, id: `${p.id}__easy` }, qty, undefined, "rural_easy");
           } else {
             add(map, p, qty);
           }
@@ -391,4 +393,69 @@ export function defaultMealsConfig(days: number, mode: "all" | "standard" = "all
     }
   }
   return cfg;
+}
+
+// =============================================================
+// MENÚ SUGERIDO POR DÍA (solo casa rural)
+// =============================================================
+// A partir de la configuración de comidas del viaje, genera un plan
+// legible: qué se come en cada comida de cada día. Refleja los días
+// especiales (barbacoa/cumpleaños) y el modo "cocinar poco".
+
+export type MenuSlot = "desayuno" | "comida" | "aperitivo" | "merienda" | "cena";
+export type MenuMeal = { slot: MenuSlot; label: string; dishes: string[] };
+export type MenuDay = { day: number; special: SpecialEvent | null; meals: MenuMeal[] };
+
+const MENU_LABELS: Record<MenuSlot, string> = {
+  desayuno: "Desayuno",
+  comida: "Comida",
+  aperitivo: "Aperitivo",
+  merienda: "Merienda",
+  cena: "Cena",
+};
+// Orden cronológico de las comidas en el día (el aperitivo va por la tarde).
+const MENU_ORDER: MenuSlot[] = ["desayuno", "comida", "aperitivo", "merienda", "cena"];
+
+export function buildRuralMenu(
+  days: number,
+  meals: MealsConfig,
+  specialEvents: SpecialEvents = {},
+  easyCooking: boolean = false,
+): MenuDay[] {
+  const out: MenuDay[] = [];
+  for (let d = 1; d <= days; d++) {
+    const dayMeals = meals[d] || { desayuno: true, comida: true, merienda: false, cena: true };
+    const special = specialEvents[d] ?? null;
+    const bySlot = new Map<MenuSlot, string[]>();
+
+    (["desayuno", "comida", "merienda", "cena"] as Meal[]).forEach((m) => {
+      if (!dayMeals[m]) return;
+      const isMain = m === "comida" || m === "cena";
+      const dishes: string[] = [];
+      for (const p of RURAL_MEALS[m]) {
+        if (special && isMain && p.category === "carne") {
+          dishes.push(special === "barbacoa" ? "Barbacoa: carne y embutido a la brasa" : "Carne / proteína");
+        } else if (special === "cumple" && isMain && p.category === "postre") {
+          dishes.push("Tarta de cumpleaños");
+        } else if (easyCooking && isMain && !special && (p.category === "carne" || p.category === "guarnicion")) {
+          dishes.push(p.category === "carne" ? "Plato preparado (precocinado)" : "Guarnición lista");
+        } else {
+          dishes.push(p.name);
+        }
+      }
+      bySlot.set(m, dishes);
+    });
+
+    if (dayMeals.aperitivo) {
+      bySlot.set("aperitivo", ["Snacks para picar", "Embutido y queso"]);
+    }
+
+    const mealsOrdered: MenuMeal[] = MENU_ORDER.filter((s) => bySlot.has(s)).map((s) => ({
+      slot: s,
+      label: MENU_LABELS[s],
+      dishes: bySlot.get(s)!,
+    }));
+    out.push({ day: d, special, meals: mealsOrdered });
+  }
+  return out;
 }

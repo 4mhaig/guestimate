@@ -4,8 +4,11 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
   ArrowLeft,
   ArrowRight,
+  Cake,
   Check,
+  ChevronDown,
   Copy,
+  Flame,
   LogOut,
   Minus,
   Plus,
@@ -14,18 +17,21 @@ import {
   Sparkles,
   Star,
   Trash2,
+  UtensilsCrossed,
   X,
 } from "lucide-react";
 import {
   CATEGORY_META,
   EVENTS,
   RESTRICTIONS,
+  buildRuralMenu,
   computeBasket,
   defaultMealsConfig,
   formatQty,
   groupByCategory,
   totalPeople,
   type EventType,
+  type MenuDay,
   type Item,
   type Meal,
   type MealsConfig,
@@ -273,6 +279,12 @@ function Index() {
     const total = Math.round(groups.reduce((s, g) => s + g.cost, 0) * 100) / 100;
     return { groups, total };
   }, [items, eventType, choices, removedLines, drinks, prices, aiAdds]);
+
+  // Menú sugerido por día (solo casa rural).
+  const ruralMenu: MenuDay[] = useMemo(
+    () => (eventType === "rural" ? buildRuralMenu(days, meals, specialEvents, easyCooking) : []),
+    [eventType, days, meals, specialEvents, easyCooking],
+  );
 
   const applyAi = async () => {
     if (!specialRequests.trim()) return;
@@ -643,6 +655,7 @@ function Index() {
                   date={date}
                   totalPeople={totalPpl}
                   restrictions={restrictions}
+                  ruralMenu={ruralMenu}
                   onSave={saveList}
                   onShare={shareList}
                   saving={saving}
@@ -1458,7 +1471,7 @@ function Step3({
               </motion.button>
               {(
                 <div
-                  className={`flex flex-wrap gap-x-4 gap-y-2 ${
+                  className={`grid grid-cols-2 gap-x-5 gap-y-3 sm:flex sm:flex-wrap sm:gap-x-4 sm:gap-y-2 ${
                     on ? "" : "pointer-events-none opacity-40"
                   }`}
                 >
@@ -1469,7 +1482,7 @@ function Step3({
                     return (
                       <div
                         key={p.key}
-                        className={`flex items-center gap-1.5 ${dis ? "opacity-40" : ""}`}
+                        className={`flex items-center justify-between gap-1.5 sm:justify-start ${dis ? "opacity-40" : ""}`}
                         title={!hasProfile ? `No hay ${p.label.toLowerCase()} en el evento` : undefined}
                       >
                         <span className="text-xs text-muted-foreground">{p.label}</span>
@@ -1561,6 +1574,76 @@ function Step3({
   );
 }
 
+/* ---------- Menú por día (casa rural) ---------- */
+function RuralMenu({ menu }: { menu: MenuDay[] }) {
+  const [open, setOpen] = useState(true);
+  const specialMeta: Record<SpecialEvent, { label: string; Icon: typeof Flame }> = {
+    barbacoa: { label: "Barbacoa", Icon: Flame },
+    cumple: { label: "Cumpleaños", Icon: Cake },
+  };
+  return (
+    <div className="mt-8 overflow-hidden rounded-2xl border border-border bg-card">
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className="flex w-full items-center justify-between gap-3 px-5 py-4 text-left"
+        aria-expanded={open}
+      >
+        <span className="flex items-center gap-2">
+          <UtensilsCrossed className="h-4 w-4 text-primary" strokeWidth={1.6} />
+          <span className="font-display text-base font-semibold text-foreground">Menú sugerido por día</span>
+        </span>
+        <ChevronDown
+          className={`h-4 w-4 shrink-0 text-muted-foreground transition-transform ${open ? "rotate-180" : ""}`}
+        />
+      </button>
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.25 }}
+          >
+            <div className="space-y-4 px-5 pb-5">
+              <p className="text-xs text-muted-foreground">
+                Una propuesta de cómo repartir la compra entre las comidas del viaje. Es orientativa: ajústala
+                a vuestro gusto.
+              </p>
+              {menu.map((d) => {
+                const sp = d.special ? specialMeta[d.special] : null;
+                return (
+                  <div key={d.day} className="rounded-xl border border-border bg-background p-4">
+                    <div className="mb-3 flex items-center justify-between gap-2">
+                      <h4 className="font-display text-sm font-semibold uppercase tracking-wide text-foreground">
+                        Día {d.day}
+                      </h4>
+                      {sp && (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-secondary/15 px-2.5 py-1 text-xs font-medium text-secondary">
+                          <sp.Icon className="h-3 w-3" strokeWidth={1.8} /> {sp.label}
+                        </span>
+                      )}
+                    </div>
+                    <div className="space-y-2.5">
+                      {d.meals.map((m) => (
+                        <div key={m.slot} className="grid grid-cols-[5.5rem_1fr] gap-x-3 gap-y-0.5">
+                          <span className="text-xs font-semibold uppercase tracking-wide text-primary">
+                            {m.label}
+                          </span>
+                          <span className="text-sm text-foreground">{m.dishes.join(" · ")}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
 /* ---------- Step 4 ---------- */
 function Step4({
   resolved,
@@ -1570,6 +1653,7 @@ function Step4({
   date,
   totalPeople,
   restrictions,
+  ruralMenu,
   onSave,
   onShare,
   saving,
@@ -1582,6 +1666,7 @@ function Step4({
   date: string;
   totalPeople: number;
   restrictions: Restriction[];
+  ruralMenu: MenuDay[];
   onSave: () => void;
   onShare: () => void;
   saving: boolean;
@@ -1613,6 +1698,8 @@ function Step4({
           ))}
         </div>
       )}
+
+      {eventType === "rural" && ruralMenu.length > 0 && <RuralMenu menu={ruralMenu} />}
 
       <div className="mt-8 space-y-6">
         {resolved.groups.map((g) => (
