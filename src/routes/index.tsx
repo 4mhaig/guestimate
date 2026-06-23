@@ -1499,7 +1499,7 @@ function Step3({
     <div>
       <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">¿Hay algo que no podáis comer?</h1>
       <p className="mt-2 text-muted-foreground">
-        Selecciona las que apliquen. Si eliges una, indica a la derecha cuántas personas la tienen.
+        Selecciona las que apliquen. Al elegir una, indica debajo cuántas personas la tienen.
       </p>
       <div className="mt-8 space-y-2.5">
         {RESTRICTIONS.filter((r) => r.id !== "ninguna").map((r) => {
@@ -1508,55 +1508,62 @@ function Step3({
           return (
             <div
               key={r.id}
-              className={`flex flex-col gap-3 rounded-2xl border p-3 transition-colors sm:flex-row sm:items-center sm:justify-between ${
+              className={`rounded-2xl border p-3 transition-colors ${
                 on ? "border-primary bg-accent/40" : "border-border bg-card"
               }`}
             >
+              {/* Botón seleccionable a lo ancho: etiqueta a la izquierda, marca a la derecha */}
               <motion.button
-                whileTap={{ scale: 0.96 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={() => toggle(r.id)}
-                className={`self-start rounded-full border px-4 py-2 text-sm font-medium transition-all ${
+                aria-pressed={on}
+                className={`flex w-full items-center justify-between gap-3 rounded-xl border px-4 py-3 text-left text-sm font-medium transition-all ${
                   on
                     ? "border-primary bg-primary text-primary-foreground"
                     : "border-border bg-background text-foreground hover:border-primary/40"
                 }`}
               >
-                {r.label}
+                <span>{r.label}</span>
+                {on ? (
+                  <Check className="h-4 w-4 shrink-0" strokeWidth={2.5} />
+                ) : (
+                  <Plus className="h-4 w-4 shrink-0 opacity-40" />
+                )}
               </motion.button>
-              {(
-                <div
-                  className={`grid grid-cols-2 gap-x-5 gap-y-3 sm:flex sm:flex-wrap sm:gap-x-4 sm:gap-y-2 ${
-                    on ? "" : "pointer-events-none opacity-40"
-                  }`}
-                >
+
+              {/* Contadores por tipo de persona: solo cuando la restricción está activa */}
+              {on && (
+                <div className="mt-3 grid grid-cols-2 gap-2">
                   {REST_PROFILES.map((p) => {
                     // Si en el evento no hay ese tipo de persona, el contador se deshabilita.
                     const hasProfile = people[p.key] > 0;
-                    const dis = !on || !hasProfile;
+                    const dis = !hasProfile;
                     return (
                       <div
                         key={p.key}
-                        className={`flex items-center justify-between gap-1.5 sm:justify-start ${dis ? "opacity-40" : ""}`}
+                        className={`flex items-center justify-between gap-2 rounded-xl bg-background/70 px-3 py-2 ${dis ? "opacity-40" : ""}`}
                         title={!hasProfile ? `No hay ${p.label.toLowerCase()} en el evento` : undefined}
                       >
                         <span className="text-xs text-muted-foreground">{p.label}</span>
-                        <button
-                          disabled={dis}
-                          onClick={() => setRestCount(r.id, p.key, (counts?.[p.key] ?? 0) - 1)}
-                          className="grid h-6 w-6 place-items-center rounded-full border border-border text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 enabled:hover:text-foreground"
-                          aria-label={`Menos ${p.label}`}
-                        >
-                          <Minus className="h-3 w-3" />
-                        </button>
-                        <span className="w-4 text-center text-sm tabular-nums">{counts?.[p.key] ?? 0}</span>
-                        <button
-                          disabled={dis}
-                          onClick={() => setRestCount(r.id, p.key, (counts?.[p.key] ?? 0) + 1)}
-                          className="grid h-6 w-6 place-items-center rounded-full bg-primary/10 text-primary disabled:cursor-not-allowed disabled:opacity-50 enabled:hover:bg-primary/20"
-                          aria-label={`Más ${p.label}`}
-                        >
-                          <Plus className="h-3 w-3" />
-                        </button>
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            disabled={dis}
+                            onClick={() => setRestCount(r.id, p.key, (counts?.[p.key] ?? 0) - 1)}
+                            className="grid h-6 w-6 place-items-center rounded-full border border-border text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 enabled:hover:text-foreground"
+                            aria-label={`Menos ${p.label}`}
+                          >
+                            <Minus className="h-3 w-3" />
+                          </button>
+                          <span className="w-4 text-center text-sm tabular-nums">{counts?.[p.key] ?? 0}</span>
+                          <button
+                            disabled={dis}
+                            onClick={() => setRestCount(r.id, p.key, (counts?.[p.key] ?? 0) + 1)}
+                            className="grid h-6 w-6 place-items-center rounded-full bg-primary/10 text-primary disabled:cursor-not-allowed disabled:opacity-50 enabled:hover:bg-primary/20"
+                            aria-label={`Más ${p.label}`}
+                          >
+                            <Plus className="h-3 w-3" />
+                          </button>
+                        </div>
                       </div>
                     );
                   })}
