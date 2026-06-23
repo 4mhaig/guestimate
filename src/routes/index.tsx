@@ -11,6 +11,7 @@ import {
   Plus,
   RefreshCw,
   ShoppingBasket,
+  Sparkles,
   Star,
   Trash2,
   X,
@@ -34,6 +35,7 @@ import {
   type SpecialEvents,
 } from "@/lib/guestimate";
 import { resolveBasket, formatEuro, DRINK_SLOTS, type ResolvedBasket } from "@/lib/products";
+import { applyAiRequest } from "@/lib/ai";
 import { supabase, signInWithEmail, signOut } from "@/lib/supabase";
 
 type AuthUser = { id: string; email?: string; name?: string; avatar?: string };
@@ -92,6 +94,8 @@ function Index() {
   const [restrictions, setRestrictions] = useState<Restriction[]>([]);
   const [restrictionCounts, setRestrictionCounts] = useState<Partial<Record<Restriction, People>>>({});
   const [specialRequests, setSpecialRequests] = useState("");
+  const [aiAdds, setAiAdds] = useState<{ id: string; name: string; category: string; amount: string }[]>([]);
+  const [aiBusy, setAiBusy] = useState(false);
   const [overrides, setOverrides] = useState<Record<string, number>>({});
   const [removed, setRemoved] = useState<Set<string>>(new Set());
   const [mobileBasketOpen, setMobileBasketOpen] = useState(false);
@@ -222,10 +226,74 @@ function Index() {
     };
   }, []);
   const [drinks, setDrinks] = useState<Set<string>>(() => new Set());
-  const resolved: ResolvedBasket = useMemo(
-    () => resolveBasket(items, eventType, { choices, removed: removedLines, drinks, prices }),
-    [items, eventType, choices, removedLines, drinks, prices],
-  );
+  const resolved: ResolvedBasket = useMemo(() => {
+    const base = resolveBasket(items, eventType, { choices, removed: removedLines, drinks, prices });
+    const adds = aiAdds.filter((a) => !removedLines.has(a.id));
+    if (!adds.length) return base;
+    // Inyectamos los productos que ha añadido la IA en su categoría.
+    const groups = base.groups.map((g) => ({ ...g, lines: [...g.lines] }));
+    for (const a of adds) {
+      const cat = (a.category as Item["category"]) || "otros";
+      const meta = CATEGORY_META[cat] ?? CATEGORY_META.otros;
+      let g = groups.find((x) => x.category === cat);
+      if (!g) {
+        g = { category: cat, label: meta.label, icon: meta.icon, lines: [], cost: 0 };
+        groups.push(g);
+      }
+      g.lines.push({
+        key: a.id,
+        slotLabel: a.name,
+        option: { id: a.id, name: a.name, price: 0, unit: "", packPrice: null, image: null },
+        alternatives: [],
+        amount: 0,
+        amountLabel: a.amount || "añadido por ti",
+        cost: 0,
+      });
+    }
+    return { groups, total: base.total };
+  }, [items, eventType, choices, removedLines, drinks, prices, aiAdds]);
+
+  const applyAi = async () => {
+    if (!specialRequests.trim()) return;
+    setAiBusy(true);
+    try {
+      const lines = resolved.groups.flatMap((g) => g.lines.map((l) => l.option.name));
+      const result = await applyAiRequest({ data: { request: specialRequests.trim(), lines } });
+      if (result.error === "no_key") {
+        showToast("La IA no está configurada todavía");
+        return;
+      }
+      if (result.error) {
+        showToast("La IA no pudo procesar la petición");
+        return;
+      }
+      // Quitar: buscamos las líneas cuyo producto coincide con lo que pide quitar.
+      if (result.remove.length) {
+        const toRemove = new Set<string>();
+        for (const g of resolved.groups) {
+          for (const l of g.lines) {
+            if (result.remove.some((n) => l.option.name.toLowerCase().includes(n.toLowerCase()) || n.toLowerCase().includes(l.option.name.toLowerCase()))) {
+              toRemove.add(l.key);
+            }
+          }
+        }
+        if (toRemove.size) setRemovedLines((prev) => new Set([...prev, ...toRemove]));
+      }
+      // Añadir: como líneas nuevas en su categoría.
+      if (result.add.length) {
+        setAiAdds((prev) => [
+          ...prev,
+          ...result.add.map((a, i) => ({ id: `ai_${Date.now()}_${i}`, name: a.name, category: a.category, amount: a.amount })),
+        ]);
+      }
+      const n = result.remove.length + result.add.length;
+      showToast(n ? "Lista actualizada con tu petición" : "No hubo cambios que aplicar");
+    } catch {
+      showToast("La IA no está disponible ahora");
+    } finally {
+      setAiBusy(false);
+    }
+  };
   const setChoice = (key: string, index: number) => {
     setChoices((prev) => ({ ...prev, [key]: index }));
   };
@@ -280,6 +348,7 @@ function Index() {
     setRestrictions([]);
     setRestrictionCounts({});
     setSpecialRequests("");
+    setAiAdds([]);
     setChoices({});
     setRemovedLines(new Set());
     setDrinks(new Set());
@@ -540,6 +609,8 @@ function Index() {
                   toggleDrink={toggleDrink}
                   specialRequests={specialRequests}
                   setSpecialRequests={setSpecialRequests}
+                  onApplyAi={applyAi}
+                  aiBusy={aiBusy}
                 />
               )}
               {step === 4 && (
@@ -1287,6 +1358,8 @@ function Step3({
   toggleDrink,
   specialRequests,
   setSpecialRequests,
+  onApplyAi,
+  aiBusy,
 }: {
   restrictions: Restriction[];
   setRestrictions: (r: Restriction[]) => void;
@@ -1297,6 +1370,8 @@ function Step3({
   toggleDrink: (id: string) => void;
   specialRequests: string;
   setSpecialRequests: (s: string) => void;
+  onApplyAi: () => void;
+  aiBusy: boolean;
 }) {
   const setRestCount = (r: Restriction, key: keyof People, value: number) => {
     const cur = restrictionCounts[r] ?? { hombres: 0, mujeres: 0, adolescentes: 0, ninos: 0 };
@@ -1439,17 +1514,27 @@ function Step3({
       </div>
 
       <div className="mt-10">
-        <h2 className="font-display text-lg font-semibold text-foreground">Peticiones especiales</h2>
+        <h2 className="font-display text-lg font-semibold text-foreground">Peticiones especiales (IA)</h2>
         <p className="mt-0.5 text-sm text-muted-foreground">
-          Escribe lo que quieras tener en cuenta (ej. "no compres agua embotellada" o "incluye gildas").
+          Pide lo que quieras y la IA ajusta la lista. Ej: "no compres agua embotellada", "incluye
+          gildas y hummus", "quita el pescado".
         </p>
         <textarea
           value={specialRequests}
           onChange={(e) => setSpecialRequests(e.target.value)}
           rows={3}
-          placeholder="Opcional"
+          placeholder="Escribe aquí tu petición…"
           className="mt-3 w-full resize-none rounded-2xl border border-border bg-card p-4 text-sm outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/15"
         />
+        <motion.button
+          whileTap={{ scale: 0.97 }}
+          onClick={onApplyAi}
+          disabled={aiBusy || !specialRequests.trim()}
+          className="mt-3 inline-flex items-center gap-2 rounded-full bg-secondary px-5 py-2.5 text-sm font-semibold text-secondary-foreground transition-opacity hover:opacity-90 disabled:opacity-40"
+        >
+          <Sparkles className="h-4 w-4" />
+          {aiBusy ? "Pensando…" : "Aplicar a la lista"}
+        </motion.button>
       </div>
     </div>
   );
