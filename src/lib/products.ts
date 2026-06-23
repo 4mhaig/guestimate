@@ -73,12 +73,30 @@ export type ResolveOptions = {
   /** Precios en vivo desde Supabase (nombre de producto → precio de referencia).
    *  Si un producto está aquí, se usa este precio en vez del del catálogo. */
   prices?: Record<string, number>;
+  /** Restricciones activas: se usan para descartar productos incompatibles
+   *  (p.ej. quitar el cerdo si hay "sin_cerdo", los frutos secos si hay alergia). */
+  restrictions?: string[];
 };
 
 // Devuelve la opción con el precio en vivo si lo tenemos en Supabase.
 function withLivePrice(o: ProductOption, prices?: Record<string, number>): ProductOption {
   const live = prices?.[o.name];
   return live != null && live > 0 ? { ...o, price: live } : o;
+}
+
+// Productos a EVITAR según alergias / preferencias. Se aplica al nombre del
+// producto para descartarlo de las opciones de la cesta.
+const PORK_RE = /cerdo|panceta|\bbacon\b|bacón|tocino|chorizo|salchich[oó]n|\bsecreto\b|costilla|cinta de lomo|lomo (de cerdo|embuchado|adobado)|butifarra|longaniza|morcilla|sobrasada|\bfuet\b|chistorra|lac[oó]n|\bpresa\b|\baguja\b|\bmagro\b|jam[oó]n (serrano|ibérico|curado|cocido|york|de york)|mortadela|salchich/i;
+const NOT_PORK_RE = /pavo|pollo|vacuno|ternera|cordero|pescado|salm[oó]n|merluza|vegetal|vegano|tofu|soja/i;
+const NUTS_RE = /cacahuete|almendra|nuez|nueces|pistacho|anacardo|avellana|frutos secos|turr[oó]n|mazap[aá]n|pralin[eé]/i;
+const SHELLFISH_RE = /marisco|langostino|gamb[oó]n|\bgamba|mejill[oó]n|almeja|pulpo|calamar|sepia|cigala|n[eé]cora|centollo|cangrejo|vieira|berberecho|navaja|\bgula|salpic[oó]n|c[oó]ctel de marisco|percebe|bogavante|buey de mar/i;
+
+function excludedByRestrictions(name: string, restrictions?: string[]): boolean {
+  if (!restrictions || !restrictions.length) return false;
+  if (restrictions.includes("sin_cerdo") && PORK_RE.test(name) && !NOT_PORK_RE.test(name)) return true;
+  if (restrictions.includes("frutos_secos") && NUTS_RE.test(name)) return true;
+  if (restrictions.includes("marisco") && SHELLFISH_RE.test(name)) return true;
+  return false;
 }
 
 // Ids de los "slots" de bebida del catálogo, para la selección de bebidas.
@@ -99,6 +117,7 @@ export function resolveBasket(
   const removed = opts.removed ?? new Set<string>();
   const drinks = opts.drinks;
   const prices = opts.prices;
+  const restrictions = opts.restrictions;
   const groups = new Map<Category, ResolvedGroup>();
   const ensureGroup = (cat: Category): ResolvedGroup => {
     let g = groups.get(cat);
@@ -200,9 +219,14 @@ export function resolveBasket(
       if (!slot.options.length) continue;
       const lineKey = `${item.category}:${slot.id}`;
       if (removed.has(lineKey)) continue;
+      // Descartamos productos incompatibles con las restricciones (cerdo,
+      // frutos secos, marisco). Si el slot se queda sin opciones, no se
+      // muestra esa línea (p.ej. "chorizo y salchichas" con sin_cerdo).
+      const allowed = slot.options.filter((o) => !excludedByRestrictions(o.name, restrictions));
+      if (!allowed.length) continue;
       const slotQty = item.qty * slot.share; // en g/ml/u
       const amount = item.unit === "u" ? slotQty : slotQty / 1000; // → kg/L
-      const alternatives = slot.options.map((o) => withLivePrice(o, prices));
+      const alternatives = allowed.map((o) => withLivePrice(o, prices));
       const idx = Math.min(Math.max(0, choices[lineKey] ?? 0), alternatives.length - 1);
       const option = alternatives[idx];
       // Un slot puede ir a otra categoría (p.ej. el queso de "cena de amigos" → embutido).
@@ -280,6 +304,10 @@ function allCatalogOptions(): CatalogEntry[] {
 const STOPWORDS = new Set([
   "de", "del", "la", "el", "los", "las", "y", "con", "sin", "al",
   "fresco", "fresca", "frescos", "frescas", "natural", "naturales",
+  // Palabras genéricas que no identifican un producto y provocaban
+  // emparejamientos falsos ("mix de frutos secos" → "mix de pepinillos").
+  "mix", "surtido", "surtida", "variado", "variada", "pack", "bandeja",
+  "tabla", "seleccion", "seleccion", "para", "tipo", "estilo",
 ]);
 
 const COMBINING = /[̀-ͯ]/g;
@@ -329,7 +357,11 @@ export function findCatalogMatch(
       best = entry;
     }
   }
-  if (!best || bestScore === 0) return null;
+  // Si la petición tiene 2+ palabras con significado, exigimos que coincidan
+  // al menos 2 (no basta la genérica): así "mix de frutos secos" no acaba en
+  // "yogur de frutos silvestres" — mejor "sin precio" que un emparejado falso.
+  const minScore = want.length >= 2 ? 2 : 1;
+  if (!best || bestScore < minScore) return null;
   return { option: withLivePrice(best.option, prices), category: best.category };
 }
 

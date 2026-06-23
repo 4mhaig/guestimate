@@ -261,7 +261,7 @@ function Index() {
   }, []);
   const [drinks, setDrinks] = useState<Set<string>>(() => new Set());
   const resolved: ResolvedBasket = useMemo(() => {
-    const base = resolveBasket(items, eventType, { choices, removed: removedLines, drinks, prices });
+    const base = resolveBasket(items, eventType, { choices, removed: removedLines, drinks, prices, restrictions });
     const adds = aiAdds.filter((a) => !removedLines.has(a.id));
     if (!adds.length) return base;
     // Inyectamos los productos que ha añadido la IA en su categoría.
@@ -308,7 +308,7 @@ function Index() {
     for (const g of touched) g.cost = Math.round(g.lines.reduce((s, l) => s + l.cost, 0) * 100) / 100;
     const total = Math.round(groups.reduce((s, g) => s + g.cost, 0) * 100) / 100;
     return { groups, total };
-  }, [items, eventType, choices, removedLines, drinks, prices, aiAdds]);
+  }, [items, eventType, choices, removedLines, drinks, prices, aiAdds, restrictions]);
 
   // Menú sugerido por día (solo casa rural). Tomamos los productos
   // concretos elegidos en la cesta para nombrarlos en el menú (el plato
