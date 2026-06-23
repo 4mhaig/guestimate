@@ -7,7 +7,8 @@ export const supabase = createClient(url, anonKey, {
   auth: {
     persistSession: true, // mantener la sesión al recargar
     autoRefreshToken: true,
-    detectSessionInUrl: true, // procesar el redirect de Google al volver
+    detectSessionInUrl: true, // procesar el enlace mágico al volver
+    flowType: "implicit", // robusto para magic link aunque se abra en otro navegador
   },
 });
 
