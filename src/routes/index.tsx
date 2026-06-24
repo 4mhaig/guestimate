@@ -44,7 +44,7 @@ import {
 } from "@/lib/guestimate";
 import { resolveBasket, formatEuro, findCatalogMatch, resolveAiAmount, DRINK_SLOTS, type ResolvedBasket } from "@/lib/products";
 import { applyAiRequest } from "@/lib/ai";
-import { supabase, signInWithEmail, signOut } from "@/lib/supabase";
+import { supabase, signInWithEmail, verifyEmailOtp, signOut } from "@/lib/supabase";
 
 type AuthUser = { id: string; email?: string; name?: string; avatar?: string };
 import { Stepper } from "@/components/guestimate/Stepper";
@@ -130,12 +130,34 @@ function Index() {
   const [authSent, setAuthSent] = useState(false);
   const [authBusy, setAuthBusy] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
+  const [authCode, setAuthCode] = useState("");
+  const [authVerifying, setAuthVerifying] = useState(false);
+  const [pendingSave, setPendingSave] = useState(false); // guardar en cuanto se entre
   const [listCount, setListCount] = useState(0);
 
   const openAuth = () => {
     setAuthSent(false);
     setAuthError(null);
+    setAuthCode("");
     setAuthOpen(true);
+  };
+
+  // Verifica el código de 6 dígitos en la misma pantalla (sin recargar).
+  const verifyCode = async () => {
+    const code = authCode.replace(/\D/g, "");
+    if (code.length < 6) {
+      setAuthError("Escribe el código de 6 dígitos del email.");
+      return;
+    }
+    setAuthVerifying(true);
+    setAuthError(null);
+    const { error } = await verifyEmailOtp(authEmail.trim(), code);
+    setAuthVerifying(false);
+    if (error) {
+      setAuthError("El código no es válido o ha caducado. Pide uno nuevo.");
+    }
+    // Si va bien, onAuthStateChange pone el usuario y cierra el modal; el
+    // efecto de auto-guardado guardará la lista en curso.
   };
   const sendMagicLink = async () => {
     if (!/.+@.+\..+/.test(authEmail)) {
@@ -150,14 +172,16 @@ function Index() {
       console.error("signInWithOtp error:", error);
       const msg = error.message || "";
       if (error.status === 429 || /rate limit|too many/i.test(msg)) {
-        setAuthError("Has pedido varios enlaces en poco tiempo. Espera unos minutos e inténtalo de nuevo.");
+        setAuthError("Has pedido varios códigos en poco tiempo. Espera unos minutos e inténtalo de nuevo.");
       } else if (/signups? not allowed|not enabled/i.test(msg)) {
         setAuthError("El registro por email no está habilitado en el servidor. Avísanos.");
       } else {
-        setAuthError(`No se pudo enviar el enlace: ${msg || "error desconocido"}`);
+        setAuthError(`No se pudo enviar el código: ${msg || "error desconocido"}`);
       }
     } else {
       setAuthSent(true);
+      setAuthCode("");
+      setAuthError(null);
     }
   };
 
@@ -527,7 +551,8 @@ function Index() {
   const saveList = async () => {
     // Para guardar (y poder volver a la lista / dar feedback) hace falta sesión.
     if (!user) {
-      showToast("Inicia sesión para guardar tu lista");
+      setPendingSave(true); // al entrar, guardamos automáticamente
+      showToast("Entra con tu email para guardar tu lista");
       openAuth();
       return;
     }
@@ -576,6 +601,17 @@ function Index() {
       setSaving(false);
     }
   };
+
+  // Si el usuario pidió guardar pero tuvo que entrar primero, en cuanto la
+  // sesión esté lista guardamos su lista automáticamente (no hay que repetir).
+  useEffect(() => {
+    if (user && pendingSave && !saving && !savedEventId) {
+      setPendingSave(false);
+      saveList();
+    }
+    // saveList depende del estado actual; lo llamamos al cumplirse la condición.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, pendingSave]);
 
   const shareList = async () => {
     const lines: string[] = [];
@@ -915,27 +951,46 @@ function Index() {
               className="w-full max-w-sm rounded-2xl border border-border bg-card p-6 shadow-xl"
             >
               {authSent ? (
-                <div className="text-center">
-                  <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-accent text-primary">
-                    <Check className="h-7 w-7" strokeWidth={2.2} />
-                  </div>
-                  <h2 className="mt-4 text-lg font-bold text-foreground">Revisa tu email</h2>
+                <div>
+                  <h2 className="text-lg font-bold text-foreground">Escribe el código</h2>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    Te hemos enviado un enlace a <span className="font-medium">{authEmail}</span>.
-                    Ábrelo para entrar (mira también spam).
+                    Te hemos enviado un código de 6 dígitos a{" "}
+                    <span className="font-medium">{authEmail}</span>. Escríbelo aquí para entrar
+                    (mira también spam).
                   </p>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    autoComplete="one-time-code"
+                    maxLength={6}
+                    value={authCode}
+                    onChange={(e) => setAuthCode(e.target.value.replace(/\D/g, ""))}
+                    onKeyDown={(e) => e.key === "Enter" && verifyCode()}
+                    placeholder="123456"
+                    className="mt-4 w-full rounded-xl border border-border bg-background px-4 py-3 text-center text-lg tracking-[0.4em] tabular-nums outline-none focus:border-primary focus:ring-2 focus:ring-primary/15"
+                  />
+                  {authError && <p className="mt-2 text-xs text-destructive">{authError}</p>}
                   <button
-                    onClick={() => setAuthOpen(false)}
-                    className="mt-5 rounded-full border border-border bg-background px-5 py-2 text-sm font-medium hover:bg-muted"
+                    onClick={verifyCode}
+                    disabled={authVerifying || authCode.length < 6}
+                    className="mt-4 w-full rounded-full bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50"
                   >
-                    Cerrar
+                    {authVerifying ? "Entrando…" : "Entrar"}
+                  </button>
+                  <button
+                    onClick={sendMagicLink}
+                    disabled={authBusy}
+                    className="mt-3 w-full text-center text-xs text-muted-foreground hover:text-foreground disabled:opacity-50"
+                  >
+                    {authBusy ? "Enviando…" : "¿No te llega? Enviar otro código"}
                   </button>
                 </div>
               ) : (
                 <div>
                   <h2 className="text-lg font-bold text-foreground">Entrar en Guestimate</h2>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    Pon tu email y te enviamos un enlace para entrar. Sin contraseñas.
+                    Pon tu email y te enviamos un código para entrar. Sin contraseñas, sin salir de
+                    aquí.
                   </p>
                   <input
                     type="email"
@@ -951,7 +1006,7 @@ function Index() {
                     disabled={authBusy}
                     className="mt-4 w-full rounded-full bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50"
                   >
-                    {authBusy ? "Enviando…" : "Enviar enlace"}
+                    {authBusy ? "Enviando…" : "Enviar código"}
                   </button>
                 </div>
               )}

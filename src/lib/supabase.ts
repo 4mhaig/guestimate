@@ -12,12 +12,19 @@ export const supabase = createClient(url, anonKey, {
   },
 });
 
-// Envía un "enlace mágico" al email: el usuario lo abre y entra (sin contraseña).
+// Envía al email un código de 6 dígitos (y también un enlace, según la
+// plantilla). El usuario escribe el código en la misma pantalla: así no se
+// sale de la web ni se recarga, y no se pierde la lista en curso.
 export function signInWithEmail(email: string) {
   return supabase.auth.signInWithOtp({
     email,
     options: { emailRedirectTo: window.location.origin },
   });
+}
+
+// Verifica el código de 6 dígitos que el usuario ha recibido por email.
+export function verifyEmailOtp(email: string, token: string) {
+  return supabase.auth.verifyOtp({ email, token, type: "email" });
 }
 
 export function signOut() {
