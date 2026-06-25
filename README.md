@@ -16,7 +16,7 @@ Guestimate = *guest* (invitado) + *estimate* (estimar): estima cuánto necesitas
 - **Bebidas**: eliges cuáles incluir. Opción de añadir **aperitivo**.
 - **Casa rural**: fechas de inicio y fin, eventos especiales por día (barbacoa, cumpleaños...), opción de "cocinar poco" (platos preparados) y un **menú sugerido por día** (qué se come en cada comida).
 - **Peticiones especiales con IA**: un texto libre ("añade hummus", "quita el pescado") que **modifica la lista**; la IA empareja lo que pide con productos reales del catálogo y muestra el cambio como una conversación.
-- **Login** por enlace mágico al email (Supabase Auth).
+- **Login** con un **código de 6 dígitos** al email (o enlace), sin contraseñas; al entrar, la lista en curso se guarda sola.
 - **Mis listas**: guarda tus listas y deja **feedback** después del evento. Ese feedback (faltó/sobró) **afina las cantidades** de los próximos eventos del mismo tipo.
 
 Paleta visual "berry + crema" y tipografía Fraunces en los títulos.
@@ -63,7 +63,9 @@ Datos: Supabase (PostgreSQL). La conexión está en `src/lib/supabase.ts` (usa l
 
 Ya está desplegada en **Vercel**: [guestimate-ten.vercel.app](https://guestimate-ten.vercel.app). Cada push a `main` se despliega automáticamente. `vite.config.ts` tiene el preset de Nitro `vercel`, así que el repo se importa en Vercel sin configuración extra. Ya **no** se usa Lovable: se trabaja editando el repositorio directamente.
 
-El login (enlace mágico por email, Supabase Auth) requiere que en **Supabase → Authentication → URL Configuration** estén la Site URL y las Redirect URLs de producción (`https://guestimate-ten.vercel.app/**`) y de local (`http://localhost:8080/**`).
+El login (Supabase Auth, sin contraseña) usa un **código de 6 dígitos** que se escribe en la propia web; el email también incluye un enlace como alternativa. Para que ese enlace funcione, en **Supabase → Authentication → URL Configuration** deben estar la Site URL y las Redirect URLs de producción (`https://guestimate-ten.vercel.app/**`) y de local (`http://localhost:8080/**`).
+
+Los emails de login se envían con **SMTP propio (Resend)** en vez del correo integrado de Supabase (que tiene un límite muy bajo): **Authentication → Emails → SMTP Settings** con `smtp.resend.com`, usuario `resend` y una API key de Resend como contraseña, enviando desde un dominio verificado en Resend. La plantilla "Magic Link" incluye el código `{{ .Token }}`.
 
 ## Las herramientas de datos (carpeta `data-tools/`)
 
