@@ -474,7 +474,7 @@ export const CATALOG: Record<string, CatalogSlot[]> = {
           "name": "Aguacate",
           "price": 5,
           "unit": "kg",
-          "packPrice": 1.65,
+          "packPrice": 1.6,
           "image": "https://prod-mercadona.imgix.net/images/b1dee7e254871996d81c69a656fa4304.jpg?fit=crop&h=300&w=300"
         },
         {
@@ -877,20 +877,20 @@ export const CATALOG: Record<string, CatalogSlot[]> = {
           "image": "https://prod-mercadona.imgix.net/images/0b6b3e69cf64b9e6102907f8479405bc.jpg?fit=crop&h=300&w=300"
         },
         {
+          "id": "23961",
+          "name": "Aceitunas verdes Gazpacha Hacendado partidas",
+          "price": 3,
+          "unit": "kg",
+          "packPrice": 2.1,
+          "image": "https://prod-mercadona.imgix.net/images/721f7f60fdd3a61cf65158fad5b431f1.jpg?fit=crop&h=300&w=300"
+        },
+        {
           "id": "52734",
           "name": "Aceitunas negras sin hueso Hacendado",
           "price": 3,
           "unit": "kg",
           "packPrice": 1.05,
           "image": "https://prod-mercadona.imgix.net/images/8ea381beaef3459b5bc9a08d9eabf509.jpg?fit=crop&h=300&w=300"
-        },
-        {
-          "id": "23961",
-          "name": "Aceitunas verdes Gazpacha Hacendado partidas",
-          "price": 3.14,
-          "unit": "kg",
-          "packPrice": 2.2,
-          "image": "https://prod-mercadona.imgix.net/images/721f7f60fdd3a61cf65158fad5b431f1.jpg?fit=crop&h=300&w=300"
         }
       ]
     },
@@ -1260,26 +1260,26 @@ export const CATALOG: Record<string, CatalogSlot[]> = {
         {
           "id": "27348",
           "name": "Refresco Coca-Cola",
-          "price": 1.03,
+          "price": 0.95,
           "unit": "L",
-          "packPrice": 4.1,
+          "packPrice": 3.8,
           "image": "https://prod-mercadona.imgix.net/images/1c6c9390743b38ad5042c4428763a88c.jpg?fit=crop&h=300&w=300"
-        },
-        {
-          "id": "27426",
-          "name": "Refresco Coca-Cola zero azúcar",
-          "price": 2.82,
-          "unit": "L",
-          "packPrice": 11.16,
-          "image": "https://prod-mercadona.imgix.net/images/4139a29cb205b5166c8160977b44c0e0.jpg?fit=crop&h=300&w=300"
         },
         {
           "id": "27184",
           "name": "Refresco Coca-Cola light",
-          "price": 2.82,
+          "price": 2.48,
           "unit": "L",
-          "packPrice": 8.37,
+          "packPrice": 7.38,
           "image": "https://prod-mercadona.imgix.net/images/f37edec2bd7ee6fabced1deb392160b1.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "27426",
+          "name": "Refresco Coca-Cola zero azúcar",
+          "price": 2.58,
+          "unit": "L",
+          "packPrice": 10.2,
+          "image": "https://prod-mercadona.imgix.net/images/4139a29cb205b5166c8160977b44c0e0.jpg?fit=crop&h=300&w=300"
         }
       ]
     },
@@ -1350,6 +1350,14 @@ export const CATALOG: Record<string, CatalogSlot[]> = {
           "unit": "L",
           "packPrice": 1.8,
           "image": "https://prod-mercadona.imgix.net/images/9e831867eb7ecbe0e8516d377d919b33.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "18370",
+          "name": "Zumo tropical Hacendado",
+          "price": 2.4,
+          "unit": "L",
+          "packPrice": 2.4,
+          "image": "https://prod-mercadona.imgix.net/images/201f221469e606c69970bf25ef2a8764.jpg?fit=crop&h=300&w=300"
         },
         {
           "id": "21784",
@@ -1621,7 +1629,7 @@ export const CATALOG: Record<string, CatalogSlot[]> = {
           "name": "Tomate canario",
           "price": 2.2,
           "unit": "kg",
-          "packPrice": 0.59,
+          "packPrice": 0.31,
           "image": "https://prod-mercadona.imgix.net/images/74f33f458b7f5fa55cdb4490730cccd8.jpg?fit=crop&h=300&w=300"
         },
         {
@@ -1629,7 +1637,7 @@ export const CATALOG: Record<string, CatalogSlot[]> = {
           "name": "Tomate ensalada",
           "price": 2.4,
           "unit": "kg",
-          "packPrice": 0.41,
+          "packPrice": 0.48,
           "image": "https://prod-mercadona.imgix.net/images/b211c1fcb72ca3fcc0e6fcebe57d4082.jpeg?fit=crop&h=300&w=300"
         },
         {
@@ -1637,7 +1645,7 @@ export const CATALOG: Record<string, CatalogSlot[]> = {
           "name": "Rama de Tomates",
           "price": 2.4,
           "unit": "kg",
-          "packPrice": 1.58,
+          "packPrice": 1.44,
           "image": "https://prod-mercadona.imgix.net/images/b865049658bc89eaf2131c967ee4d57e.jpg?fit=crop&h=300&w=300"
         }
       ]
@@ -1676,7 +1684,7 @@ export const CATALOG: Record<string, CatalogSlot[]> = {
           "name": "Pimiento rojo",
           "price": 2.5,
           "unit": "kg",
-          "packPrice": 0.45,
+          "packPrice": 0.63,
           "image": "https://prod-mercadona.imgix.net/images/6a280610f9bfadf9b78b2197c21acfae.jpg?fit=crop&h=300&w=300"
         },
         {
@@ -1684,7 +1692,7 @@ export const CATALOG: Record<string, CatalogSlot[]> = {
           "name": "Pimiento verde freír",
           "price": 2.5,
           "unit": "kg",
-          "packPrice": 0.23,
+          "packPrice": 0.25,
           "image": "https://prod-mercadona.imgix.net/images/ace6cddb107859b9d019cdd773ffda00.jpg?fit=crop&h=300&w=300"
         },
         {
@@ -1710,7 +1718,7 @@ export const CATALOG: Record<string, CatalogSlot[]> = {
           "price": 1.5,
           "unit": "kg",
           "packPrice": 3,
-          "image": "https://prod-mercadona.imgix.net/images/5fe57720adc49ea7a458cf7db5148525.jpg?fit=crop&h=300&w=300"
+          "image": "https://prod-mercadona.imgix.net/images/5fe57720adc49ea7a458cf7db5148525.jpeg?fit=crop&h=300&w=300"
         },
         {
           "id": "69166",
@@ -1733,7 +1741,7 @@ export const CATALOG: Record<string, CatalogSlot[]> = {
           "name": "Patata",
           "price": 1.9,
           "unit": "kg",
-          "packPrice": 0.46,
+          "packPrice": 0.48,
           "image": "https://prod-mercadona.imgix.net/images/12ec1b808bbcbc2d5ad6b40d9021cf76.jpg?fit=crop&h=300&w=300"
         },
         {
@@ -1773,7 +1781,7 @@ export const CATALOG: Record<string, CatalogSlot[]> = {
           "price": 1.15,
           "unit": "kg",
           "packPrice": 1.15,
-          "image": "https://prod-mercadona.imgix.net/images/170f66fe00800bca697c8e19838bd6ae.jpg?fit=crop&h=300&w=300"
+          "image": "https://prod-mercadona.imgix.net/images/fb1aa0c038c08e68b8d2c7ac8900b9db.jpg?fit=crop&h=300&w=300"
         },
         {
           "id": "5063",
@@ -1822,7 +1830,7 @@ export const CATALOG: Record<string, CatalogSlot[]> = {
           "price": 1.5,
           "unit": "kg",
           "packPrice": 3,
-          "image": "https://prod-mercadona.imgix.net/images/5fe57720adc49ea7a458cf7db5148525.jpg?fit=crop&h=300&w=300"
+          "image": "https://prod-mercadona.imgix.net/images/5fe57720adc49ea7a458cf7db5148525.jpeg?fit=crop&h=300&w=300"
         },
         {
           "id": "69166",
@@ -1845,7 +1853,7 @@ export const CATALOG: Record<string, CatalogSlot[]> = {
           "name": "Patata",
           "price": 1.9,
           "unit": "kg",
-          "packPrice": 0.46,
+          "packPrice": 0.48,
           "image": "https://prod-mercadona.imgix.net/images/12ec1b808bbcbc2d5ad6b40d9021cf76.jpg?fit=crop&h=300&w=300"
         },
         {
@@ -1941,7 +1949,7 @@ export const CATALOG: Record<string, CatalogSlot[]> = {
           "name": "Patata",
           "price": 1.9,
           "unit": "kg",
-          "packPrice": 0.46,
+          "packPrice": 0.48,
           "image": "https://prod-mercadona.imgix.net/images/12ec1b808bbcbc2d5ad6b40d9021cf76.jpg?fit=crop&h=300&w=300"
         },
         {
@@ -1998,7 +2006,7 @@ export const CATALOG: Record<string, CatalogSlot[]> = {
           "name": "Patata",
           "price": 1.9,
           "unit": "kg",
-          "packPrice": 0.46,
+          "packPrice": 0.48,
           "image": "https://prod-mercadona.imgix.net/images/12ec1b808bbcbc2d5ad6b40d9021cf76.jpg?fit=crop&h=300&w=300"
         },
         {
@@ -2159,7 +2167,7 @@ export const CATALOG: Record<string, CatalogSlot[]> = {
           "name": "Sandía baja en semillas",
           "price": 0.6,
           "unit": "kg",
-          "packPrice": 4.39,
+          "packPrice": 4.43,
           "image": "https://prod-mercadona.imgix.net/images/5a83042e3754877c18b14e2cbf64a973.jpg?fit=crop&h=300&w=300"
         },
         {
@@ -2167,7 +2175,7 @@ export const CATALOG: Record<string, CatalogSlot[]> = {
           "name": "Melón piel de sapo",
           "price": 0.7,
           "unit": "kg",
-          "packPrice": 2.39,
+          "packPrice": 2.35,
           "image": "https://prod-mercadona.imgix.net/images/bd4459355f58bc265a2c6720b688e3c3.jpg?fit=crop&h=300&w=300"
         },
         {
@@ -2175,7 +2183,7 @@ export const CATALOG: Record<string, CatalogSlot[]> = {
           "name": "1/4 Sandía baja en semillas",
           "price": 1.05,
           "unit": "kg",
-          "packPrice": 1.92,
+          "packPrice": 2.1,
           "image": "https://prod-mercadona.imgix.net/images/691e1274d514dac5d35bd5c952f8c1f6.jpg?fit=crop&h=300&w=300"
         },
         {
@@ -2183,7 +2191,7 @@ export const CATALOG: Record<string, CatalogSlot[]> = {
           "name": "Media sandía baja en semillas",
           "price": 1.05,
           "unit": "kg",
-          "packPrice": 3.66,
+          "packPrice": 3.71,
           "image": "https://prod-mercadona.imgix.net/images/6f968b5212959c76552ae95c4fd8b619.jpg?fit=crop&h=300&w=300"
         },
         {
@@ -2191,7 +2199,7 @@ export const CATALOG: Record<string, CatalogSlot[]> = {
           "name": "Medio melón piel de sapo",
           "price": 1.15,
           "unit": "kg",
-          "packPrice": 1.93,
+          "packPrice": 1.94,
           "image": "https://prod-mercadona.imgix.net/images/2d034c1b80642d033f7b5aecd3fb8269.jpg?fit=crop&h=300&w=300"
         },
         {
@@ -2199,7 +2207,7 @@ export const CATALOG: Record<string, CatalogSlot[]> = {
           "name": "Melón Galia",
           "price": 1.95,
           "unit": "kg",
-          "packPrice": 3.26,
+          "packPrice": 2.54,
           "image": "https://prod-mercadona.imgix.net/images/f7d56f5d9fc9bd92c12a9191f1a42d1f.jpg?fit=crop&h=300&w=300"
         }
       ]
@@ -2316,9 +2324,9 @@ export const CATALOG: Record<string, CatalogSlot[]> = {
         {
           "id": "5500",
           "name": "Frambuesas",
-          "price": 15.5,
+          "price": 15.8,
           "unit": "kg",
-          "packPrice": 3.1,
+          "packPrice": 3.16,
           "image": "https://prod-mercadona.imgix.net/images/6745b8dda0a443232ff2b6f70ad1b88e.jpg?fit=crop&h=300&w=300"
         }
       ]
@@ -2388,9 +2396,9 @@ export const CATALOG: Record<string, CatalogSlot[]> = {
         {
           "id": "69079",
           "name": "Cebollas",
-          "price": 1.8,
+          "price": 1.6,
           "unit": "kg",
-          "packPrice": 3.6,
+          "packPrice": 3.2,
           "image": "https://prod-mercadona.imgix.net/images/c8d94c6563bfadc845df944fe483bfca.jpg?fit=crop&h=300&w=300"
         },
         {
@@ -2422,7 +2430,7 @@ export const CATALOG: Record<string, CatalogSlot[]> = {
           "name": "Tomate canario",
           "price": 2.2,
           "unit": "kg",
-          "packPrice": 0.59,
+          "packPrice": 0.31,
           "image": "https://prod-mercadona.imgix.net/images/74f33f458b7f5fa55cdb4490730cccd8.jpg?fit=crop&h=300&w=300"
         },
         {
@@ -2430,7 +2438,7 @@ export const CATALOG: Record<string, CatalogSlot[]> = {
           "name": "Tomate ensalada",
           "price": 2.4,
           "unit": "kg",
-          "packPrice": 0.41,
+          "packPrice": 0.48,
           "image": "https://prod-mercadona.imgix.net/images/b211c1fcb72ca3fcc0e6fcebe57d4082.jpeg?fit=crop&h=300&w=300"
         }
       ]
@@ -2466,12 +2474,28 @@ export const CATALOG: Record<string, CatalogSlot[]> = {
       "share": 0.3,
       "options": [
         {
+          "id": "17760",
+          "name": "Yogur griego dulce Hacendado con dulce de leche, galleta y plátano",
+          "price": 2.47,
+          "unit": "kg",
+          "packPrice": 1.85,
+          "image": "https://prod-mercadona.imgix.net/images/f7aca476e8b0180b27a2d23b53237bbd.jpg?fit=crop&h=300&w=300"
+        },
+        {
           "id": "68188",
           "name": "Panna Cotta con caramelo Hacendado",
           "price": 3,
           "unit": "kg",
           "packPrice": 1.2,
           "image": "https://prod-mercadona.imgix.net/images/6f459214f60aee6b530dcdb503f64ec5.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "24080",
+          "name": "Postre de soja con caramelo Hacendado",
+          "price": 3.88,
+          "unit": "kg",
+          "packPrice": 1.55,
+          "image": "https://prod-mercadona.imgix.net/images/b74e309ae30dfd0d0589dc700a7a2c58.jpg?fit=crop&h=300&w=300"
         },
         {
           "id": "60956",
@@ -2496,14 +2520,6 @@ export const CATALOG: Record<string, CatalogSlot[]> = {
           "unit": "kg",
           "packPrice": 0.9,
           "image": "https://prod-mercadona.imgix.net/images/af1a5a426c7786a08267baf0d6235a18.jpeg?fit=crop&h=300&w=300"
-        },
-        {
-          "id": "34811",
-          "name": "Palomitas caramelo Hacendado",
-          "price": 12.5,
-          "unit": "kg",
-          "packPrice": 1.5,
-          "image": "https://prod-mercadona.imgix.net/images/54f08a75c350854e471b9f2b73b92a5d.jpg?fit=crop&h=300&w=300"
         }
       ]
     }
@@ -2602,20 +2618,20 @@ export const CATALOG: Record<string, CatalogSlot[]> = {
           "image": "https://prod-mercadona.imgix.net/images/0b6b3e69cf64b9e6102907f8479405bc.jpg?fit=crop&h=300&w=300"
         },
         {
+          "id": "23961",
+          "name": "Aceitunas verdes Gazpacha Hacendado partidas",
+          "price": 3,
+          "unit": "kg",
+          "packPrice": 2.1,
+          "image": "https://prod-mercadona.imgix.net/images/721f7f60fdd3a61cf65158fad5b431f1.jpg?fit=crop&h=300&w=300"
+        },
+        {
           "id": "52734",
           "name": "Aceitunas negras sin hueso Hacendado",
           "price": 3,
           "unit": "kg",
           "packPrice": 1.05,
           "image": "https://prod-mercadona.imgix.net/images/8ea381beaef3459b5bc9a08d9eabf509.jpg?fit=crop&h=300&w=300"
-        },
-        {
-          "id": "23961",
-          "name": "Aceitunas verdes Gazpacha Hacendado partidas",
-          "price": 3.14,
-          "unit": "kg",
-          "packPrice": 2.2,
-          "image": "https://prod-mercadona.imgix.net/images/721f7f60fdd3a61cf65158fad5b431f1.jpg?fit=crop&h=300&w=300"
         }
       ]
     },
@@ -2776,22 +2792,6 @@ export const CATALOG: Record<string, CatalogSlot[]> = {
           "image": "https://prod-mercadona.imgix.net/images/85b23a9a032693961d03270115cbefa3.jpg?fit=crop&h=300&w=300"
         },
         {
-          "id": "15660",
-          "name": "Yogur líquido piña y coco Hacendado 0% MG 0% azúcares añadidos",
-          "price": 1.3,
-          "unit": "kg",
-          "packPrice": 1.3,
-          "image": "https://prod-mercadona.imgix.net/images/041f59898296337aa8683c4d35b5f0d4.jpg?fit=crop&h=300&w=300"
-        },
-        {
-          "id": "15661",
-          "name": "Yogur líquido frutos silvestres Hacendado 0% MG 0% azúcares añadidos",
-          "price": 1.3,
-          "unit": "kg",
-          "packPrice": 1.3,
-          "image": "https://prod-mercadona.imgix.net/images/3a42f5d65b5f72e1c0a3409fb1d4b757.jpg?fit=crop&h=300&w=300"
-        },
-        {
           "id": "22313",
           "name": "Yogur natural Hacendado",
           "price": 1.33,
@@ -2814,6 +2814,22 @@ export const CATALOG: Record<string, CatalogSlot[]> = {
           "unit": "kg",
           "packPrice": 1.05,
           "image": "https://prod-mercadona.imgix.net/images/099ff343424be9697224fa076e7b2c87.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "20584",
+          "name": "Yogur natural con azúcar de caña Hacendado",
+          "price": 1.4,
+          "unit": "kg",
+          "packPrice": 1.05,
+          "image": "https://prod-mercadona.imgix.net/images/ead686f6dd51a57d3e03cdde744912d0.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "15660",
+          "name": "Yogur líquido piña y coco Hacendado 0% MG 0% azúcares añadidos",
+          "price": 1.5,
+          "unit": "kg",
+          "packPrice": 1.5,
+          "image": "https://prod-mercadona.imgix.net/images/041f59898296337aa8683c4d35b5f0d4.jpg?fit=crop&h=300&w=300"
         }
       ]
     }
@@ -2998,7 +3014,7 @@ export const CATALOG: Record<string, CatalogSlot[]> = {
           "name": "Sandía baja en semillas",
           "price": 0.6,
           "unit": "kg",
-          "packPrice": 4.39,
+          "packPrice": 4.43,
           "image": "https://prod-mercadona.imgix.net/images/5a83042e3754877c18b14e2cbf64a973.jpg?fit=crop&h=300&w=300"
         },
         {
@@ -3006,7 +3022,7 @@ export const CATALOG: Record<string, CatalogSlot[]> = {
           "name": "Melón piel de sapo",
           "price": 0.7,
           "unit": "kg",
-          "packPrice": 2.39,
+          "packPrice": 2.35,
           "image": "https://prod-mercadona.imgix.net/images/bd4459355f58bc265a2c6720b688e3c3.jpg?fit=crop&h=300&w=300"
         },
         {
@@ -3014,7 +3030,7 @@ export const CATALOG: Record<string, CatalogSlot[]> = {
           "name": "1/4 Sandía baja en semillas",
           "price": 1.05,
           "unit": "kg",
-          "packPrice": 1.92,
+          "packPrice": 2.1,
           "image": "https://prod-mercadona.imgix.net/images/691e1274d514dac5d35bd5c952f8c1f6.jpg?fit=crop&h=300&w=300"
         },
         {
@@ -3022,7 +3038,7 @@ export const CATALOG: Record<string, CatalogSlot[]> = {
           "name": "Media sandía baja en semillas",
           "price": 1.05,
           "unit": "kg",
-          "packPrice": 3.66,
+          "packPrice": 3.71,
           "image": "https://prod-mercadona.imgix.net/images/6f968b5212959c76552ae95c4fd8b619.jpg?fit=crop&h=300&w=300"
         },
         {
@@ -3030,7 +3046,7 @@ export const CATALOG: Record<string, CatalogSlot[]> = {
           "name": "Medio melón piel de sapo",
           "price": 1.15,
           "unit": "kg",
-          "packPrice": 1.93,
+          "packPrice": 1.94,
           "image": "https://prod-mercadona.imgix.net/images/2d034c1b80642d033f7b5aecd3fb8269.jpg?fit=crop&h=300&w=300"
         },
         {
@@ -3038,7 +3054,7 @@ export const CATALOG: Record<string, CatalogSlot[]> = {
           "name": "Melón Galia",
           "price": 1.95,
           "unit": "kg",
-          "packPrice": 3.26,
+          "packPrice": 2.54,
           "image": "https://prod-mercadona.imgix.net/images/f7d56f5d9fc9bd92c12a9191f1a42d1f.jpg?fit=crop&h=300&w=300"
         }
       ]
@@ -3086,14 +3102,14 @@ export const CATALOG: Record<string, CatalogSlot[]> = {
           "price": 2.5,
           "unit": "kg",
           "packPrice": 2.68,
-          "image": "https://prod-mercadona.imgix.net/images/158b08c139cba5362b335f8b0a715cc8.jpg?fit=crop&h=300&w=300"
+          "image": "https://prod-mercadona.imgix.net/images/158b08c139cba5362b335f8b0a715cc8.jpeg?fit=crop&h=300&w=300"
         },
         {
           "id": "3021",
           "name": "Manzana Granny Smith",
           "price": 2.5,
           "unit": "kg",
-          "packPrice": 0.53,
+          "packPrice": 0.48,
           "image": "https://prod-mercadona.imgix.net/images/fea3470bee0679f0e081916ec48c0b36.jpg?fit=crop&h=300&w=300"
         }
       ]
@@ -3114,9 +3130,9 @@ export const CATALOG: Record<string, CatalogSlot[]> = {
         {
           "id": "3819",
           "name": "Plátano de Canarias IGP",
-          "price": 2.3,
+          "price": 1.8,
           "unit": "kg",
-          "packPrice": 0.41,
+          "packPrice": 0.31,
           "image": "https://prod-mercadona.imgix.net/images/e4a37940916985bf5ca166e266580c37.jpg?fit=crop&h=300&w=300"
         },
         {
@@ -3124,7 +3140,7 @@ export const CATALOG: Record<string, CatalogSlot[]> = {
           "name": "Plátano macho",
           "price": 2.9,
           "unit": "kg",
-          "packPrice": 0.9,
+          "packPrice": 0.87,
           "image": "https://prod-mercadona.imgix.net/images/c22baa2a17de06fbf8477ef25392b7ca.jpg?fit=crop&h=300&w=300"
         }
       ]
@@ -3147,8 +3163,16 @@ export const CATALOG: Record<string, CatalogSlot[]> = {
           "name": "Naranja de mesa",
           "price": 2.5,
           "unit": "kg",
-          "packPrice": 0.75,
+          "packPrice": 0.85,
           "image": "https://prod-mercadona.imgix.net/images/e9ff28c3b115649df7138f0f51dd1f9f.jpg?fit=crop&h=300&w=300"
+        },
+        {
+          "id": "3238",
+          "name": "Mandarina",
+          "price": 2.65,
+          "unit": "kg",
+          "packPrice": 0.34,
+          "image": "https://prod-mercadona.imgix.net/images/7fde4546900f0fbd38e02be6cc4ea6ed.jpg?fit=crop&h=300&w=300"
         },
         {
           "id": "3313",
@@ -3159,20 +3183,12 @@ export const CATALOG: Record<string, CatalogSlot[]> = {
           "image": "https://prod-mercadona.imgix.net/images/4cc23dd3258bf7fdc6bc8510583b46a9.jpg?fit=crop&h=300&w=300"
         },
         {
-          "id": "3238",
-          "name": "Mandarina",
-          "price": 2.95,
-          "unit": "kg",
-          "packPrice": 0.38,
-          "image": "https://prod-mercadona.imgix.net/images/7fde4546900f0fbd38e02be6cc4ea6ed.jpg?fit=crop&h=300&w=300"
-        },
-        {
           "id": "3601",
           "name": "Ciruela roja",
           "price": 3.5,
           "unit": "kg",
-          "packPrice": 0.56,
-          "image": "https://prod-mercadona.imgix.net/images/39cd05a06a84c404e248716ba1bc6461.jpg?fit=crop&h=300&w=300"
+          "packPrice": 0.49,
+          "image": "https://prod-mercadona.imgix.net/images/af108535bb88819532b16faa498c35e0.jpg?fit=crop&h=300&w=300"
         },
         {
           "id": "3321",
@@ -3317,7 +3333,7 @@ export const CATALOG: Record<string, CatalogSlot[]> = {
           "price": 1.5,
           "unit": "kg",
           "packPrice": 3,
-          "image": "https://prod-mercadona.imgix.net/images/5fe57720adc49ea7a458cf7db5148525.jpg?fit=crop&h=300&w=300"
+          "image": "https://prod-mercadona.imgix.net/images/5fe57720adc49ea7a458cf7db5148525.jpeg?fit=crop&h=300&w=300"
         },
         {
           "id": "61421",
@@ -3456,7 +3472,7 @@ export const SPECIAL: Record<string, ProductOption[]> = {
       "price": 0.75,
       "unit": "L",
       "packPrice": 4.5,
-      "image": "https://prod-mercadona.imgix.net/images/d37ca9bd4e181ab7c222ab18a0d579d4.jpg?fit=crop&h=300&w=300"
+      "image": "https://prod-mercadona.imgix.net/images/d37ca9bd4e181ab7c222ab18a0d579d4.jpeg?fit=crop&h=300&w=300"
     },
     {
       "id": "23908",
